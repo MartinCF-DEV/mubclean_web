@@ -114,6 +114,14 @@ export class AuthService {
         await this.loadUserProfile();
     }
 
+    async resetPassword(email: string) {
+        const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/reset-password`,
+        });
+
+        if (error) throw error;
+    }
+
     async uploadProfileImage(file: File): Promise<void> {
         const user = this.user();
         if (!user) throw new Error("No authenticated user");

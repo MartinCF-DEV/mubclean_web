@@ -318,15 +318,25 @@ export class LoginComponent {
     const email = prompt("Ingresa tu correo para recuperar contraseña:");
     if (!email) return;
 
-    // In a real app we would use a proper Dialog like Flutter
-    // For now, prompt is a simple substitute or we can build a modal later.
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Por favor ingresa un correo electrónico válido.");
+      return;
+    }
+
     try {
-      // Assuming auth service has this method (it was in the flutter code plan but maybe not added to angular service yet)
-      // I'll add a dummy call or check if I added it. I didn't add it to AuthService yet.
-      // Skipping for now to avoid compilation error, or adding a placeholder.
-      alert("Funcionalidad de recuperación pendiente de implementación en servicio Angular.");
-    } catch (e) {
+      await this.auth.resetPassword(email);
+      this.successMsg = `Se ha enviado un correo de recuperación a ${email}. Por favor revisa tu bandeja de entrada.`;
+      this.error = '';
+
+      // Clear success message after 10 seconds
+      setTimeout(() => {
+        this.successMsg = '';
+      }, 10000);
+    } catch (e: any) {
       console.error(e);
+      this.error = e.message || "Error al enviar correo de recuperación. Intenta nuevamente.";
     }
   }
 }
