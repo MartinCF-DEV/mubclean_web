@@ -1,0 +1,113 @@
+<div class="detail-container">
+    <div class="app-bar">
+        <button class="icon-btn" (click)="goBack()">
+            <span class="material-icons">arrow_back</span>
+        </button>
+        <h1>Gestión #{{ request?.id | slice:0:4 }}</h1>
+        <div class="actions">
+            <button class="icon-btn" (click)="fetchDetails()">
+                <span class="material-icons">refresh</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="content" *ngIf="!isLoading && request">
+        <!-- Status Header -->
+        <div class="status-header" [ngClass]="'status-' + request.estado">
+            <span class="material-icons status-icon">info</span>
+            <span class="status-text">{{ request.estado | uppercase }}</span>
+        </div>
+
+        <!-- Sections -->
+        <section>
+            <h2>Detalles del Cliente</h2>
+            <div class="card info-card">
+                <span class="material-icons section-icon">location_on</span>
+                <p class="section-text">{{ request.direccion }}</p>
+            </div>
+            <div class="card info-card" style="margin-top: 10px;">
+                <span class="material-icons section-icon">calendar_today</span>
+                <p class="section-text">{{ request.fecha_solicitada | date:'fullDate' }}</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Muebles & Cotización</h2>
+
+            <div class="item-card" *ngFor="let item of items">
+                <div class="item-header">
+                    <div class="qty-badge">{{ item.cantidad }}</div>
+                    <div class="item-main">
+                        <h3>{{ item.servicios_catalogo?.nombre }}</h3>
+                        <p class="item-desc">{{ item.descripcion_item || 'Sin descripción' }}</p>
+                    </div>
+                </div>
+
+                <!-- Photos Carousel -->
+                <div class="photos-scroller" *ngIf="item.fotos_solicitud?.length">
+                    <div class="photo-thumb" *ngFor="let photo of item.fotos_solicitud">
+                        <img [src]="photo.foto_url" alt="Evidencia">
+                    </div>
+                </div>
+
+                <!-- Price Input or Display -->
+                <div class="price-section">
+                    <div *ngIf="request.estado === 'pendiente'" class="price-input-group">
+                        <span class="currency">$</span>
+                        <input type="number" [(ngModel)]="item.precio_unitario" (ngModelChange)="calculateTotal()"
+                            placeholder="0.00">
+                    </div>
+                    <div *ngIf="request.estado !== 'pendiente'" class="price-display">
+                        <span class="currency">$</span>
+                        <span class="amount">{{ item.precio_unitario | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Total Footer -->
+        <div class="total-footer">
+            <span>TOTAL ESTIMADO</span>
+            <span class="total-amount">${{ totalCalculated | number:'1.2-2' }}</span>
+        </div>
+
+        <!-- Actions -->
+        <section class="action-section">
+            <!-- Quote Action -->
+            <div *ngIf="request.estado === 'pendiente'">
+                <button class="primary-btn full-width success-btn" (click)="sendQuote()">
+                    ENVIAR COTIZACIÓN
+                </button>
+            </div>
+
+            <!-- Schedule Action -->
+            <div *ngIf="request.estado === 'aceptada'">
+                <h2>🗓️ Configurar Cita</h2>
+                <div class="card schedule-form">
+                    <label>Fecha y Hora</label>
+                    <div class="row-inputs">
+                        <input type="date" [(ngModel)]="scheduleDate">
+                        <input type="time" [(ngModel)]="scheduleTime">
+                    </div>
+
+                    <label>Técnico</label>
+                    <select [(ngModel)]="selectedEmployeeId">
+                        <option value="" disabled selected>Seleccionar Técnico</option>
+                        <option *ngFor="let emp of employees" [value]="emp.id">
+                            {{ emp.perfiles?.nombre_completo || 'Sin Nombre' }}
+                        </option>
+                    </select>
+
+                    <button class="primary-btn full-width" (click)="confirmAppointment()">
+                        CONFIRMAR CITA
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="loading-full" *ngIf="isLoading">
+        <div class="spinner"></div>
+    </div>
+</div>

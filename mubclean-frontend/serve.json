@@ -1,0 +1,8 @@
+{
+    "routes": {
+        "/**": {
+            "target": "/index.html",
+            "status": 200
+        }
+    }
+}

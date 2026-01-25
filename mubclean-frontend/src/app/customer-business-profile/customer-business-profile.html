@@ -1,0 +1,117 @@
+<div class="page-container" *ngIf="loading">
+    <div class="spinner-container">
+        <div class="spinner"></div>
+    </div>
+</div>
+
+<div class="page-container" *ngIf="!loading && business">
+    <!-- Header / Cover -->
+    <header class="business-header">
+        <div class="cover-image"
+            [style.background-image]="business.portada_url ? 'url(' + business.portada_url + ')' : null">
+            <div *ngIf="!business.portada_url" class="placeholder-cover"></div>
+            <div class="gradient-overlay"></div>
+        </div>
+
+        <div class="header-content">
+            <button class="back-btn" (click)="goBack()">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <h1 class="business-title">{{ business.nombre }}</h1>
+        </div>
+    </header>
+
+    <!-- Business Info -->
+    <div class="info-section">
+        <div class="info-row">
+            <div class="logo-wrapper">
+                <img *ngIf="business.logo_url" [src]="business.logo_url" class="business-logo" alt="Logo">
+                <div *ngIf="!business.logo_url" class="placeholder-logo">
+                    <span class="material-icons">store</span>
+                </div>
+            </div>
+
+            <div class="info-text">
+                <h2 class="info-label">Información</h2>
+                <div class="rating-badge">
+                    <span class="material-icons star-icon">star</span>
+                    <span>4.8 Excelente</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="description">
+            {{ business.descripcion || 'Sin descripción disponible.' }}
+        </p>
+
+        <h3 class="services-title">Nuestros Servicios</h3>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="services-grid">
+        <div *ngIf="services.length === 0" class="empty-services">
+            <p>Este negocio no tiene servicios activos.</p>
+        </div>
+
+        <div *ngFor="let service of services" class="service-card" (click)="openServiceDetail(service)">
+            <div class="service-image-wrapper">
+                <img *ngIf="service.imagen_url" [src]="service.imagen_url" loading="lazy" alt="{{service.nombre}}">
+                <div *ngIf="!service.imagen_url" class="placeholder-service">
+                    <span class="material-icons">cleaning_services</span>
+                </div>
+            </div>
+            <div class="service-content">
+                <h4 class="service-name">{{ service.nombre }}</h4>
+                <p class="service-desc">{{ service.descripcion }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="spacer-bottom"></div>
+
+    <!-- Floating Action Button -->
+    <div class="fab-container">
+        <button class="fab-extended" (click)="goToWizard()">
+            <span class="material-icons">calendar_today</span>
+            <span>SOLICITAR SERVICIO AHORA</span>
+        </button>
+    </div>
+</div>
+
+<!-- Service Detail Modal -->
+<div class="modal-overlay" *ngIf="selectedService" (click)="closeServiceDetail()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-image-wrapper">
+            <img *ngIf="selectedService.imagen_url" [src]="selectedService.imagen_url" alt="Service">
+            <div *ngIf="!selectedService.imagen_url" class="placeholder-modal">
+                <span class="material-icons">cleaning_services</span>
+            </div>
+            <button class="modal-close-btn" (click)="closeServiceDetail()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <h2 class="modal-title">{{ selectedService.nombre }}</h2>
+
+            <div class="info-field">
+                <span class="field-label">Descripción del servicio</span>
+                <p class="field-value">{{ selectedService.descripcion || 'Sin información.' }}</p>
+            </div>
+
+            <div *ngIf="selectedService.tipo_servicio" class="info-field">
+                <span class="field-label">Tipo de servicio</span>
+                <p class="field-value">{{ selectedService.tipo_servicio }}</p>
+            </div>
+
+            <div *ngIf="selectedService.notas" class="info-field">
+                <span class="field-label">Notas adicionales</span>
+                <p class="field-value">{{ selectedService.notas }}</p>
+            </div>
+
+            <button class="cotizar-btn" (click)="goToWizard(selectedService)">
+                COTIZAR ESTE SERVICIO
+            </button>
+        </div>
+    </div>
+</div>

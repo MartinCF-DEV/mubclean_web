@@ -1,0 +1,159 @@
+<div class="dashboard-page">
+
+    <!-- 1. Header with Date -->
+    <header class="dashboard-header">
+        <div class="header-text">
+            <h1>Hola, {{ business?.nombre || 'Socio' }} 👋</h1>
+            <p>{{ currentDate | date:'fullDate' | titlecase }}</p>
+        </div>
+        <button class="refresh-btn" (click)="fetchData()" [disabled]="isLoading">
+            <span class="material-icons" [class.spin]="isLoading">sync</span>
+        </button>
+    </header>
+
+    <!-- 2. Hero Stats Cards (Interactive) -->
+    <section class="stats-grid">
+        <div class="stat-card blue-card" (click)="openModal('jobs')">
+            <div class="stat-icon">
+                <span class="material-icons">calendar_today</span>
+            </div>
+            <div class="stat-info">
+                <h3>Próximos Trabajos</h3>
+                <span class="big-number">{{ upcomingJobsCount }}</span>
+                <p>Agendados para hoy/mañana</p>
+            </div>
+            <span class="material-icons bg-icon">event_available</span>
+        </div>
+
+        <div class="stat-card purple-card" (click)="openModal('reports')">
+            <div class="stat-icon">
+                <span class="material-icons">mark_email_unread</span>
+            </div>
+            <div class="stat-info">
+                <h3>Reportes Nuevos</h3>
+                <span class="big-number">{{ newReportsCount }}</span>
+                <p>Mensajes o solicitudes pendientes</p>
+            </div>
+            <span class="material-icons bg-icon">feedback</span>
+        </div>
+    </section>
+
+    <!-- 3. Chart Section -->
+    <section class="chart-section">
+        <div class="section-header">
+            <h2>Tendencia de Solicitudes</h2>
+            <span class="badge">Últimos 7 días</span>
+        </div>
+
+        <div class="bar-chart">
+            <div class="bar-column" *ngFor="let day of weeklyStats">
+                <div class="bar-track">
+                    <div class="bar-fill" [style.height.%]="day.height" [title]="day.count + ' solicitudes'"></div>
+                </div>
+                <span class="bar-label">{{ day.day }}</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Recent Activity (Tabs + List) -->
+    <section class="list-section">
+        <div class="section-header">
+            <h2>Gestión de Solicitudes</h2>
+        </div>
+
+        <div class="custom-tabs">
+            <button class="tab-btn" [class.active]="activeTab === 'nuevas'" (click)="setActiveTab('nuevas')">
+                Nuevas <span class="count-badge" *ngIf="nuevas.length">{{ nuevas.length }}</span>
+            </button>
+            <button class="tab-btn" [class.active]="activeTab === 'activas'" (click)="setActiveTab('activas')">
+                Activas <span class="count-badge" *ngIf="activas.length">{{ activas.length }}</span>
+            </button>
+            <button class="tab-btn" [class.active]="activeTab === 'historial'" (click)="setActiveTab('historial')">
+                Historial
+            </button>
+        </div>
+
+        <div class="list-content">
+            <div *ngIf="isLoading && !business" class="inline-loader">
+                <div class="spinner"></div>
+            </div>
+
+            <div *ngIf="!isLoading && getListForTab().length === 0" class="empty-state">
+                <span class="material-icons">inbox</span>
+                <p>{{ getEmptyMsg() }}</p>
+            </div>
+
+            <div class="request-cards">
+                <div *ngFor="let req of getListForTab()" class="request-item" (click)="goToDetail(req)">
+                    <div class="req-left">
+                        <div class="status-dot" [ngClass]="getColorClass(req.estado)"></div>
+                        <div class="req-info">
+                            <h4>{{ req.direccion }}</h4>
+                            <span class="req-date">{{ req.fecha_solicitada | date:'short' }}</span>
+                        </div>
+                    </div>
+                    <div class="req-right">
+                        <span class="status-tag" [ngClass]="getColorClass(req.estado)">{{ req.estado | uppercase
+                            }}</span>
+                        <span class="material-icons arrow">chevron_right</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL OVERLAY -->
+    <div class="modal-overlay" *ngIf="modalVisible" (click)="closeModal()">
+        <div class="modal-window" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ modalTitle }}</h2>
+                <button class="close-btn" (click)="closeModal()">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <div class="modal-content">
+                <div *ngIf="modalList.length === 0" class="empty-modal">
+                    <p>No hay elementos para mostrar.</p>
+                </div>
+
+                <div class="request-cards">
+                    <div *ngFor="let item of modalList" class="request-item" (click)="goToDetail(item)">
+
+                        <!-- Layout for JOBS (Requests) -->
+                        <ng-container *ngIf="modalType === 'jobs'; else ticketLayout">
+                            <div class="req-left">
+                                <div class="status-dot" [ngClass]="getColorClass(item.estado)"></div>
+                                <div class="req-info">
+                                    <h4>{{ item.direccion }}</h4>
+                                    <span class="req-date">{{ item.fecha_solicitada | date:'short' }}</span>
+                                </div>
+                            </div>
+                            <div class="req-right">
+                                <span class="status-tag" [ngClass]="getColorClass(item.estado)">{{ item.estado |
+                                    uppercase }}</span>
+                            </div>
+                        </ng-container>
+
+                        <!-- Layout for REPORTS (Tickets) -->
+                        <ng-template #ticketLayout>
+                            <div class="req-left">
+                                <div class="status-dot status-pendiente"></div> <!-- All open tickets are 'alert' -->
+                                <div class="req-info">
+                                    <h4>{{ item.asunto }}</h4>
+                                    <span class="req-date">{{ item.created_at | date:'short' }}</span>
+                                </div>
+                            </div>
+                            <div class="req-right">
+                                <span class="status-tag status-pendiente">{{ (item.tipo || 'Ticket') | uppercase
+                                    }}</span>
+                            </div>
+                        </ng-template>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,43 @@
+/* Global Styles */
+:root {
+  --primary-blue: #1565C0;
+  --bg-color: #ffffff;
+  --input-fill: #F5F9FF;
+  --input-border: #EEEEEE;
+  --text-color: #333333;
+  --text-grey: #808080;
+  --shadow-color: rgba(21, 101, 192, 0.4);
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Common Utilities */
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+}
+
+button {
+  font-family: inherit;
+}

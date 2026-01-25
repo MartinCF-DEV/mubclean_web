@@ -1,0 +1,122 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../../environments/environment';
+import { AuthService } from '../auth.service';
+
+@Component({
+    selector: 'app-admin-registration',
+    standalone: true,
+    imports: [CommonModule, ReactiveFormsModule],
+    templateUrl: './admin-registration.component.html',
+    styleUrls: ['./admin-registration.component.css']
+})
+export class AdminRegistrationComponent {
+    private fb = inject(FormBuilder);
+    private router = inject(Router);
+    private auth = inject(AuthService);
+    private supabase: SupabaseClient;
+
+    // Pasos: 1 = Cuenta, 2 = Negocio
+    currentStep = 1;
+    isLoading = false;
+
+    accountForm: FormGroup;
+    businessForm: FormGroup;
+
+    constructor() {
+        this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+
+        this.accountForm = this.fb.group({
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['', [Validators.required]]
+        });
+
+        this.businessForm = this.fb.group({
+            nombre: ['', Validators.required],
+            direccion: ['', Validators.required],
+            telefono: ['', Validators.required],
+            emailContacto: ['', [Validators.required, Validators.email]],
+            descripcion: ['', Validators.required]
+        });
+
+        // Si ya existe usuario, saltar al paso 2
+        if (this.auth.currentUser) {
+            this.currentStep = 2;
+        }
+    }
+
+    async onStep1Submit() {
+        if (this.accountForm.invalid) return;
+        this.isLoading = true;
+
+        const { email, password, confirmPassword } = this.accountForm.value;
+
+        if (password !== confirmPassword) {
+            alert("Las contraseñas no coinciden");
+            this.isLoading = false;
+            return;
+        }
+
+        try {
+            // Registrar usuario en Supabase Auth
+            const { data, error } = await this.supabase.auth.signUp({
+                email,
+                password,
+            });
+
+            if (error) throw error;
+
+            // Si el registro es exitoso (y posiblemente auto-login), pasar al paso 2
+            // Nota: Si requiere confirmación de email, esto podría variar. Asumimos auto-login o sin confirmación forzada para desarrollo.
+            if (data.user) {
+                // Log in automaticamente si signup no lo hace (Supabase signup usually logs in if email confirm disabled)
+                // O verificar sesion
+                this.auth.checkSession();
+                this.currentStep = 2;
+            }
+        } catch (e: any) {
+            alert("Error al crear cuenta: " + e.message);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    async onStep2Submit() {
+        if (this.businessForm.invalid) return;
+        this.isLoading = true;
+
+        try {
+            const user = this.auth.currentUser; // Debería estar actualizado tras el paso 1
+            if (!user) throw new Error("No hay usuario autenticado.");
+
+            const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
+
+            // Insertar negocio
+            const { error } = await this.supabase
+                .from('negocios')
+                .insert({
+                    owner_id: user.id,
+                    nombre,
+                    direccion,
+                    telefono,
+                    email_contacto: emailContacto,
+                    descripcion,
+                    activo: true
+                });
+
+            if (error) throw error;
+
+            // Éxito
+            this.router.navigate(['/admin/dashboard']);
+
+        } catch (e: any) {
+            alert("Error al registrar negocio: " + e.message);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+}

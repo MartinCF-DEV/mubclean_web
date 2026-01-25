@@ -1,0 +1,161 @@
+.registration-container {
+    min-height: 100vh;
+    background-color: #F8F9FA;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-bar {
+    background-color: white;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 1px 0 #E0E0E0;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    color: #1565C0;
+}
+
+.brand-icon {
+    margin-right: 8px;
+}
+
+.brand h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.step-indicator {
+    font-size: 14px;
+    color: #757575;
+}
+
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    /* Wider card */
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    /* Soft shadow */
+    text-align: center;
+}
+
+.card-header {
+    margin-bottom: 30px;
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background-color: #1565C0;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.icon-circle .material-icons {
+    font-size: 32px;
+}
+
+.icon-circle.blue {
+    /* reusing blue, can vary if needed */
+}
+
+.card h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #212121;
+    margin: 0 0 10px;
+}
+
+.card p {
+    color: #757575;
+    font-size: 14px;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.row {
+    display: flex;
+    gap: 15px;
+}
+
+.half {
+    flex: 1;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #EEEEEE;
+    border-radius: 8px;
+    background-color: #F8F9FA;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s;
+    outline: none;
+    box-sizing: border-box;
+    /* Crucial for padding */
+    font-family: inherit;
+}
+
+input:focus,
+textarea:focus {
+    background-color: white;
+    border-color: #1565C0;
+    box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.1);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #F3F6FD;
+    /* Light blue bg */
+    color: #1565C0;
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    border-radius: 30px;
+    /* Pill shape */
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background-color: #E3F2FD;
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.terms {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #9E9E9E;
+}

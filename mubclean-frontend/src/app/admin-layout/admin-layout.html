@@ -1,0 +1,82 @@
+<div class="admin-layout" [class.sidebar-collapsed]="isCollapsed">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" [class.mobile-open]="isSidebarOpen">
+        <!-- Logo Area -->
+        <div class="sidebar-header">
+            <div class="logo-area" *ngIf="!isCollapsed">
+                <span class="logo-text">Mub<span class="highlight">Clean</span></span>
+            </div>
+            <div class="logo-icon-only" *ngIf="isCollapsed">
+                <span>M</span>
+            </div>
+
+            <!-- Collapse Toggle (Desktop) -->
+            <button class="collapse-btn" (click)="toggleCollapse()">
+                <span class="material-icons">{{ isCollapsed ? 'chevron_right' : 'chevron_left' }}</span>
+            </button>
+
+            <!-- Close (Mobile) -->
+            <button class="mobile-close-btn" (click)="toggleSidebarMobile()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item" title="Inicio">
+                <span class="material-icons">dashboard</span>
+                <span class="label" *ngIf="!isCollapsed">Inicio</span>
+            </a>
+            <a routerLink="/admin/employees" routerLinkActive="active" class="nav-item" title="Empleados">
+                <span class="material-icons">groups</span>
+                <span class="label" *ngIf="!isCollapsed">Empleados</span>
+            </a>
+            <a routerLink="/admin/support" routerLinkActive="active" class="nav-item" title="Soporte">
+                <span class="material-icons">support_agent</span>
+                <span class="label" *ngIf="!isCollapsed">Soporte</span>
+            </a>
+            <!-- Perfil en el sidebar (como pidió el usuario) -->
+            <a routerLink="/admin/profile" routerLinkActive="active" class="nav-item" title="Mi Perfil">
+                <span class="material-icons">person</span>
+                <span class="label" *ngIf="!isCollapsed">Mi Perfil</span>
+            </a>
+        </nav>
+
+        <!-- User/Logout Footer -->
+        <div class="sidebar-footer">
+            <div class="user-info" *ngIf="!isCollapsed && currentUser">
+                <div class="user-avatar">
+                    <span>{{ currentUser.email?.[0] | uppercase }}</span>
+                </div>
+                <div class="user-details">
+                    <span class="user-email">{{ currentUser.email }}</span>
+                    <span class="user-role">Administrador</span>
+                </div>
+            </div>
+
+            <button class="logout-btn" (click)="logout()" title="Cerrar Sesión">
+                <span class="material-icons">logout</span>
+                <span class="label" *ngIf="!isCollapsed">Salir</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+        <!-- Mobile Header (Visible only on small screens) -->
+        <header class="mobile-topbar">
+            <button class="menu-btn" (click)="toggleSidebarMobile()">
+                <span class="material-icons">menu</span>
+            </button>
+            <span class="mobile-title">Admin Panel</span>
+        </header>
+
+        <div class="content-scroll">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+
+    <!-- Overlay -->
+    <div class="overlay" *ngIf="isSidebarOpen" (click)="toggleSidebarMobile()"></div>
+</div>
