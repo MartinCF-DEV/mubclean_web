@@ -35,16 +35,16 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.03);
 }
 
-.logo-text {
-    font-size: 20px;
-    font-weight: 800;
-    color: #1A1F36;
-    letter-spacing: -0.5px;
+.logo-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.logo-text .highlight {
-    color: #3B82F6;
-    /* Modern Blue */
+.logo-full {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
 }
 
 .logo-icon-only {
@@ -53,10 +53,10 @@
     justify-content: center;
 }
 
-.logo-icon-only span {
-    font-weight: 900;
-    font-size: 24px;
-    color: #3B82F6;
+.logo-mini {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
 }
 
 .collapse-btn {

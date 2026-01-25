@@ -13,7 +13,7 @@ import { AuthService } from '../auth.service';
       <div class="login-content">
         <!-- Logo Section -->
         <div class="logo-container">
-          <span class="material-icons logo-icon">clean_hands</span>
+          <img src="logo.png" alt="MubClean Logo" class="logo-image">
         </div>
         
         <h1 class="app-title">MubClean</h1>
@@ -101,9 +101,10 @@ import { AuthService } from '../auth.service';
       margin-bottom: 20px;
     }
 
-    .logo-icon {
-      font-size: 50px;
-      color: var(--primary-blue);
+    .logo-image {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
     }
 
     .app-title {
