@@ -71,7 +71,7 @@ export class AuthService {
         await this.loadUserProfile();
     }
 
-    async signUp(email: string, password: string, fullName: string, phone?: string) {
+    async signUp(email: string, password: string, fullName: string, phone?: string, role: string = 'cliente') {
         const { data, error } = await this.supabase.auth.signUp({
             email,
             password,
@@ -90,7 +90,7 @@ export class AuthService {
                 email: email,
                 nombre_completo: fullName,
                 telefono: phone,
-                rol: 'cliente'
+                rol: role
             });
             await this.loadUserProfile();
         }

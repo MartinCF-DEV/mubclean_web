@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -19,7 +19,7 @@ import { AuthService } from '../auth.service';
       </div>
 
       <div class="register-content">
-        <h2 class="title">Únete a MubClean</h2>
+        <h2 class="title">{{ isBusiness ? 'Registrar Negocio' : 'Únete a MubClean' }}</h2>
         <p class="subtitle">Completa tus datos para comenzar</p>
 
         <div class="spacer-30"></div>
@@ -94,7 +94,7 @@ import { AuthService } from '../auth.service';
         <div class="spacer-30"></div>
 
         <button class="primary-button" (click)="register()" [disabled]="isLoading">
-           <span *ngIf="!isLoading">CREAR CUENTA</span>
+           <span *ngIf="!isLoading">{{ isBusiness ? 'REGISTRAR NEGOCIO' : 'CREAR CUENTA' }}</span>
            <div *ngIf="isLoading" class="spinner"></div>
         </button>
 
@@ -249,7 +249,7 @@ import { AuthService } from '../auth.service';
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   `]
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   name = '';
   lastName = '';
   phone = '';
@@ -261,9 +261,17 @@ export class RegisterComponent {
   obscureConfirm = true;
   isLoading = false;
   error = '';
+  isBusiness = false;
 
   auth = inject(AuthService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.isBusiness = params['type'] === 'business';
+    });
+  }
 
   async register() {
     this.error = '';
@@ -294,14 +302,17 @@ export class RegisterComponent {
 
     try {
       const fullName = `${this.name} ${this.lastName}`.trim();
-      // The AuthService needs to support phone number too, I should verify that.
-      // The flutter code passes phone number to signUp.
-      // I need to update AuthService to accept phone number.
-      await this.auth.signUp(this.email, this.password, fullName, this.phone);
-      // Important: The original auth.signUp in flutter app handles phone number upsert. 
-      // I will need to update the angular service to match this logic.
+      const role = this.isBusiness ? 'negocio' : 'cliente';
 
-      this.router.navigate(['/customer/home']);
+      await this.auth.signUp(this.email, this.password, fullName, this.phone, role);
+
+      // Redirect logic
+      if (this.isBusiness) {
+        this.router.navigate(['/admin/dashboard']); // Assuming business goes to admin dash
+      } else {
+        this.router.navigate(['/customer/home']);
+      }
+
     } catch (e: any) {
       this.error = e.message;
     } finally {

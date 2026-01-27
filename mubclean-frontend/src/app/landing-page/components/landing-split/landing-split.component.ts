@@ -16,6 +16,7 @@ export class LandingSplitComponent {
     @Input() imagePath = '';
     @Input() btnText = '';
     @Input() btnLink = '';
+    @Input() queryParams: any = null;
     @Input() btnAction: (() => void) | null = null;
 
     handleAction() {

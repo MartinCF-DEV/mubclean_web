@@ -6,7 +6,7 @@
         <h2>{{ title }}</h2>
         <p>{{ text }}</p>
 
-        <button *ngIf="btnLink" class="btn-split" [routerLink]="btnLink">
+        <button *ngIf="btnLink" class="btn-split" [routerLink]="btnLink" [queryParams]="queryParams">
             {{ btnText }}
             <span class="material-icons">arrow_forward</span>
         </button>
