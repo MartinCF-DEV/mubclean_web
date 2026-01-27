@@ -11,14 +11,16 @@
 /* Header Layout */
 header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    /* Centered layout as requested */
     align-items: center;
     padding: 20px 40px;
     background: white;
     box-shadow: 0 4px 0 #000;
-    /* Neo-brutalist border/shadow */
     position: relative;
     z-index: 100;
+    gap: 60px;
+    /* Space between Nav and Auth groups */
 }
 
 .nav-links {
