@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -266,7 +266,7 @@ export class LoginComponent {
   error = '';
   successMsg = '';
 
-  constructor(private auth: AuthService, private router: Router) { }
+  constructor(private auth: AuthService, private router: Router, private ngZone: NgZone) { }
 
   async login() {
     if (!this.email || !this.password) {
@@ -279,7 +279,19 @@ export class LoginComponent {
 
     try {
       await this.auth.signIn(this.email, this.password);
+    } catch (e: any) {
+      this.ngZone.run(() => {
+        this.error = e.message;
+        this.isLoading = false;
+      });
+      return;
+    }
 
+    // Success Block - Must run inside Zone
+    this.ngZone.run(() => {
+      this.isLoading = false;
+
+      // Handle post-login navigation
       const profile = this.auth.profile;
       console.log("Login Success.");
       console.log("User Metadata:", this.auth.currentUser?.user_metadata);
@@ -287,7 +299,6 @@ export class LoginComponent {
 
       if (!profile) {
         const userEmail = this.auth.currentUser?.email;
-        // TEMPORARY FIX: Bypass DB Error 500 for this specific admin email
         if (userEmail === 'brandoncauich1@gmail.com') {
           console.warn("Bypassing profile check for super admin override due to DB error.");
           this.router.navigate(['/admin/dashboard']);
@@ -307,11 +318,7 @@ export class LoginComponent {
       } else {
         this.router.navigate(['/customer/home']);
       }
-    } catch (e: any) {
-      this.error = e.message;
-    } finally {
-      this.isLoading = false;
-    }
+    });
   }
 
   async forgotPassword() {
@@ -327,16 +334,18 @@ export class LoginComponent {
 
     try {
       await this.auth.resetPassword(email);
-      this.successMsg = `Se ha enviado un correo de recuperación a ${email}. Por favor revisa tu bandeja de entrada.`;
-      this.error = '';
-
-      // Clear success message after 10 seconds
-      setTimeout(() => {
-        this.successMsg = '';
-      }, 10000);
+      this.ngZone.run(() => {
+        this.successMsg = `Se ha enviado un correo de recuperación a ${email}. Por favor revisa tu bandeja de entrada.`;
+        this.error = '';
+        setTimeout(() => {
+          this.successMsg = '';
+        }, 10000);
+      });
     } catch (e: any) {
-      console.error(e);
-      this.error = e.message || "Error al enviar correo de recuperación. Intenta nuevamente.";
+      this.ngZone.run(() => {
+        console.error(e);
+        this.error = e.message || "Error al enviar correo de recuperación. Intenta nuevamente.";
+      });
     }
   }
 }
