@@ -59,6 +59,7 @@ import { AuthService } from '../auth.service';
             </div>
 
             <div class="grid-row">
+                <div class="form-group">
                     <label>Teléfono de Contacto</label>
                     <input type="text" [(ngModel)]="business.telefono" placeholder="10 dígitos" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
