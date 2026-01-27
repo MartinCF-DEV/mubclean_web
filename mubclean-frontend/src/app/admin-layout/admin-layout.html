@@ -36,6 +36,11 @@
                 <span class="material-icons">support_agent</span>
                 <span class="label" *ngIf="!isCollapsed">Soporte</span>
             </a>
+            <!-- Catálogo -->
+            <a routerLink="/admin/services" routerLinkActive="active" class="nav-item" title="Catálogo">
+                <span class="material-icons">view_list</span> <!-- o category / view_list_rounded -->
+                <span class="label" *ngIf="!isCollapsed">Catálogo</span>
+            </a>
             <!-- Perfil en el sidebar (como pidió el usuario) -->
             <a routerLink="/admin/profile" routerLinkActive="active" class="nav-item" title="Mi Perfil">
                 <span class="material-icons">person</span>

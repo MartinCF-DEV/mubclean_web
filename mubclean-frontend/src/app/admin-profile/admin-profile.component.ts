@@ -59,9 +59,8 @@ import { AuthService } from '../auth.service';
             </div>
 
             <div class="grid-row">
-                <div class="form-group">
                     <label>Teléfono de Contacto</label>
-                    <input type="text" [(ngModel)]="business.telefono" placeholder="+52 999...">
+                    <input type="text" [(ngModel)]="business.telefono" placeholder="10 dígitos" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
 
                 <div class="form-group">
@@ -236,8 +235,9 @@ export class AdminProfileComponent implements OnInit {
 
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${type}s/${Date.now()}.${fileExt}`; // logos/123.jpg or portadas/123.jpg
-      const bucket = 'muebles';
+      // Mobile app uses 'logos/' and 'portadas/' prefixes inside 'negocios' bucket
+      const fileName = `${type}s/${this.business.id}-${Date.now()}.${fileExt}`;
+      const bucket = 'negocios';
 
       const { error: uploadError } = await this.auth.client
         .storage

@@ -39,6 +39,7 @@ export const routes: Routes = [
             { path: 'employees', loadComponent: () => import('./admin-employees/admin-employees.component').then(m => m.AdminEmployeesComponent) },
             { path: 'support', loadComponent: () => import('./admin-support/admin-support.component').then(m => m.AdminSupportComponent) },
             { path: 'profile', loadComponent: () => import('./admin-profile/admin-profile.component').then(m => m.AdminProfileComponent) },
+            { path: 'services', loadComponent: () => import('./admin-services/admin-services.component').then(m => m.AdminServicesComponent) },
             { path: 'register', loadComponent: () => import('./admin-registration/admin-registration.component').then(m => m.AdminRegistrationComponent) },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]

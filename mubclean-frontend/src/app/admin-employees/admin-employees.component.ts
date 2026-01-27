@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
 
 @Component({
-    selector: 'app-admin-employees',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    template: `
+  selector: 'app-admin-employees',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
     <div class="page-container">
       <header class="page-header">
         <h1>Mi Equipo</h1>
@@ -76,7 +76,7 @@ import { AuthService } from '../auth.service';
 
     </div>
   `,
-    styles: [`
+  styles: [`
     .page-container { padding: 30px; }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     h1 { margin: 0; font-size: 24px; color: #333; }
@@ -143,130 +143,138 @@ import { AuthService } from '../auth.service';
   `]
 })
 export class AdminEmployeesComponent implements OnInit {
-    auth = inject(AuthService);
-    cdr = inject(ChangeDetectorRef);
+  auth = inject(AuthService);
+  cdr = inject(ChangeDetectorRef);
 
-    isLoading = true;
-    employees: any[] = [];
-    negocioId: string | null = null;
+  isLoading = true;
+  employees: any[] = [];
+  negocioId: string | null = null;
 
-    // Add Dialog
-    showAddDialog = false;
-    newEmail = '';
-    isAdding = false;
-    addError: string | null = null;
+  // Add Dialog
+  showAddDialog = false;
+  newEmail = '';
+  isAdding = false;
+  addError: string | null = null;
 
-    ngOnInit() {
+  ngOnInit() {
+    this.fetchEmployees();
+  }
+
+  async fetchEmployees() {
+    this.isLoading = true;
+    try {
+      const user = this.auth.currentUser;
+      if (!user) return;
+
+      // 1. Get Negocio ID
+      const { data: negocio } = await this.auth.client
+        .from('negocios')
+        .select('id')
+        .eq('owner_id', user.id)
+        .maybeSingle();
+
+      if (!negocio) {
+        this.isLoading = false;
+        return;
+      }
+      this.negocioId = negocio.id;
+
+      // 2. Get Employees
+      const { data: emps, error } = await this.auth.client
+        .from('empleados_negocio')
+        .select('*, perfiles(email, nombre_completo, foto_url)')
+        .eq('negocio_id', this.negocioId);
+
+      if (error) throw error;
+      this.employees = emps || [];
+
+    } catch (e) {
+      console.error('Error fetching employees:', e);
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name.charAt(0).toUpperCase();
+  }
+
+  getAvatarUrl(url: string): string | null {
+    if (!url) return null;
+    return `url('${url}')`;
+  }
+
+  async toggleStatus(emp: any) {
+    const newVal = !emp.activo;
+    // Optimistic update
+    emp.activo = newVal;
+
+    try {
+      const { error } = await this.auth.client
+        .from('empleados_negocio')
+        .update({ activo: newVal })
+        .eq('id', emp.id);
+
+      if (error) {
+        emp.activo = !newVal; // Revert
+        throw error;
+      }
+    } catch (e) {
+      console.error('Error toggling status:', e);
+      alert('Error al actualizar estado');
+    }
+  }
+
+  closeDialog() {
+    this.showAddDialog = false;
+    this.newEmail = '';
+    this.addError = null;
+    this.isAdding = false;
+  }
+
+  async addEmployee() {
+    if (!this.newEmail) return;
+
+    // Simple Regex for basic validation
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailPattern.test(this.newEmail)) {
+      this.addError = 'Por favor ingresa un correo válido.';
+      return;
+    }
+
+    this.isAdding = true;
+    this.addError = null;
+
+    try {
+      const email = this.newEmail.trim().toLowerCase();
+
+      const { data, error } = await this.auth.client.rpc('contratar_empleado', {
+        email_input: email,
+        negocio_id_input: this.negocioId
+      });
+
+      if (error) throw error;
+
+      if (data === 'Exito') {
+        alert('¡Técnico agregado correctamente!');
+        this.closeDialog();
         this.fetchEmployees();
+      } else if (data === 'No existe') {
+        this.addError = 'El usuario no se ha registrado en la App.';
+      } else if (data === 'Ya registrado') {
+        this.addError = 'Este usuario ya está en tu equipo.';
+      } else {
+        this.addError = `Error: ${data}`;
+      }
+
+    } catch (e: any) {
+      console.error('Error adding employee:', e);
+      this.addError = e.message || 'Error de conexión';
+    } finally {
+      this.isAdding = false;
+      this.cdr.detectChanges();
     }
-
-    async fetchEmployees() {
-        this.isLoading = true;
-        try {
-            const user = this.auth.currentUser;
-            if (!user) return;
-
-            // 1. Get Negocio ID
-            const { data: negocio } = await this.auth.client
-                .from('negocios')
-                .select('id')
-                .eq('owner_id', user.id)
-                .maybeSingle();
-
-            if (!negocio) {
-                this.isLoading = false;
-                return;
-            }
-            this.negocioId = negocio.id;
-
-            // 2. Get Employees
-            const { data: emps, error } = await this.auth.client
-                .from('empleados_negocio')
-                .select('*, perfiles(email, nombre_completo, foto_url)')
-                .eq('negocio_id', this.negocioId);
-
-            if (error) throw error;
-            this.employees = emps || [];
-
-        } catch (e) {
-            console.error('Error fetching employees:', e);
-        } finally {
-            this.isLoading = false;
-            this.cdr.detectChanges();
-        }
-    }
-
-    getInitials(name: string): string {
-        if (!name) return '?';
-        return name.charAt(0).toUpperCase();
-    }
-
-    getAvatarUrl(url: string): string | null {
-        if (!url) return null;
-        return `url('${url}')`;
-    }
-
-    async toggleStatus(emp: any) {
-        const newVal = !emp.activo;
-        // Optimistic update
-        emp.activo = newVal;
-
-        try {
-            const { error } = await this.auth.client
-                .from('empleados_negocio')
-                .update({ activo: newVal })
-                .eq('id', emp.id);
-
-            if (error) {
-                emp.activo = !newVal; // Revert
-                throw error;
-            }
-        } catch (e) {
-            console.error('Error toggling status:', e);
-            alert('Error al actualizar estado');
-        }
-    }
-
-    closeDialog() {
-        this.showAddDialog = false;
-        this.newEmail = '';
-        this.addError = null;
-        this.isAdding = false;
-    }
-
-    async addEmployee() {
-        if (!this.newEmail) return;
-        this.isAdding = true;
-        this.addError = null;
-
-        try {
-            const email = this.newEmail.trim().toLowerCase();
-
-            const { data, error } = await this.auth.client.rpc('contratar_empleado', {
-                email_input: email,
-                negocio_id_input: this.negocioId
-            });
-
-            if (error) throw error;
-
-            if (data === 'Exito') {
-                alert('¡Técnico agregado correctamente!');
-                this.closeDialog();
-                this.fetchEmployees();
-            } else if (data === 'No existe') {
-                this.addError = 'El usuario no se ha registrado en la App.';
-            } else if (data === 'Ya registrado') {
-                this.addError = 'Este usuario ya está en tu equipo.';
-            } else {
-                this.addError = `Error: ${data}`;
-            }
-
-        } catch (e: any) {
-            console.error('Error adding employee:', e);
-            this.addError = e.message || 'Error de conexión';
-        } finally {
-            this.isAdding = false;
-            this.cdr.detectChanges();
-        }
-    }
+  }
 }
