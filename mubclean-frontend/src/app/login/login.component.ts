@@ -1,4 +1,4 @@
-import { Component, NgZone } from '@angular/core';
+import { Component, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -266,7 +266,12 @@ export class LoginComponent {
   error = '';
   successMsg = '';
 
-  constructor(private auth: AuthService, private router: Router, private ngZone: NgZone) { }
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   async login() {
     if (!this.email || !this.password) {
@@ -280,39 +285,34 @@ export class LoginComponent {
     try {
       await this.auth.signIn(this.email, this.password);
     } catch (e: any) {
+      // FORCE UI UPDATE ON ERROR
       this.ngZone.run(() => {
-        this.error = e.message;
+        console.log("Login Error Caught:", e);
+        this.error = e.message || "Error al iniciar sesión";
         this.isLoading = false;
+        this.cdr.detectChanges(); // <-- Critical fix for stuck loading state
       });
       return;
     }
 
-    // Success Block - Must run inside Zone
+    // Success Block
     this.ngZone.run(() => {
       this.isLoading = false;
 
-      // Handle post-login navigation
       const profile = this.auth.profile;
-      console.log("Login Success.");
-      console.log("User Metadata:", this.auth.currentUser?.user_metadata);
-      console.log("Profile:", profile);
+      console.log("Login Success. Profile:", profile);
 
       if (!profile) {
         const userEmail = this.auth.currentUser?.email;
         if (userEmail === 'brandoncauich1@gmail.com') {
-          console.warn("Bypassing profile check for super admin override due to DB error.");
           this.router.navigate(['/admin/dashboard']);
           return;
         }
-
-        console.warn("No profile loaded after login.");
         this.router.navigate(['/customer/home']);
         return;
       }
 
       const role = (profile.rol || '').trim().toLowerCase();
-      console.log("Detected Role:", role);
-
       if (['admin', 'admin_negocio', 'negocio'].includes(role)) {
         this.router.navigate(['/admin/dashboard']);
       } else {
@@ -325,7 +325,6 @@ export class LoginComponent {
     const email = prompt("Ingresa tu correo para recuperar contraseña:");
     if (!email) return;
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       alert("Por favor ingresa un correo electrónico válido.");
@@ -337,14 +336,17 @@ export class LoginComponent {
       this.ngZone.run(() => {
         this.successMsg = `Se ha enviado un correo de recuperación a ${email}. Por favor revisa tu bandeja de entrada.`;
         this.error = '';
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.successMsg = '';
+          this.cdr.detectChanges();
         }, 10000);
       });
     } catch (e: any) {
       this.ngZone.run(() => {
         console.error(e);
         this.error = e.message || "Error al enviar correo de recuperación. Intenta nuevamente.";
+        this.cdr.detectChanges();
       });
     }
   }
