@@ -50,6 +50,19 @@ import { AuthService } from '../auth.service';
 
             <div class="spacer-20"></div>
 
+            <!-- Business Name (Only if isBusiness) -->
+            <div class="input-container" *ngIf="isBusiness">
+                <label>Nombre del Negocio *</label>
+                <div class="input-box" [class.error-border]="businessModel.invalid && (businessModel.dirty || businessModel.touched)">
+                    <span class="material-icons input-icon">store</span>
+                    <input type="text" [(ngModel)]="businessName" name="businessName" required #businessModel="ngModel" placeholder="Ej. Limpieza Express"/>
+                </div>
+                <div *ngIf="businessModel.invalid && (businessModel.dirty || businessModel.touched)" class="validation-msg">
+                    El nombre del negocio es requerido
+                </div>
+            </div>
+            <div class="spacer-20" *ngIf="isBusiness"></div>
+
             <!-- Phone -->
             <div class="input-container">
               <label>Teléfono Móvil *</label>
@@ -355,6 +368,9 @@ export class RegisterComponent implements OnInit {
   password = '';
   confirmPassword = '';
 
+  // New Field
+  businessName = '';
+
   obscurePass = true;
   obscureConfirm = true;
   isLoading = false;
@@ -373,8 +389,12 @@ export class RegisterComponent implements OnInit {
 
   async register() {
     this.error = '';
-    // Form is strictly validated by template driven logic (disabled button)
-    // Double check here just in case
+
+    // Business Validation
+    if (this.isBusiness && !this.businessName.trim()) {
+      this.error = 'El nombre del negocio es requerido';
+      return;
+    }
 
     if (this.password !== this.confirmPassword) {
       this.error = "Las contraseñas no coinciden";
@@ -387,7 +407,7 @@ export class RegisterComponent implements OnInit {
       const fullName = `${this.name} ${this.lastName}`.trim();
       const role = this.isBusiness ? 'negocio' : 'cliente';
 
-      await this.auth.signUp(this.email, this.password, fullName, this.phone, role);
+      await this.auth.signUp(this.email, this.password, fullName, this.phone, role, this.businessName);
 
       if (this.isBusiness) {
         this.router.navigate(['/admin/dashboard']);

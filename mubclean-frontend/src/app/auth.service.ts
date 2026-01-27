@@ -71,7 +71,7 @@ export class AuthService {
         await this.loadUserProfile();
     }
 
-    async signUp(email: string, password: string, fullName: string, phone?: string, role: string = 'cliente') {
+    async signUp(email: string, password: string, fullName: string, phone?: string, role: string = 'cliente', businessName?: string) {
         const { data, error } = await this.supabase.auth.signUp({
             email,
             password,
@@ -85,6 +85,7 @@ export class AuthService {
         if (error) throw error;
 
         if (data.user) {
+            // 1. Create Profile
             await this.supabase.from('perfiles').upsert({
                 id: data.user.id,
                 email: email,
@@ -92,6 +93,18 @@ export class AuthService {
                 telefono: phone,
                 rol: role
             });
+
+            // 2. Create Business if needed
+            if (role === 'negocio' && businessName) {
+                await this.supabase.from('negocios').insert({
+                    owner_id: data.user.id,
+                    nombre: businessName,
+                    telefono: phone, // Optional: use personal phone as business phone initially
+                    descripcion: 'Descripción pendiente',
+                    direccion: 'Dirección pendiente'
+                });
+            }
+
             await this.loadUserProfile();
         }
     }
