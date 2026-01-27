@@ -4,14 +4,14 @@
     <nav class="nav-links">
       <button (click)="scrollToSection('benefits')">Beneficios</button>
       <button (click)="scrollToSection('how-it-works')">Cómo funciona</button>
-      <button class="nav-btn-outline" (click)="scrollToSection('providers')">Empresas</button>
-      <button class="nav-btn-filled" (click)="scrollToSection('clients')">Clientes</button>
+      <button (click)="scrollToSection('providers')">Empresas</button>
+      <button (click)="scrollToSection('clients')">Clientes</button>
       <button (click)="scrollToSection('security')">Seguridad</button>
     </nav>
 
     <div class="auth-buttons">
-      <button class="btn-text" routerLink="/login">Ingresar</button>
-      <button class="btn-primary" routerLink="/register">Registrar Empresa</button>
+      <button class="nav-btn-outline" routerLink="/login">Ingresar</button>
+      <button class="nav-btn-filled" routerLink="/register">Registrar Empresa</button>
     </div>
   </header>
 

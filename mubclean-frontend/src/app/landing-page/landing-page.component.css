@@ -7,6 +7,49 @@
 }
 
 
+
+/* Header Layout */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: white;
+    box-shadow: 0 4px 0 #000;
+    /* Neo-brutalist border/shadow */
+    position: relative;
+    z-index: 100;
+}
+
+.nav-links {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.nav-links button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: #444;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: color 0.2s;
+}
+
+.nav-links button:hover {
+    color: #1565C0;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
 /* Nav Buttons - Neo Brutalism */
 .nav-btn-outline {
     background: white;
