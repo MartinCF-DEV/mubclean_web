@@ -1,0 +1,19 @@
+<section class="max-benefits" id="benefits">
+    <div class="benefits-header">
+        <h2>POTENCIA TU NEGOCIO</h2>
+        <div class="underline-deco"></div>
+        <p>Herramientas de otro nivel para empresas que no juegan.</p>
+    </div>
+
+    <div class="benefits-grid">
+        <div *ngFor="let b of benefits" class="max-card" [class.highlight]="b.highlight">
+            <div class="card-top">
+                <div class="icon-box">
+                    <span class="material-icons">{{ b.icon }}</span>
+                </div>
+            </div>
+            <h3>{{ b.title }}</h3>
+            <p>{{ b.desc }}</p>
+        </div>
+    </div>
+</section>

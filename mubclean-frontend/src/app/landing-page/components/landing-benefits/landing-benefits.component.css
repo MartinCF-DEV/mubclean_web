@@ -1,0 +1,104 @@
+.max-benefits {
+    padding: 100px 24px;
+    background: #FFF;
+    border-bottom: 3px solid #000;
+}
+
+.benefits-header {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.benefits-header h2 {
+    font-size: 48px;
+    font-weight: 900;
+    color: #000;
+    font-family: 'Fraunces', serif;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    letter-spacing: -2px;
+}
+
+.underline-deco {
+    width: 100px;
+    height: 8px;
+    background: #FFD600;
+    margin: 0 auto 20px;
+    border: 2px solid #000;
+}
+
+.benefits-header p {
+    font-size: 20px;
+    color: #444;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Grid */
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.max-card {
+    background: #F4F7FE;
+    border: 3px solid #000;
+    border-radius: 16px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 8px 8px 0 #000;
+    transition: transform 0.2s;
+}
+
+.max-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0 #000;
+    background: #FFF;
+}
+
+.max-card.highlight {
+    background: #1565C0;
+    color: white;
+}
+
+.max-card.highlight .icon-box {
+    background: #FFD600;
+    color: #000;
+    border-color: #FFF;
+}
+
+.max-card.highlight h3,
+.max-card.highlight p {
+    color: white;
+}
+
+.icon-box {
+    width: 60px;
+    height: 60px;
+    background: #fff;
+    border: 3px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: #1565C0;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.max-card h3 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    font-family: 'Fraunces', serif;
+}
+
+.max-card p {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #555;
+    font-weight: 500;
+}

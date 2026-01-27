@@ -1,0 +1,15 @@
+<section class="max-steps" id="how-it-works">
+    <div class="steps-header">
+        <h2>¿CÓMO FUNCIONA?</h2>
+        <p>Simple. Rápido. Sin letras chiquitas.</p>
+    </div>
+
+    <div class="steps-container">
+        <div *ngFor="let s of steps; let last = last" class="step-card">
+            <div class="step-num">{{ s.num }}</div>
+            <h3>{{ s.title }}</h3>
+            <p>{{ s.desc }}</p>
+            <div *ngIf="!last" class="connector-line"></div>
+        </div>
+    </div>
+</section>
