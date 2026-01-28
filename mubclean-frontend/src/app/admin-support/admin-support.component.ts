@@ -21,10 +21,14 @@ import { AuthService } from '../auth.service';
         <div class="tab" [class.active]="activeTab === 'create'" (click)="resetCreation(); activeTab = 'create'">
           Reportar Problema
         </div>
+        <div class="tab" [class.active]="activeTab === 'incoming'" (click)="activeTab = 'incoming'">
+          Recibidos
+        </div>
       </div>
 
       <!-- Tab: List -->
       <div *ngIf="activeTab === 'list'" class="tab-content">
+        <!-- ... existing list content ... (KEEPING AS IS, just ensuring context) -->
         <div *ngIf="isLoading" class="loading-container">
           <div class="spinner"></div>
         </div>
@@ -76,6 +80,61 @@ import { AuthService } from '../auth.service';
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Tab: Incoming (Recibidos) -->
+      <div *ngIf="activeTab === 'incoming'" class="tab-content">
+        <div *ngIf="isLoading" class="loading-container">
+          <div class="spinner"></div>
+        </div>
+
+        <div *ngIf="!isLoading && incomingTickets.length === 0" class="empty-state">
+           <span class="material-icons empty-icon">inbox</span>
+           <h3>No hay reportes recibidos</h3>
+           <p>Los reportes de tus clientes aparecerán aquí.</p>
+        </div>
+
+        <div *ngIf="!isLoading && incomingTickets.length > 0" class="ticket-list">
+           <div *ngFor="let t of incomingTickets" class="ticket-card incoming">
+             <div class="ticket-header" (click)="t.expanded = !t.expanded">
+               <div class="ticket-icon" [class.open]="t.estado !== 'resuelto'">
+                  <span class="material-icons">{{ t.estado !== 'resuelto' ? 'report_problem' : 'check_circle' }}</span>
+               </div>
+               <div class="ticket-info">
+                 <span class="ticket-subject">{{ t.asunto }}</span>
+                 <span class="ticket-meta">CLIENTE • {{ formatDate(t.created_at) }}</span>
+               </div>
+               <span class="material-icons expand-icon">{{ t.expanded ? 'expand_less' : 'expand_more' }}</span>
+             </div>
+             
+             <div class="ticket-body" *ngIf="t.expanded">
+               <div class="detail-block">
+                 <strong>Descripción del Cliente:</strong>
+                 <p>{{ t.descripcion }}</p>
+               </div>
+
+               <div *ngIf="t.respuesta_admin" class="admin-response">
+                 <strong>Tu Respuesta:</strong>
+                 <p>{{ t.respuesta_admin }}</p>
+               </div>
+
+               <div *ngIf="!t.respuesta_admin" class="response-form">
+                 <label>Responder al cliente:</label>
+                 <textarea 
+                   [(ngModel)]="t.responseText" 
+                   rows="3" 
+                   placeholder="Escribe una solución..."></textarea>
+                 <button 
+                   class="send-btn" 
+                   (click)="sendResponse(t)" 
+                   [disabled]="!t.responseText || t.sending">
+                   <span *ngIf="t.sending">Enviando...</span>
+                   <span *ngIf="!t.sending">ENVIAR SOLUCIÓN</span>
+                 </button>
+               </div>
+             </div>
+           </div>
         </div>
       </div>
 
@@ -246,9 +305,10 @@ export class AdminSupportComponent implements OnInit {
   auth = inject(AuthService);
   cdr = inject(ChangeDetectorRef);
 
-  activeTab: 'list' | 'create' = 'list';
+  activeTab: 'list' | 'create' | 'incoming' = 'list';
   isLoading = true;
   tickets: any[] = [];
+  incomingTickets: any[] = [];
 
   // Create Flow
   step = 0;
@@ -261,6 +321,7 @@ export class AdminSupportComponent implements OnInit {
 
   async ngOnInit() {
     await this.fetchTickets();
+    await this.fetchIncomingTickets();
     this.fetchRecentRequests();
   }
 
@@ -282,6 +343,27 @@ export class AdminSupportComponent implements OnInit {
     } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
+    }
+  }
+
+  async fetchIncomingTickets() {
+    try {
+      const user = this.auth.currentUser;
+      if (!user) return;
+
+      // First get my business id
+      const { data: neg } = await this.auth.client.from('negocios').select('id').eq('owner_id', user.id).maybeSingle();
+      if (!neg) return;
+
+      const { data } = await this.auth.client
+        .from('soporte_tickets')
+        .select('*')
+        .eq('negocio_id', neg.id)
+        .order('created_at', { ascending: false });
+
+      this.incomingTickets = (data || []).map((t: any) => ({ ...t, expanded: false }));
+    } catch (e) {
+      console.error(e);
     }
   }
 

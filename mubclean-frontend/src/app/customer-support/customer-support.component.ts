@@ -434,7 +434,7 @@ export class CustomerSupportComponent implements OnInit, OnDestroy {
 
       const { data, error } = await this.supabase
         .from('solicitudes')
-        .select('id, estado')
+        .select('id, estado, negocio_id')
         .eq('cliente_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
@@ -475,8 +475,15 @@ export class CustomerSupportComponent implements OnInit, OnDestroy {
         asuntoFinal = `[Orden #${this.selectedSolicitudId.substring(0, 4)}] ${asuntoFinal}`;
       }
 
+      let negocioId = null;
+      if (this.selectedSolicitudId) {
+        const selectedReq = this.recentRequests.find(r => r.id === this.selectedSolicitudId);
+        if (selectedReq) negocioId = selectedReq.negocio_id;
+      }
+
       const { error } = await this.supabase.from('soporte_tickets').insert({
         cliente_id: user.id,
+        negocio_id: negocioId,
         tipo: this.selectedCategory === 'servicio' ? 'incidencia' : 'consulta',
         asunto: asuntoFinal,
         descripcion: descripcionFinal,
