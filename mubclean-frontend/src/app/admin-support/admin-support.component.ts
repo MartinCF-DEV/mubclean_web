@@ -352,16 +352,30 @@ export class AdminSupportComponent implements OnInit {
       if (!user) return;
 
       // First get my business id
-      const { data: neg } = await this.auth.client.from('negocios').select('id').eq('owner_id', user.id).maybeSingle();
-      if (!neg) return;
+      const { data: neg, error: negError } = await this.auth.client.from('negocios').select('id').eq('owner_id', user.id).maybeSingle();
 
-      const { data } = await this.auth.client
+      if (negError) {
+        console.error('Error fetching business for tickets:', negError);
+        return;
+      }
+
+      if (!neg) {
+        // console.warn('No business found (Incoming Tickets)');
+        return;
+      }
+
+      const { data, error: tickError } = await this.auth.client
         .from('soporte_tickets')
         .select('*')
         .eq('negocio_id', neg.id)
         .order('created_at', { ascending: false });
 
+      if (tickError) {
+        console.error('Error fetching incoming tickets:', tickError);
+      }
+
       this.incomingTickets = (data || []).map((t: any) => ({ ...t, expanded: false }));
+      // console.log('Incoming tickets:', this.incomingTickets.length);
     } catch (e) {
       console.error(e);
     }
@@ -373,17 +387,32 @@ export class AdminSupportComponent implements OnInit {
       if (!user) return;
 
       // Get business id first
-      const { data: neg } = await this.auth.client.from('negocios').select('id').eq('owner_id', user.id).maybeSingle();
-      if (!neg) return;
+      const { data: neg, error: negError } = await this.auth.client.from('negocios').select('id').eq('owner_id', user.id).maybeSingle();
 
-      const { data } = await this.auth.client
+      if (negError) {
+        console.error('Error fetching business:', negError);
+        return;
+      }
+
+      if (!neg) {
+        console.warn('No business found for user:', user.id);
+        // alert('Debug: No se encontró un negocio asociado a tu cuenta.'); // Optional: Uncomment for user visibility
+        return;
+      }
+
+      const { data, error: reqError } = await this.auth.client
         .from('solicitudes')
         .select('id, direccion, direccion_servicio')
         .eq('negocio_id', neg.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
+      if (reqError) {
+        console.error('Error fetching requests:', reqError);
+      }
+
       this.recentRequests = data || [];
+      // console.log('Requests found:', this.recentRequests.length);
     } catch (e) { console.error(e); }
   }
 
