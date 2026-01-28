@@ -483,7 +483,6 @@ export class CustomerSupportComponent implements OnInit, OnDestroy {
 
       const { error } = await this.supabase.from('soporte_tickets').insert({
         cliente_id: user.id,
-        negocio_id: negocioId,
         tipo: this.selectedCategory === 'servicio' ? 'incidencia' : 'consulta',
         asunto: asuntoFinal,
         descripcion: descripcionFinal,

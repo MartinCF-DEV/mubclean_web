@@ -351,31 +351,61 @@ export class AdminSupportComponent implements OnInit {
       const user = this.auth.currentUser;
       if (!user) return;
 
-      // First get my business id
+      // 1. Get business 
       const { data: neg, error: negError } = await this.auth.client.from('negocios').select('id').eq('owner_id', user.id).maybeSingle();
-
-      if (negError) {
-        console.error('Error fetching business for tickets:', negError);
+      if (negError || !neg) {
+        // console.error('Error/No business found', negError);
         return;
       }
 
-      if (!neg) {
-        // console.warn('No business found (Incoming Tickets)');
+      // 2. Fetch all requests for this business to know our clients and orders
+      const { data: reqs } = await this.auth.client
+        .from('solicitudes')
+        .select('id, cliente_id')
+        .eq('negocio_id', neg.id);
+
+      const myRequests = reqs || [];
+      const clientIds = [...new Set(myRequests.map(r => r.cliente_id).filter(id => !!id))];
+      const myRequestIds = new Set(myRequests.map(r => r.id));
+
+      if (clientIds.length === 0) {
+        this.incomingTickets = [];
         return;
       }
 
-      const { data, error: tickError } = await this.auth.client
+      // 3. Fetch tickets from these clients
+      const { data: tickets, error: tickError } = await this.auth.client
         .from('soporte_tickets')
         .select('*')
-        .eq('negocio_id', neg.id)
+        .in('cliente_id', clientIds)
+        .neq('estado', 'resuelto') // Optional: maybe we want to see resolved too? Let's show all for now, or just open.
         .order('created_at', { ascending: false });
 
       if (tickError) {
         console.error('Error fetching incoming tickets:', tickError);
+        return;
       }
 
-      this.incomingTickets = (data || []).map((t: any) => ({ ...t, expanded: false }));
-      // console.log('Incoming tickets:', this.incomingTickets.length);
+      // 4. Filter in memory: Only keep tickets that mention our Order IDs
+      const relevantTickets = (tickets || []).filter((t: any) => {
+        // Check description for Order ID reference
+        const match = t.descripcion?.match(/Referencia Orden ID: ([a-f0-9\-]+)/) ||
+          t.asunto?.match(/\[Orden #([a-f0-9]+)\]/); // approximate check for subject
+
+        // Robust check: if we found a uuid in description
+        const descMatch = t.descripcion?.match(/Referencia Orden ID: ([a-f0-9\-]+)/);
+        if (descMatch && descMatch[1]) {
+          return myRequestIds.has(descMatch[1]);
+        }
+
+        // Fallback: If no order ID, but it's our client... 
+        // Strictly speaking, we only want Order-related tickets if we can't filter by business_id.
+        // But for now, let's stick to strict Order ID matching to avoid noise.
+        return false;
+      });
+
+      this.incomingTickets = relevantTickets.map((t: any) => ({ ...t, expanded: false }));
+
     } catch (e) {
       console.error(e);
     }
@@ -402,7 +432,7 @@ export class AdminSupportComponent implements OnInit {
 
       const { data, error: reqError } = await this.auth.client
         .from('solicitudes')
-        .select('id, direccion, direccion_servicio')
+        .select('id, direccion_servicio')
         .eq('negocio_id', neg.id)
         .order('created_at', { ascending: false })
         .limit(10);
@@ -411,7 +441,11 @@ export class AdminSupportComponent implements OnInit {
         console.error('Error fetching requests:', reqError);
       }
 
-      this.recentRequests = data || [];
+      // Map to ensure 'direccion' property exists for compatibility
+      this.recentRequests = (data || []).map((r: any) => ({
+        ...r,
+        direccion: r.direccion_servicio || 'Sin dirección'
+      }));
       // console.log('Requests found:', this.recentRequests.length);
     } catch (e) { console.error(e); }
   }
