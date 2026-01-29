@@ -71,7 +71,7 @@ import { AuthService } from '../auth.service';
 
           <div class="form-group">
             <label>Teléfono *</label>
-            <input type="tel" [(ngModel)]="newPhone" placeholder="000 000 0000" [disabled]="isAdding" maxlength="10">
+            <input type="tel" [(ngModel)]="newPhone" placeholder="000 000 0000" [disabled]="isAdding" maxlength="10" (input)="restrictPhone($event)">
           </div>
 
           <p class="error-msg" *ngIf="addError">{{ addError }}</p>
@@ -352,12 +352,18 @@ export class AdminEmployeesComponent implements OnInit {
       this.cdr.detectChanges();
     }
   }
+  restrictPhone(event: any) {
+    const input = event.target;
+    input.value = input.value.replace(/[^0-9]/g, '');
+    this.newPhone = input.value;
+  }
+
   async registerNewUser(email: string, name: string, phone: string) {
     try {
-      // 1. Create a TEMPORARY Supabase client with NO PERSISTENCE to avoid logging out the admin
+      // 1. Create a TEMPORARY Supabase client with NO PERSISTENCE
       const tempClient = createClient(environment.supabaseUrl, environment.supabaseKey, {
         auth: {
-          persistSession: false, // CRITICAL: Don't touch localStorage
+          persistSession: false,
           autoRefreshToken: false,
           detectSessionInUrl: false
         }
@@ -371,7 +377,8 @@ export class AdminEmployeesComponent implements OnInit {
         password: tempPassword,
         options: {
           data: {
-            nombre_completo: name
+            nombre_completo: name, // Some triggers use this metadata
+            full_name: name
           }
         }
       });
@@ -379,21 +386,37 @@ export class AdminEmployeesComponent implements OnInit {
       if (authError) throw authError;
 
       if (authData.user) {
-        // 3. Create or Update Profile
-        // We use upsert to handle cases where a Trigger might have auto-created the profile
-        const { error: profileError } = await tempClient
+        // 3. Update Profile
+        // We assume a Trigger created the profile. We just update it.
+        // If the trigger didn't run, we fall back to insert.
+
+        await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for trigger
+
+        const { error: updateError, data: updated } = await tempClient
           .from('perfiles')
-          .upsert({
-            id: authData.user.id,
-            email: email,
+          .update({
             nombre_completo: name,
             telefono: phone,
-            rol: 'trabajador', // Explicitly set as worker
-            foto_url: null
-          }, { onConflict: 'id' });
+            rol: 'trabajador'
+          })
+          .eq('id', authData.user.id)
+          .select();
 
-        if (profileError) {
-          console.warn('Profile upsert warning (might be handled by trigger):', profileError);
+        // If no row was updated, try inserting
+        if (!updated || updated.length === 0) {
+          const { error: insertError } = await tempClient
+            .from('perfiles')
+            .insert({
+              id: authData.user.id,
+              email: email,
+              nombre_completo: name,
+              telefono: phone,
+              rol: 'trabajador'
+            });
+
+          if (insertError) console.warn('Profile insert failed:', insertError);
+        } else if (updateError) {
+          console.warn('Profile update failed:', updateError);
         }
 
         // 4. Link Access
@@ -407,7 +430,6 @@ export class AdminEmployeesComponent implements OnInit {
         if (data === 'Exito') {
           alert(`¡Usuario creado y agregado!\n\nContraseña temporal: ${tempPassword}\n\nPor favor compártela con el técnico.`);
           this.closeDialog();
-          // Delay fetch slightly to allow trigger propagation if any
           setTimeout(() => this.fetchEmployees(), 1000);
         } else {
           this.addError = `Error al vincular tras crear usuario: ${data}`;
