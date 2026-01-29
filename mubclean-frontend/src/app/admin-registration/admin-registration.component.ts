@@ -71,10 +71,7 @@ export class AdminRegistrationComponent {
             if (error) throw error;
 
             // Si el registro es exitoso (y posiblemente auto-login), pasar al paso 2
-            // Nota: Si requiere confirmación de email, esto podría variar. Asumimos auto-login o sin confirmación forzada para desarrollo.
             if (data.user) {
-                // Log in automaticamente si signup no lo hace (Supabase signup usually logs in if email confirm disabled)
-                // O verificar sesion
                 this.auth.checkSession();
                 this.currentStep = 2;
             }
@@ -90,12 +87,27 @@ export class AdminRegistrationComponent {
         this.isLoading = true;
 
         try {
-            const user = this.auth.currentUser; // Debería estar actualizado tras el paso 1
+            const user = this.auth.currentUser;
             if (!user) throw new Error("No hay usuario autenticado.");
+
+            // Determine Plan
+            const urlTree = this.router.parseUrl(this.router.url);
+            const plan = urlTree.queryParams['plan'] || 'monthly'; // default
 
             const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
 
-            // Insertar negocio con estado pendiente de pago
+            // Setup initial status based on plan
+            let status = 'pending';
+            let expiry = null;
+
+            if (plan === 'trial') {
+                status = 'active';
+                const now = new Date();
+                now.setSeconds(now.getSeconds() + 30); // 30 seconds trial
+                expiry = now.toISOString();
+            }
+
+            // Insert Business
             const { data, error } = await this.supabase
                 .from('negocios')
                 .insert({
@@ -106,7 +118,8 @@ export class AdminRegistrationComponent {
                     email_contacto: emailContacto,
                     descripcion,
                     activo: true,
-                    subscription_status: 'pending' // Estado inicial
+                    subscription_status: status,
+                    license_expiry: expiry
                 })
                 .select()
                 .single();
@@ -115,35 +128,50 @@ export class AdminRegistrationComponent {
 
             console.log('Negocio creado:', data);
 
-            // 2. Crear Preferencia de Pago en Backend
-            const backendUrl = 'http://localhost:3000/api/create_license_preference'; // Ajustar URL según env
+            // Reload user profile to catch new business role/status
+            await this.auth.loadUserProfile();
 
-            const response = await fetch(backendUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    businessId: data.id,
-                    title: `Licencia Anual - ${nombre}`,
-                    price: 1500, // Precio de la licencia (ajustar según requerimientos)
-                    payerEmail: emailContacto
-                })
-            });
+            // Handle Redirection based on Plan
+            if (plan === 'trial') {
+                // Trial: Go to Dashboard immediately
+                this.router.navigate(['/admin/dashboard']);
+                this.isLoading = false;
+            } else {
+                // Paid: Go to Payment Gateway
+                const backendUrl = 'http://localhost:3000/api/create_license_preference';
 
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error || 'Error al crear pago');
+                const price = plan === 'annual' ? 1500 : 150;
+                const title = plan === 'annual'
+                    ? `Licencia Anual - ${nombre}`
+                    : `Licencia Mensual - ${nombre}`;
+
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        businessId: data.id,
+                        title: title,
+                        price: price,
+                        payerEmail: emailContacto
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || 'Error al crear pago');
+                }
+
+                const { init_point } = await response.json();
+
+                // Redirect
+                window.location.href = init_point;
             }
-
-            const { init_point } = await response.json();
-
-            // 3. Redireccionar a Mercado Pago
-            window.location.href = init_point;
 
         } catch (e: any) {
             alert("Error al registrar negocio: " + e.message);
             this.isLoading = false;
         } finally {
-            // this.isLoading = false; // Keep loading while redirecting
+            // keep loading if redirecting
         }
     }
 }
