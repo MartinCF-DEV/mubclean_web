@@ -354,12 +354,17 @@ export class AdminEmployeesComponent implements OnInit {
   }
   async registerNewUser(email: string, name: string, phone: string) {
     try {
-      // 1. Create a TEMPORARY Supabase client to avoid logging out the current admin
-      const tempClient = createClient(environment.supabaseUrl, environment.supabaseKey);
+      // 1. Create a TEMPORARY Supabase client with NO PERSISTENCE to avoid logging out the admin
+      const tempClient = createClient(environment.supabaseUrl, environment.supabaseKey, {
+        auth: {
+          persistSession: false, // CRITICAL: Don't touch localStorage
+          autoRefreshToken: false,
+          detectSessionInUrl: false
+        }
+      });
 
       // 2. Sign Up the new user
-      // We assign a default temporary password
-      const tempPassword = 'Mubclean' + Math.floor(1000 + Math.random() * 9000); // e.g., Mubclean1234
+      const tempPassword = 'Mubclean' + Math.floor(1000 + Math.random() * 9000);
 
       const { data: authData, error: authError } = await tempClient.auth.signUp({
         email: email,
@@ -374,32 +379,24 @@ export class AdminEmployeesComponent implements OnInit {
       if (authError) throw authError;
 
       if (authData.user) {
-        // 3. Create Profile manually (since we are bypassing the main app flow)
-        // We use the ADMIN client (this.auth.client) to insert into public table 'perfiles' if RLS allows, 
-        // or usually the user can insert their own profile. 
-        // NOTE: Since RLS might restrict 'insert', we usually rely on a server trigger or the user themselves.
-        // However, if RLS allows 'authenticated' users to insert their *own* profile, the tempClient should work.
-        // Let's try inserting with the tempClient which is logged in as the new user.
-
+        // 3. Create or Update Profile
+        // We use upsert to handle cases where a Trigger might have auto-created the profile
         const { error: profileError } = await tempClient
           .from('perfiles')
-          .insert({
+          .upsert({
             id: authData.user.id,
             email: email,
             nombre_completo: name,
             telefono: phone,
-            rol: 'cliente' // Default role
-          });
+            rol: 'trabajador', // Explicitly set as worker
+            foto_url: null
+          }, { onConflict: 'id' });
 
         if (profileError) {
-          console.warn('Error inserting profile with temp client, trying admin client override...', profileError);
-          // If RLS failed, maybe our Admin User has permissions? (Unlikely for 'perfiles' usually, but worth a shot if policy allows owners)
-          // Backup: Insert with main client assuming policies allow it or we have a service role (we don't here).
-          // We will assume creation worked or Trigger handles it.
+          console.warn('Profile upsert warning (might be handled by trigger):', profileError);
         }
 
-        // 4. Now that user exists, we link them again!
-        // We call the MAIN client because 'contratar_empleado' is an RPC called by the Business Owner (Admin)
+        // 4. Link Access
         const { data, error } = await this.auth.client.rpc('contratar_empleado', {
           email_input: email,
           negocio_id_input: this.negocioId
@@ -410,7 +407,8 @@ export class AdminEmployeesComponent implements OnInit {
         if (data === 'Exito') {
           alert(`¡Usuario creado y agregado!\n\nContraseña temporal: ${tempPassword}\n\nPor favor compártela con el técnico.`);
           this.closeDialog();
-          this.fetchEmployees();
+          // Delay fetch slightly to allow trigger propagation if any
+          setTimeout(() => this.fetchEmployees(), 1000);
         } else {
           this.addError = `Error al vincular tras crear usuario: ${data}`;
         }
