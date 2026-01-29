@@ -55,6 +55,19 @@ export class AuthService {
 
         if (!error && data) {
             this.userProfile.set(data);
+
+            // If user is business admin, fetch business status
+            if (data.rol === 'admin_negocio' || data.rol === 'negocio') {
+                const { data: businessData, error: businessError } = await this.supabase
+                    .from('negocios')
+                    .select('*')
+                    .eq('owner_id', user.id)
+                    .single();
+
+                if (!businessError && businessData) {
+                    this.userProfile.update(profile => ({ ...profile, business: businessData }));
+                }
+            }
         }
     }
 

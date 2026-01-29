@@ -95,8 +95,8 @@ export class AdminRegistrationComponent {
 
             const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
 
-            // Insertar negocio
-            const { error } = await this.supabase
+            // Insertar negocio con estado pendiente de pago
+            const { data, error } = await this.supabase
                 .from('negocios')
                 .insert({
                     owner_id: user.id,
@@ -105,18 +105,45 @@ export class AdminRegistrationComponent {
                     telefono,
                     email_contacto: emailContacto,
                     descripcion,
-                    activo: true
-                });
+                    activo: true,
+                    subscription_status: 'pending' // Estado inicial
+                })
+                .select()
+                .single();
 
             if (error) throw error;
 
-            // Éxito
-            this.router.navigate(['/admin/dashboard']);
+            console.log('Negocio creado:', data);
+
+            // 2. Crear Preferencia de Pago en Backend
+            const backendUrl = 'http://localhost:3000/api/create_license_preference'; // Ajustar URL según env
+
+            const response = await fetch(backendUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    businessId: data.id,
+                    title: `Licencia Anual - ${nombre}`,
+                    price: 1500, // Precio de la licencia (ajustar según requerimientos)
+                    payerEmail: emailContacto
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'Error al crear pago');
+            }
+
+            const { init_point } = await response.json();
+
+            // 3. Redireccionar a Mercado Pago
+            window.location.href = init_point;
 
         } catch (e: any) {
             alert("Error al registrar negocio: " + e.message);
-        } finally {
             this.isLoading = false;
+        } finally {
+            // this.isLoading = false; // Keep loading while redirecting
         }
     }
 }

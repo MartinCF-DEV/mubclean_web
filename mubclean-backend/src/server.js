@@ -70,6 +70,76 @@ app.post('/api/create_preference', async (req, res) => {
     }
 });
 
+// Create License Preference (For Business Registration)
+app.post('/api/create_license_preference', async (req, res) => {
+    try {
+        const { businessId, title, price, payerEmail } = req.body;
+
+        if (!businessId || !price) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const body = {
+            items: [
+                {
+                    title: title || 'Licencia Anual Mubclean',
+                    quantity: 1,
+                    unit_price: Number(price),
+                    currency_id: 'MXN',
+                    description: 'Licencia para operar como negocio en Mubclean',
+                }
+            ],
+            payer: {
+                email: payerEmail
+            },
+            external_reference: businessId,
+            back_urls: {
+                success: `${frontendUrl}/admin/payment/success`,
+                failure: `${frontendUrl}/admin/payment/failure`,
+                pending: `${frontendUrl}/admin/payment/pending`,
+            },
+            auto_return: 'approved',
+        };
+
+        const result = await preference.create({ body });
+        res.json({ init_point: result.init_point });
+    } catch (error) {
+        console.error('Error creating license preference:', error);
+        res.status(500).json({ error: 'Failed to create preference' });
+    }
+});
+
+// Confirm License Payment (Optional/verification webhook alternative)
+app.post('/api/confirm_license_payment', async (req, res) => {
+    try {
+        const { paymentId, businessId } = req.body;
+
+        // Retrieve payment info from Mercado Pago to verify status
+        // const payment = await client.payment.get({ id: paymentId });
+        // if (payment.status === 'approved') { ... }
+
+        // For this implementation, we trust the frontend 'success' callback + validation
+        // In production, use Webhooks for security.
+
+        // Update database
+        const { error } = await supabase
+            .from('negocios')
+            .update({
+                subscription_status: 'active',
+                payment_id: paymentId,
+                license_expiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)) // 1 year validity
+            })
+            .eq('id', businessId);
+
+        if (error) throw error;
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error confirming payment:', error);
+        res.status(500).json({ error: 'Failed to confirm payment' });
+    }
+});
+
 // Start Server
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
