@@ -224,6 +224,7 @@ export class AdminEmployeesComponent implements OnInit {
         .eq('negocio_id', this.negocioId);
 
       if (error) throw error;
+      console.log('Employees fetched:', emps);
       this.employees = emps || [];
 
     } catch (e) {
@@ -239,7 +240,7 @@ export class AdminEmployeesComponent implements OnInit {
     return name.charAt(0).toUpperCase();
   }
 
-  getAvatarUrl(url: string): string | null {
+  getAvatarUrl(url: string | null): string | null {
     if (!url) return null;
     return `url('${url}')`;
   }
@@ -360,6 +361,7 @@ export class AdminEmployeesComponent implements OnInit {
 
   async registerNewUser(email: string, name: string, phone: string) {
     try {
+      console.log('Creating user:', email, name);
       // 1. Create a TEMPORARY Supabase client with NO PERSISTENCE
       const tempClient = createClient(environment.supabaseUrl, environment.supabaseKey, {
         auth: {
@@ -377,7 +379,7 @@ export class AdminEmployeesComponent implements OnInit {
         password: tempPassword,
         options: {
           data: {
-            nombre_completo: name, // Some triggers use this metadata
+            nombre_completo: name,
             full_name: name
           }
         }
@@ -386,37 +388,26 @@ export class AdminEmployeesComponent implements OnInit {
       if (authError) throw authError;
 
       if (authData.user) {
-        // 3. Update Profile
-        // We assume a Trigger created the profile. We just update it.
-        // If the trigger didn't run, we fall back to insert.
+        console.log('User created:', authData.user.id);
 
-        await new Promise(resolve => setTimeout(resolve, 500)); // Small delay for trigger
-
-        const { error: updateError, data: updated } = await tempClient
+        // 3. Upsert Profile
+        // We remove 'rol' from update in case RLS blocks it. 
+        // We use upsert to handle both insert (new) and update (existing from trigger)
+        const { error: upsertError } = await tempClient
           .from('perfiles')
-          .update({
+          .upsert({
+            id: authData.user.id,
+            email: email,
             nombre_completo: name,
             telefono: phone,
-            rol: 'trabajador'
-          })
-          .eq('id', authData.user.id)
-          .select();
+            // rol: 'trabajador' // Commented out to avoid RLS issues
+            foto_url: null
+          }, { onConflict: 'id' });
 
-        // If no row was updated, try inserting
-        if (!updated || updated.length === 0) {
-          const { error: insertError } = await tempClient
-            .from('perfiles')
-            .insert({
-              id: authData.user.id,
-              email: email,
-              nombre_completo: name,
-              telefono: phone,
-              rol: 'trabajador'
-            });
-
-          if (insertError) console.warn('Profile insert failed:', insertError);
-        } else if (updateError) {
-          console.warn('Profile update failed:', updateError);
+        if (upsertError) {
+          console.error('Profile upsert FAILED:', upsertError);
+        } else {
+          console.log('Profile upsert success');
         }
 
         // 4. Link Access
@@ -430,7 +421,9 @@ export class AdminEmployeesComponent implements OnInit {
         if (data === 'Exito') {
           alert(`¡Usuario creado y agregado!\n\nContraseña temporal: ${tempPassword}\n\nPor favor compártela con el técnico.`);
           this.closeDialog();
-          setTimeout(() => this.fetchEmployees(), 1000);
+
+          // Longer delay and log fetch
+          setTimeout(() => this.fetchEmployees(), 2000);
         } else {
           this.addError = `Error al vincular tras crear usuario: ${data}`;
         }
