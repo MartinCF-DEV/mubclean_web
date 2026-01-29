@@ -23,6 +23,10 @@ export const routes: Routes = [
         loadComponent: () => import('./change-password/change-password.component').then(m => m.ChangePasswordComponent)
     },
     {
+        path: 'business-pricing',
+        loadComponent: () => import('./public-license/public-license.component').then(m => m.PublicLicenseComponent)
+    },
+    {
         path: 'register',
         loadComponent: () => import('./register/register.component').then(m => m.RegisterComponent)
     },
