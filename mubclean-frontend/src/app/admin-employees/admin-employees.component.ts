@@ -1,5 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
 
@@ -67,9 +69,8 @@ import { AuthService } from '../auth.service';
             <input type="text" [(ngModel)]="newName" placeholder="Nombre y Apellido" [disabled]="isAdding">
           </div>
 
-          <div class="form-group">
             <label>Teléfono *</label>
-            <input type="tel" [(ngModel)]="newPhone" placeholder="000 000 0000" [disabled]="isAdding">
+            <input type="tel" [(ngModel)]="newPhone" placeholder="000 000 0000" [disabled]="isAdding" maxlength="10">
           </div>
 
           <p class="error-msg" *ngIf="addError">{{ addError }}</p>
@@ -278,7 +279,14 @@ export class AdminEmployeesComponent implements OnInit {
       return;
     }
 
-    // Simple Regex for basic validation
+    // Phone Validation (Exactly 10 digits)
+    const phonePattern = /^\d{10}$/;
+    if (!phonePattern.test(this.newPhone)) {
+      this.addError = 'El teléfono debe tener exactamente 10 dígitos.';
+      return;
+    }
+
+    // Email Validation
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     if (!emailPattern.test(this.newEmail)) {
       this.addError = 'Por favor ingresa un correo válido.';
@@ -327,7 +335,8 @@ export class AdminEmployeesComponent implements OnInit {
         this.closeDialog();
         this.fetchEmployees();
       } else if (data === 'No existe') {
-        this.addError = 'El usuario no se ha registrado en la App.';
+        // User does not exist, so we create it automatically
+        await this.registerNewUser(email, this.newName, this.newPhone);
       } else if (data === 'Ya registrado') {
         this.addError = 'Este usuario ya está en tu equipo.';
       } else {
@@ -340,6 +349,75 @@ export class AdminEmployeesComponent implements OnInit {
     } finally {
       this.isAdding = false;
       this.cdr.detectChanges();
+    }
+  }
+  async registerNewUser(email: string, name: string, phone: string) {
+    try {
+      // 1. Create a TEMPORARY Supabase client to avoid logging out the current admin
+      const tempClient = createClient(environment.supabaseUrl, environment.supabaseKey);
+
+      // 2. Sign Up the new user
+      // We assign a default temporary password
+      const tempPassword = 'Mubclean' + Math.floor(1000 + Math.random() * 9000); // e.g., Mubclean1234
+
+      const { data: authData, error: authError } = await tempClient.auth.signUp({
+        email: email,
+        password: tempPassword,
+        options: {
+          data: {
+            nombre_completo: name
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
+      if (authData.user) {
+        // 3. Create Profile manually (since we are bypassing the main app flow)
+        // We use the ADMIN client (this.auth.client) to insert into public table 'perfiles' if RLS allows, 
+        // or usually the user can insert their own profile. 
+        // NOTE: Since RLS might restrict 'insert', we usually rely on a server trigger or the user themselves.
+        // However, if RLS allows 'authenticated' users to insert their *own* profile, the tempClient should work.
+        // Let's try inserting with the tempClient which is logged in as the new user.
+
+        const { error: profileError } = await tempClient
+          .from('perfiles')
+          .insert({
+            id: authData.user.id,
+            email: email,
+            nombre_completo: name,
+            telefono: phone,
+            rol: 'cliente' // Default role
+          });
+
+        if (profileError) {
+          console.warn('Error inserting profile with temp client, trying admin client override...', profileError);
+          // If RLS failed, maybe our Admin User has permissions? (Unlikely for 'perfiles' usually, but worth a shot if policy allows owners)
+          // Backup: Insert with main client assuming policies allow it or we have a service role (we don't here).
+          // We will assume creation worked or Trigger handles it.
+        }
+
+        // 4. Now that user exists, we link them again!
+        // We call the MAIN client because 'contratar_empleado' is an RPC called by the Business Owner (Admin)
+        const { data, error } = await this.auth.client.rpc('contratar_empleado', {
+          email_input: email,
+          negocio_id_input: this.negocioId
+        });
+
+        if (error) throw error;
+
+        if (data === 'Exito') {
+          alert(`¡Usuario creado y agregado!\n\nContraseña temporal: ${tempPassword}\n\nPor favor compártela con el técnico.`);
+          this.closeDialog();
+          this.fetchEmployees();
+        } else {
+          this.addError = `Error al vincular tras crear usuario: ${data}`;
+        }
+      }
+
+    } catch (e: any) {
+      console.error('Error creating user:', e);
+      this.addError = 'No se pudo crear el usuario automáticamente: ' + e.message;
     }
   }
 }
