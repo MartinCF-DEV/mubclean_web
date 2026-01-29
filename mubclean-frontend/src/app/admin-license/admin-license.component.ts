@@ -9,40 +9,50 @@ import { Router } from '@angular/router';
   imports: [CommonModule],
   template: `
     <div class="license-container">
-      <div class="license-card">
-        <div class="header">
-          <h1>Licencia Mubclean</h1>
-          <p class="subtitle">Activa tu negocio para comenzar a operar</p>
+      <div class="license-wrapper">
+        <div class="header-text">
+            <h1>Activa tu suscripción</h1>
+            <p>Selecciona un plan para continuar operando tu negocio.</p>
         </div>
         
-        <div class="content">
-          <div class="plan-details">
-            <div class="price-tag">
-              <span class="currency">$</span>
-              <span class="amount">1,500</span>
-              <span class="period">/año</span>
+        <div class="cards-row">
+            <!-- Monthly -->
+            <div class="license-card">
+              <div class="plan-name">Mensual</div>
+              <div class="plan-price">
+                <span class="currency">$</span>
+                <span class="amount">150</span>
+                <span class="period">/mes</span>
+              </div>
+              <ul class="features">
+                <li><i class="fas fa-check"></i> Acceso completo</li>
+                <li><i class="fas fa-check"></i> Cancelación flexible</li>
+              </ul>
+              <button (click)="initiatePayment('monthly')" [disabled]="isLoading" class="btn-pay btn-secondary">
+                Pagar Mensual
+              </button>
             </div>
-            
-            <ul class="features">
-              <li><i class="fas fa-check-circle"></i> Gestión completa de empleados</li>
-              <li><i class="fas fa-check-circle"></i> Panel de administración avanzado</li>
-              <li><i class="fas fa-check-circle"></i> Soporte técnico prioritario</li>
-              <li><i class="fas fa-check-circle"></i> Visibilidad en la app de clientes</li>
-            </ul>
-          </div>
 
-          <div class="action-area">
-            <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
-            
-            <button (click)="initiatePayment()" [disabled]="isLoading" class="btn-pay">
-              <i class="fas fa-lock" *ngIf="!isLoading"></i>
-              <span *ngIf="!isLoading">Pagar con Mercado Pago</span>
-              <span *ngIf="isLoading" class="spinner"></span>
-            </button>
-            
-            <p class="secure-text"><i class="fas fa-shield-alt"></i> Pago 100% seguro</p>
-          </div>
+            <!-- Annual -->
+            <div class="license-card highlight">
+              <div class="plan-name">Anual</div>
+              <div class="plan-price">
+                <span class="currency">$</span>
+                <span class="amount">1,500</span>
+                <span class="period">/año</span>
+              </div>
+              <ul class="features">
+                <li><i class="fas fa-check"></i> <strong>2 meses GRATIS</strong></li>
+                <li><i class="fas fa-check"></i> Soporte VIP</li>
+                <li><i class="fas fa-check"></i> Verificado</li>
+              </ul>
+              <button (click)="initiatePayment('annual')" [disabled]="isLoading" class="btn-pay btn-primary">
+                Pagar Anual
+              </button>
+            </div>
         </div>
+        
+        <p *ngIf="errorMessage" class="error-message" style="margin-top: 2rem;">{{ errorMessage }}</p>
       </div>
     </div>
   `,
