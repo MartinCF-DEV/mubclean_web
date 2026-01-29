@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
 
@@ -69,6 +69,7 @@ import { AuthService } from '../auth.service';
             <input type="text" [(ngModel)]="newName" placeholder="Nombre y Apellido" [disabled]="isAdding">
           </div>
 
+          <div class="form-group">
             <label>Teléfono *</label>
             <input type="tel" [(ngModel)]="newPhone" placeholder="000 000 0000" [disabled]="isAdding" maxlength="10">
           </div>
