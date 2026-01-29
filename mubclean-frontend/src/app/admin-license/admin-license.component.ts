@@ -4,10 +4,10 @@ import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-admin-license',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-admin-license',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="license-container">
       <div class="license-card">
         <div class="header">
@@ -46,182 +46,140 @@ import { Router } from '@angular/router';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .license-container {
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-      padding: 1rem;
+      padding: 2rem;
       font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .license-wrapper {
+        text-align: center;
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .header-text { margin-bottom: 2rem; }
+    .header-text h1 { font-size: 2rem; font-weight: 800; color: #1f2937; margin-bottom: 0.5rem; }
+    .header-text p { color: #6b7280; }
+
+    .cards-row {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
     .license-card {
       background: white;
       border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 450px;
-      overflow: hidden;
-    }
-
-    .header {
-      background: #111827;
-      color: white;
       padding: 2rem;
-      text-align: center;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    .subtitle {
-      color: #9ca3af;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-    }
-
-    .content {
-      padding: 2rem;
-    }
-
-    .price-tag {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: #111827;
-    }
-
-    .currency { font-size: 1.5rem; vertical-align: top; font-weight: 600; }
-    .amount { font-size: 3.5rem; font-weight: 800; line-height: 1; }
-    .period { color: #6b7280; font-weight: 500; font-size: 1rem; }
-
-    .features {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 2rem 0;
-    }
-
-    .features li {
+      flex: 1;
+      min-width: 300px;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      border: 1px solid #e5e7eb;
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      color: #374151;
+      flex-direction: column;
     }
 
-    .features i {
-      color: #059669;
-      font-size: 1.1rem;
+    .license-card.highlight {
+        border-color: #2563eb;
+        box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
+        transform: scale(1.02);
     }
+
+    .plan-name { font-size: 1.5rem; font-weight: 700; color: #111827; }
+    .plan-price { margin: 1.5rem 0; color: #1f2937; }
+    .amount { font-size: 3rem; font-weight: 800; }
+    .period { color: #6b7280; }
+
+    .features { list-style: none; padding: 0; margin-bottom: 2rem; text-align: left; }
+    .features li { margin-bottom: 0.75rem; color: #4b5563; display: flex; align-items: center; gap: 0.5rem; }
+    .features i { color: #059669; }
 
     .btn-pay {
+      margin-top: auto;
       width: 100%;
-      background: #009ee3; /* Mercado Pago Blue */
-      color: white;
-      border: none;
       padding: 1rem;
       border-radius: 12px;
-      font-size: 1.1rem;
+      border: none;
       font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: background 0.2s;
+      font-size: 1rem;
+      transition: all 0.2s;
     }
 
-    .btn-pay:hover {
-      background: #0081bb;
-    }
-
-    .btn-pay:disabled {
-      background: #9ca3af;
-      cursor: not-allowed;
-    }
-
-    .secure-text {
-      text-align: center;
-      color: #6b7280;
-      font-size: 0.8rem;
-      margin-top: 1rem;
-    }
-
-    .error-message {
-      color: #dc2626;
-      text-align: center;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-    }
-
-    .spinner {
-      border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top: 3px solid white;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-secondary { background: #eff6ff; color: #2563eb; }
+    
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary:hover { background: #dbeafe; }
   `]
 })
 export class AdminLicenseComponent implements OnInit {
-    auth = inject(AuthService);
-    router = inject(Router);
-    isLoading = false;
-    errorMessage = '';
+  auth = inject(AuthService);
+  router = inject(Router);
+  isLoading = false;
+  errorMessage = '';
 
-    ngOnInit() {
-        // Ensure we have user data
-        if (!this.auth.currentUser) {
-            this.router.navigate(['/login']);
-        }
+  ngOnInit() {
+    if (!this.auth.currentUser) {
+      this.router.navigate(['/login']);
     }
+  }
 
-    async initiatePayment() {
-        this.isLoading = true;
-        this.errorMessage = '';
+  async initiatePayment(type: 'monthly' | 'annual') {
+    this.isLoading = true;
+    this.errorMessage = '';
 
-        try {
-            const user = this.auth.currentUser;
-            const profile = this.auth.profile;
-            const business = profile?.business;
+    try {
+      const user = this.auth.currentUser;
+      const profile = this.auth.profile;
+      const business = profile?.business; // Ensure updated
 
-            if (!business) {
-                throw new Error('No se encontró información del negocio.');
-            }
+      if (!business) {
+        // Try reloading just in case
+        await this.auth.loadUserProfile();
+        if (!this.auth.profile?.business)
+          throw new Error('No se encontró información del negocio.');
+      }
 
-            const backendUrl = 'http://localhost:3000/api/create_license_preference';
+      const bus = this.auth.profile.business;
 
-            const response = await fetch(backendUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    businessId: business.id,
-                    title: `Licencia Anual - ${business.nombre}`,
-                    price: 1500,
-                    payerEmail: business.email_contacto || user?.email
-                })
-            });
+      const backendUrl = 'http://localhost:3000/api/create_license_preference';
 
-            if (!response.ok) {
-                throw new Error('Error al conectar con el servidor de pagos');
-            }
+      const price = type === 'monthly' ? 150 : 1500;
+      const title = type === 'monthly'
+        ? `Licencia Mensual - ${bus.nombre}`
+        : `Licencia Anual - ${bus.nombre}`;
 
-            const { init_point } = await response.json();
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          businessId: bus.id,
+          title: title,
+          price: price,
+          payerEmail: bus.email_contacto || user?.email
+        })
+      });
 
-            // Redirect to Mercado Pago
-            window.location.href = init_point;
+      if (!response.ok) {
+        throw new Error('Error al conectar con el servidor de pagos');
+      }
 
-        } catch (e: any) {
-            console.error(e);
-            this.errorMessage = e.message || 'Ocurrió un error inesperado';
-            this.isLoading = false;
-        }
+      const { init_point } = await response.json();
+      window.location.href = init_point;
+
+    } catch (e: any) {
+      console.error(e);
+      this.errorMessage = e.message || 'Ocurrió un error inesperado';
+      this.isLoading = false;
     }
+  }
 }
