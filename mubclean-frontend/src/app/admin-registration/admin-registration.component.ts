@@ -148,86 +148,82 @@ export class AdminRegistrationComponent {
             });
         }
     }
-}
-
     private cdr = inject(ChangeDetectorRef);
     private ngZone = inject(NgZone);
 
-    // ... (rest of imports/constructor)
-
     async onStep2Submit() {
-    if (!this.isPaymentConfirmed) {
-        alert('Pago no detectado. Redirigiendo a precios.');
-        this.router.navigate(['/business-pricing']);
-        return;
-    }
-
-    if (this.businessForm.invalid) return;
-    this.isLoading = true;
-
-    try {
-        const user = this.auth.currentUser;
-        if (!user) throw new Error("No hay usuario autenticado.");
-
-        // Create Business
-        const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
-        const status = 'pending';
-
-        const { data, error } = await this.supabase
-            .from('negocios')
-            .insert({
-                owner_id: user.id,
-                nombre,
-                direccion,
-                telefono,
-                email_contacto: emailContacto,
-                descripcion,
-                activo: true,
-                subscription_status: status,
-                license_expiry: null
-            })
-            .select()
-            .single();
-
-        if (error) throw error;
-
-        console.log('Negocio creado (pending):', data);
-        await this.auth.loadUserProfile();
-
-        // Claim Payment
-        const claimUrl = `${environment.apiUrl}/claim_license_payment`;
-        const response = await fetch(claimUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                paymentId: this.paymentId,
-                businessId: data.id,
-                planType: this.currentPlan
-            })
-        });
-
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            const msg = errData.error || errData.details || response.statusText;
-            throw new Error('Error al activar licencia: ' + msg);
+        if (!this.isPaymentConfirmed || !this.paymentId) {
+            alert('Pago no detectado. Redirigiendo a precios.');
+            this.router.navigate(['/business-pricing']);
+            return;
         }
 
-        // Refresh profile
-        await this.auth.loadUserProfile();
+        if (this.businessForm.invalid) return;
+        this.isLoading = true;
 
-        // Success - Wrap in Zone
-        this.ngZone.run(() => {
-            this.isLoading = false;
-            alert('¡Cuenta y Licencia Activadas! Bienvenido a MubClean.');
-            this.router.navigate(['/admin/dashboard']);
-        });
+        try {
+            const user = this.auth.currentUser;
+            if (!user) throw new Error("No hay usuario autenticado.");
 
-    } catch (e: any) {
-        this.ngZone.run(() => {
-            console.error(e);
-            alert("Error: " + (e.message || JSON.stringify(e)));
-            this.isLoading = false;
-        });
+            // Create Business
+            const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
+            const status = 'pending';
+
+            const { data, error } = await this.supabase
+                .from('negocios')
+                .insert({
+                    owner_id: user.id,
+                    nombre,
+                    direccion,
+                    telefono,
+                    email_contacto: emailContacto,
+                    descripcion,
+                    activo: true,
+                    subscription_status: status,
+                    license_expiry: null
+                })
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            console.log('Negocio creado (pending):', data);
+            await this.auth.loadUserProfile();
+
+            // Claim Payment
+            const claimUrl = `${environment.apiUrl}/claim_license_payment`;
+            const response = await fetch(claimUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    paymentId: this.paymentId,
+                    businessId: data.id,
+                    planType: this.currentPlan
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                const msg = errData.error || errData.details || response.statusText;
+                throw new Error('Error al activar licencia: ' + msg);
+            }
+
+            // Refresh profile
+            await this.auth.loadUserProfile();
+
+            // Success - Wrap in Zone
+            this.ngZone.run(() => {
+                this.isLoading = false;
+                alert('¡Cuenta y Licencia Activadas! Bienvenido a MubClean.');
+                this.router.navigate(['/admin/dashboard']);
+            });
+
+        } catch (e: any) {
+            this.ngZone.run(() => {
+                console.error(e);
+                alert("Error: " + (e.message || JSON.stringify(e)));
+                this.isLoading = false;
+            });
+        }
     }
-}
 }
