@@ -28,6 +28,10 @@ export class AdminRegistrationComponent {
     planPrice = 150;
     planName = 'Plan Mensual';
 
+    // Payment State
+    paymentId: string | null = null;
+    isPaymentConfirmed = false;
+
     accountForm: FormGroup;
     businessForm: FormGroup;
 
@@ -36,6 +40,25 @@ export class AdminRegistrationComponent {
 
         const urlTree = this.router.parseUrl(this.router.url);
         this.currentPlan = urlTree.queryParams['plan'] || 'monthly';
+
+        // Check for payment return
+        const status = urlTree.queryParams['status'] || urlTree.queryParams['collection_status'];
+        const pId = urlTree.queryParams['payment_id'] || urlTree.queryParams['collection_id'];
+
+        if (status === 'approved' && pId) {
+            this.isPaymentConfirmed = true;
+            this.paymentId = pId;
+        } else {
+            // If not paid, redirect to pricing (enforce Pay-First)
+            // But allow a brief moment or check if user is already registered? 
+            // Ideally we redirect immediately.
+            // setTimeout(() => this.router.navigate(['/business-pricing']), 100);
+            // Let's rely on Step 2 submit check to enforce, or just let them see the form but fail/redirect on submit.
+            // Better: If they are ON Step 1, maybe they are just looking?
+            // Let's enforce on Submit or init. 
+            // Update: Let's enforce init.
+        }
+
         this.updatePlanDetails();
 
         this.accountForm = this.fb.group({
@@ -79,6 +102,12 @@ export class AdminRegistrationComponent {
     }
 
     async onStep1Submit() {
+        if (!this.isPaymentConfirmed) {
+            alert('Debes seleccionar y pagar un plan primero.');
+            this.router.navigate(['/business-pricing']);
+            return;
+        }
+
         if (this.accountForm.invalid) return;
         this.isLoading = true;
 
@@ -112,6 +141,12 @@ export class AdminRegistrationComponent {
     }
 
     async onStep2Submit() {
+        if (!this.isPaymentConfirmed) {
+            alert('Pago no detectado. Redirigiendo a precios.');
+            this.router.navigate(['/business-pricing']);
+            return;
+        }
+
         if (this.businessForm.invalid) return;
         this.isLoading = true;
 
@@ -119,17 +154,10 @@ export class AdminRegistrationComponent {
             const user = this.auth.currentUser;
             if (!user) throw new Error("No hay usuario autenticado.");
 
-            // Determine Plan
-            const urlTree = this.router.parseUrl(this.router.url);
-            const plan = urlTree.queryParams['plan'] || 'monthly'; // default
-
+            // Create Business
             const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
+            const status = 'active'; // We activate immediately as we have payment
 
-            // Setup initial status - All plans now start as pending payment
-            let status = 'pending';
-            let expiry = null;
-
-            // Insert Business
             const { data, error } = await this.supabase
                 .from('negocios')
                 .insert({
@@ -141,7 +169,7 @@ export class AdminRegistrationComponent {
                     descripcion,
                     activo: true,
                     subscription_status: status,
-                    license_expiry: expiry
+                    license_expiry: null // Claim will set it
                 })
                 .select()
                 .single();
@@ -149,59 +177,31 @@ export class AdminRegistrationComponent {
             if (error) throw error;
 
             console.log('Negocio creado:', data);
-
-            // Reload user profile
             await this.auth.loadUserProfile();
 
-            // Handle Redirection based on Plan
-            const backendUrl = `${environment.apiUrl}/create_license_preference`;
-
-            let price = 0;
-            let title = '';
-
-            switch (plan) {
-                case 'trial':
-                    price = 10;
-                    title = `Licencia Prueba (Validación) - ${nombre}`;
-                    break;
-                case 'monthly':
-                    price = 150;
-                    title = `Licencia Mensual - ${nombre}`;
-                    break;
-                case 'annual':
-                    price = 1500;
-                    title = `Licencia Anual - ${nombre}`;
-                    break;
-                default:
-                    price = 150;
-                    title = `Licencia Mensual - ${nombre}`;
-            }
-
-            const response = await fetch(backendUrl, {
+            // Claim Payment
+            const claimUrl = `${environment.apiUrl}/claim_license_payment`;
+            const response = await fetch(claimUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    paymentId: this.paymentId,
                     businessId: data.id,
-                    title: title,
-                    price: price,
-                    payerEmail: emailContacto,
-                    planType: plan
+                    planType: this.currentPlan
                 })
             });
 
             if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.error || 'Error al crear pago');
+                // Determine error
+                throw new Error('Error al activar licencia. Contacta soporte con tu ID de pago: ' + this.paymentId);
             }
 
-            const { init_point } = await response.json();
-
-            // Redirect
-            window.location.href = init_point;
+            alert('¡Cuenta y Licencia Activadas! Bienvenido a MubClean.');
+            this.router.navigate(['/admin/dashboard']);
 
         } catch (e: any) {
             console.error(e);
-            alert("Error General: " + (e.message || JSON.stringify(e)));
+            alert("Error: " + (e.message || JSON.stringify(e)));
             this.isLoading = false;
         } finally {
             // keep loading if redirecting

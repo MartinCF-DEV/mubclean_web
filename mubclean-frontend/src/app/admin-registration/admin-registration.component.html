@@ -67,18 +67,18 @@
                     <textarea formControlName="descripcion" placeholder="Descripción" rows="3"></textarea>
                 </div>
 
-                <!-- Payment Summary -->
-                <div
-                    style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
-                    <p style="margin: 0; font-size: 0.9rem; color: #64748b;">Plan Seleccionado:</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                        <span style="font-weight: 600; color: #0f172a;">{{ planName }}</span>
-                        <span style="font-weight: 700; font-size: 1.2rem; color: #2563eb;">$ {{ planPrice }}</span>
+                <!-- Payment Summary (Verified) -->
+                <div class="payment-verified-box"
+                    style="background: #eff6ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bfdbfe; display: flex; align-items: center;">
+                    <span class="material-icons" style="color: #2563eb; margin-right: 10px;">verified</span>
+                    <div>
+                        <p style="margin: 0; font-size: 0.8rem; color: #1e40af; font-weight: 700;">PAGO EXITOSO</p>
+                        <p style="margin: 0; font-size: 0.9rem; color: #1e3a8a;">{{ planName }} (${{ planPrice }})</p>
                     </div>
                 </div>
 
                 <button type="submit" class="submit-btn" [disabled]="isLoading || businessForm.invalid">
-                    {{ isLoading ? 'Procesando...' : 'Pagar $ ' + planPrice + ' e Iniciar' }}
+                    {{ isLoading ? 'Activando...' : 'Finalizar y Activar Cuenta' }}
                 </button>
             </form>
         </div>

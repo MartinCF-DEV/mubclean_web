@@ -109,6 +109,79 @@ app.post('/api/create_license_preference', async (req, res) => {
     }
 });
 
+// Create Guest License Preference (Pay First, Register Later)
+app.post('/api/create_guest_license_preference', async (req, res) => {
+    try {
+        const { title, price, planType } = req.body;
+
+        const body = {
+            items: [
+                {
+                    title: title || 'Licencia Mubclean',
+                    quantity: 1,
+                    unit_price: Number(price),
+                    currency_id: 'MXN',
+                    description: `Licencia ${planType} (Pre-registro)`,
+                }
+            ],
+            // No payer info yet as it is guest
+            external_reference: JSON.stringify({ planType, type: 'guest' }),
+            back_urls: {
+                success: `${frontendUrl}/business-register`,
+                failure: `${frontendUrl}/business-register`,
+                pending: `${frontendUrl}/business-register`,
+            },
+            auto_return: 'approved',
+        };
+
+        const result = await preference.create({ body });
+        res.json({ init_point: result.init_point });
+    } catch (error) {
+        console.error('Error creating guest preference:', error);
+        res.status(500).json({ error: 'Failed to create preference' });
+    }
+});
+
+// Claim/Activate License after Registration
+app.post('/api/claim_license_payment', async (req, res) => {
+    try {
+        const { paymentId, businessId, planType } = req.body;
+
+        if (!paymentId || !businessId) {
+            return res.status(400).json({ error: 'Missing paymentId or businessId' });
+        }
+
+        // Calculate Expiry
+        let expiryDate = new Date();
+        const type = planType || 'monthly'; // default if missing
+
+        if (type === 'trial') {
+            expiryDate.setDate(expiryDate.getDate() + 30);
+        } else if (type === 'monthly') {
+            expiryDate.setMonth(expiryDate.getMonth() + 1);
+        } else if (type === 'annual') {
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        }
+
+        // Update database
+        const { error } = await supabase
+            .from('negocios')
+            .update({
+                subscription_status: 'active',
+                payment_id: paymentId,
+                license_expiry: expiryDate
+            })
+            .eq('id', businessId);
+
+        if (error) throw error;
+
+        res.json({ success: true, expiry: expiryDate });
+    } catch (error) {
+        console.error('Error claiming payment:', error);
+        res.status(500).json({ error: 'Failed to claim payment' });
+    }
+});
+
 // Confirm License Payment (Optional/verification webhook alternative)
 app.post('/api/confirm_license_payment', async (req, res) => {
     try {

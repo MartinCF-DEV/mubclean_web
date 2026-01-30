@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-public-license',
@@ -229,7 +230,33 @@ import { Router, RouterModule } from '@angular/router';
 export class PublicLicenseComponent {
   router = inject(Router);
 
-  goToRegister(plan: string) {
-    this.router.navigate(['/business-register'], { queryParams: { plan } });
+  isLoading = false;
+
+  async goToRegister(plan: string) {
+    this.isLoading = true;
+    try {
+      const backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
+
+      let price = 150;
+      let title = 'Licencia Mensual';
+
+      if (plan === 'annual') { price = 1500; title = 'Licencia Anual'; }
+      if (plan === 'trial') { price = 10; title = 'Validación Prueba'; }
+
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, price, planType: plan })
+      });
+
+      if (!response.ok) throw new Error('Error al iniciar pago');
+
+      const { init_point } = await response.json();
+      window.location.href = init_point;
+
+    } catch (e) {
+      alert('No se pudo iniciar el pago. Intenta de nuevo.');
+      this.isLoading = false;
+    }
   }
 }
