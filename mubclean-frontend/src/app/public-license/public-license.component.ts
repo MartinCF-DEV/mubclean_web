@@ -230,6 +230,6 @@ export class PublicLicenseComponent {
   router = inject(Router);
 
   goToRegister(plan: string) {
-    this.router.navigate(['/admin/register'], { queryParams: { plan } });
+    this.router.navigate(['/business-register'], { queryParams: { plan } });
   }
 }
