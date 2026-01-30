@@ -159,27 +159,40 @@ app.post('/api/claim_license_payment', async (req, res) => {
             return res.status(400).json({ error: 'Missing paymentId or businessId' });
         }
 
+        console.log('Claim Request Recibido:', { paymentId, businessId, planType }); // DEBUG LOG
+
         // Calculate Expiry
         let expiryDate = new Date();
         const type = planType || 'monthly'; // default if missing
 
         if (type === 'trial') {
-            expiryDate.setMinutes(expiryDate.getMinutes() + 10); // 10 minutes for testing
+            expiryDate.setDate(expiryDate.getDate() + 30); // 30 days trial
         } else if (type === 'monthly') {
             expiryDate.setMonth(expiryDate.getMonth() + 1);
         } else if (type === 'annual') {
             expiryDate.setFullYear(expiryDate.getFullYear() + 1);
         }
 
+        console.log('Expiry calculado:', expiryDate);
+
         // Update database
-        const { error } = await supabase
+        const { data, error, count } = await supabase
             .from('negocios')
             .update({
                 subscription_status: 'active',
                 payment_id: paymentId,
                 license_expiry: expiryDate
             })
-            .eq('id', businessId);
+            .eq('id', businessId)
+            .select(); // Add select to see if row returns
+
+        console.log('Update Result:', { error, count, data });
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            console.error('ALERTA: No se actualizó ninguna fila. ID negocio incorrecto?', businessId);
+            throw new Error('Business ID not found or update failed');
+        }
 
         if (error) throw error;
 
