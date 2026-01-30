@@ -40,36 +40,18 @@ export class LandingPageComponent {
     }
 
     openClientApp() {
-        // Attempt to open the app via custom scheme
-        // You should configure this scheme in your mobile app (e.g. mubclean://)
-        const appScheme = 'mubclean://home';
+        // Path to the APK file in assets
+        const apkUrl = 'assets/mubclean-client.apk';
 
-        // ... rest of logic
+        // Create a temporary anchor element to trigger the download
+        const link = document.createElement('a');
+        link.href = apkUrl;
+        link.download = 'mubclean-client.apk';
+        link.target = '_blank'; // Optional, but good practice
 
-
-        // Fallback URLs (Play Store / App Store)
-        const androidStore = 'https://play.google.com/store/apps/details?id=com.mubclean.client';
-        const iosStore = 'https://apps.apple.com/app/id123456789'; // Placeholder
-
-        // Try to open the app
-        window.location.href = appScheme;
-
-        // Fallback if app is not installed (detect if we are still on the page)
-        setTimeout(() => {
-            // Check if page is hidden (app opened) or not
-            if (!document.hidden) {
-                // Determine OS to redirect to correct store
-                const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-
-                if (/android/i.test(userAgent)) {
-                    window.location.href = androidStore;
-                } else if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-                    window.location.href = iosStore;
-                } else {
-                    // Desktop or unknown -> Redirect to a page explaining the app or generic store
-                    alert("La aplicación móvil está disponible para iOS y Android.");
-                }
-            }
-        }, 1500); // Wait 1.5s to see if app launched
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 }
