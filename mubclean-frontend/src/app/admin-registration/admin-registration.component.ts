@@ -195,7 +195,9 @@ export class AdminRegistrationComponent {
 
             if (!response.ok) {
                 // Determine error
-                throw new Error('Error al activar licencia. Contacta soporte con tu ID de pago: ' + this.paymentId);
+                const errData = await response.json().catch(() => ({}));
+                const msg = errData.error || errData.details || response.statusText;
+                throw new Error('Error al activar licencia: ' + msg);
             }
 
             alert('¡Cuenta y Licencia Activadas! Bienvenido a MubClean.');
@@ -206,7 +208,7 @@ export class AdminRegistrationComponent {
             alert("Error: " + (e.message || JSON.stringify(e)));
             this.isLoading = false;
         } finally {
-            // keep loading if redirecting
+            // this.isLoading = false; // Intentionally left commented or handled above to allow redirect
         }
     }
 }
