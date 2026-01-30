@@ -156,4 +156,17 @@
         </div>
     </div>
 
+    <!-- LICENSE EXPIRED OVERLAY -->
+    <div class="expired-overlay" *ngIf="licenseExpired">
+        <div class="expired-card">
+            <span class="material-icons warning-icon">warning_amber</span>
+            <h2>Suscripción Expirada</h2>
+            <p>Tu periodo de servicio ha terminado. Para seguir gestionando tu negocio, por favor renueva tu plan.</p>
+            <button class="renew-btn" routerLink="/business-pricing">
+                EXTENDER SUSCRIPCIÓN
+                <span class="material-icons">arrow_forward</span>
+            </button>
+        </div>
+    </div>
+
 </div>

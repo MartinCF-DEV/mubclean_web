@@ -23,6 +23,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     business: any = null;
     errorMessage: string | null = null;
     currentDate = new Date();
+    licenseExpired = false;
 
     // Modal State
     modalVisible = false;
@@ -53,7 +54,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
         // Auto-refresh stats every 10s
         this.refreshInterval = setInterval(() => {
-            if (this.business) {
+            if (this.business && !this.licenseExpired) {
                 this.fetchData(true);
             }
         }, 10000);
@@ -95,7 +96,21 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             }
 
             this.business = negocio;
-            await this.fetchData();
+
+            // Check Expiry
+            if (this.business.license_expiry) {
+                const expiry = new Date(this.business.license_expiry);
+                if (expiry < new Date()) {
+                    this.licenseExpired = true;
+                }
+            }
+
+            // NOTE: For testing purposes, uncomment to force expiry
+            // this.licenseExpired = true;
+
+            if (!this.licenseExpired) {
+                await this.fetchData();
+            }
 
         } catch (e: any) {
             console.error("Dashboard Error", e);
