@@ -230,19 +230,12 @@ import { AuthService } from '../auth.service';
 })
 export class PublicLicenseComponent {
   router = inject(Router);
-  auth = inject(AuthService); // Inject AuthService
-
   isLoading = false;
 
   async goToRegister(plan: string) {
     this.isLoading = true;
     try {
-      await this.auth.checkSession(); // Ensure session is loaded
-      const user = this.auth.currentUser;
-      const profile = this.auth.profile;
-
-      let backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
-      let payload: any = {};
+      const backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
 
       let price = 150;
       let title = 'Licencia Mensual';
@@ -250,22 +243,7 @@ export class PublicLicenseComponent {
       if (plan === 'annual') { price = 1500; title = 'Licencia Anual'; }
       if (plan === 'trial') { price = 10; title = 'Validación Prueba'; }
 
-      // Logic: If user is logged in AND has a business, treat as renewal
-      // Cast profile to any to avoid strict type issues
-      const profileAny = profile as any;
-      if (user && profileAny?.business) {
-        backendUrl = `${environment.apiUrl}/create_license_preference`;
-        payload = {
-          businessId: profileAny.business.id,
-          title,
-          price,
-          payerEmail: user.email,
-          planType: plan
-        };
-      } else {
-        // Guest Flow
-        payload = { title, price, planType: plan };
-      }
+      const payload = { title, price, planType: plan };
 
       const response = await fetch(backendUrl, {
         method: 'POST',
