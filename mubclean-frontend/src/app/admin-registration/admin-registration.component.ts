@@ -125,7 +125,7 @@ export class AdminRegistrationComponent {
             await this.auth.loadUserProfile();
 
             // Handle Redirection based on Plan - ALL plans go to Payment Gateway
-            const backendUrl = 'http://localhost:3000/api/create_license_preference';
+            const backendUrl = `${environment.apiUrl}/create_license_preference`;
 
             let price = 0;
             let title = '';

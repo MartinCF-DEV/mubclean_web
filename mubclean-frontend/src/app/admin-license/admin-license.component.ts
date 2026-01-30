@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-admin-license',
@@ -161,7 +162,7 @@ export class AdminLicenseComponent implements OnInit {
 
       const bus = this.auth.profile.business;
 
-      const backendUrl = 'http://localhost:3000/api/create_license_preference';
+      const backendUrl = `${environment.apiUrl}/create_license_preference`;
 
       const price = type === 'monthly' ? 150 : 1500;
       const title = type === 'monthly'
@@ -175,7 +176,8 @@ export class AdminLicenseComponent implements OnInit {
           businessId: bus.id,
           title: title,
           price: price,
-          payerEmail: bus.email_contacto || user?.email
+          payerEmail: bus.email_contacto || user?.email,
+          planType: type // Send plan type
         })
       });
 
