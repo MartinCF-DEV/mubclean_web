@@ -138,7 +138,10 @@ app.post('/api/create_guest_license_preference', async (req, res) => {
         res.json({ init_point: result.init_point });
     } catch (error) {
         console.error('Error creating guest preference:', error);
-        res.status(500).json({ error: 'Failed to create preference' });
+        // Return detailed error to frontend for debugging
+        const errorMessage = error.message || 'Unknown error';
+        const errorDetails = error.cause || error;
+        res.status(500).json({ error: errorMessage, details: errorDetails });
     }
 });
 
