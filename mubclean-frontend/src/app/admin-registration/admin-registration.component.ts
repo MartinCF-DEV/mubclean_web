@@ -158,7 +158,7 @@ export class AdminRegistrationComponent {
 
             // Create Business
             const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
-            const status = 'active'; // We activate immediately as we have payment
+            const status = 'pending'; // Start pending, activate after claim
 
             const { data, error } = await this.supabase
                 .from('negocios')
@@ -171,14 +171,14 @@ export class AdminRegistrationComponent {
                     descripcion,
                     activo: true,
                     subscription_status: status,
-                    license_expiry: null // Claim will set it
+                    license_expiry: null
                 })
                 .select()
                 .single();
 
             if (error) throw error;
 
-            console.log('Negocio creado:', data);
+            console.log('Negocio creado (pending):', data);
             await this.auth.loadUserProfile();
 
             // Claim Payment

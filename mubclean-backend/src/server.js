@@ -130,9 +130,9 @@ app.post('/api/create_guest_license_preference', async (req, res) => {
             // No payer info yet as it is guest
             external_reference: JSON.stringify({ planType, type: 'guest' }),
             back_urls: {
-                success: `${frontendUrl}/business-register`,
-                failure: `${frontendUrl}/business-register`,
-                pending: `${frontendUrl}/business-register`,
+                success: `${frontendUrl}/business-register?plan=${planType}`,
+                failure: `${frontendUrl}/business-register?plan=${planType}`,
+                pending: `${frontendUrl}/business-register?plan=${planType}`,
             },
             auto_return: 'approved',
         };
