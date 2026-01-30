@@ -11,10 +11,6 @@
     <div class="content-wrapper">
         <!-- STEP 1: ACCOUNT -->
         <div class="card" *ngIf="currentStep === 1">
-            <button (click)="testConnection()"
-                style="background: red; color: white; padding: 10px; margin-bottom: 20px; width: 100%;">
-                HOLA - TEST CONNECTION (CLICK ME)
-            </button>
             <div class="card-header">
                 <div class="icon-circle">
                     <span class="material-icons">person</span>
@@ -71,8 +67,18 @@
                     <textarea formControlName="descripcion" placeholder="Descripción" rows="3"></textarea>
                 </div>
 
+                <!-- Payment Summary -->
+                <div
+                    style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                    <p style="margin: 0; font-size: 0.9rem; color: #64748b;">Plan Seleccionado:</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <span style="font-weight: 600; color: #0f172a;">{{ planName }}</span>
+                        <span style="font-weight: 700; font-size: 1.2rem; color: #2563eb;">$ {{ planPrice }}</span>
+                    </div>
+                </div>
+
                 <button type="submit" class="submit-btn" [disabled]="isLoading || businessForm.invalid">
-                    {{ isLoading ? 'Guardando...' : 'Finalizar Registro' }}
+                    {{ isLoading ? 'Procesando...' : 'Pagar $ ' + planPrice + ' e Iniciar' }}
                 </button>
             </form>
         </div>

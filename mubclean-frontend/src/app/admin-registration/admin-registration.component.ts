@@ -23,15 +23,20 @@ export class AdminRegistrationComponent {
     currentStep = 1;
     isLoading = false;
 
+    // Plan Details
+    currentPlan = 'monthly';
+    planPrice = 150;
+    planName = 'Plan Mensual';
+
     accountForm: FormGroup;
     businessForm: FormGroup;
 
-    testConnection() {
-        alert("HOLA - SI FUNCIONA EL BOTON");
-    }
-
     constructor() {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+
+        const urlTree = this.router.parseUrl(this.router.url);
+        this.currentPlan = urlTree.queryParams['plan'] || 'monthly';
+        this.updatePlanDetails();
 
         this.accountForm = this.fb.group({
             email: ['', [Validators.required, Validators.email]],
@@ -50,6 +55,26 @@ export class AdminRegistrationComponent {
         // Si ya existe usuario, saltar al paso 2
         if (this.auth.currentUser) {
             this.currentStep = 2;
+        }
+    }
+
+    updatePlanDetails() {
+        switch (this.currentPlan) {
+            case 'trial':
+                this.planPrice = 10;
+                this.planName = 'Validación Tarjeta (Reembolsable)';
+                break;
+            case 'monthly':
+                this.planPrice = 150;
+                this.planName = 'Suscripción Mensual';
+                break;
+            case 'annual':
+                this.planPrice = 1500;
+                this.planName = 'Suscripción Anual';
+                break;
+            default:
+                this.planPrice = 150;
+                this.planName = 'Suscripción Mensual';
         }
     }
 
@@ -105,7 +130,6 @@ export class AdminRegistrationComponent {
             let expiry = null;
 
             // Insert Business
-            // alert("Debug: Creando negocio en base de datos..."); // Uncomment for heavy debugging
             const { data, error } = await this.supabase
                 .from('negocios')
                 .insert({
@@ -122,10 +146,7 @@ export class AdminRegistrationComponent {
                 .select()
                 .single();
 
-            if (error) {
-                alert("Error DB: " + error.message);
-                throw error;
-            }
+            if (error) throw error;
 
             console.log('Negocio creado:', data);
 
@@ -156,8 +177,6 @@ export class AdminRegistrationComponent {
                     title = `Licencia Mensual - ${nombre}`;
             }
 
-            // alert(`Debug: Conectando con pagos... URL: ${backendUrl}`); // Debug
-
             const response = await fetch(backendUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -172,14 +191,11 @@ export class AdminRegistrationComponent {
 
             if (!response.ok) {
                 const errData = await response.json().catch(() => ({}));
-                const errMsg = errData.error || response.statusText;
-                alert(`Error Backend (${response.status}): ${errMsg}`); // Visible error
-                throw new Error(errMsg || 'Error al crear pago');
+                throw new Error(errData.error || 'Error al crear pago');
             }
 
             const { init_point } = await response.json();
 
-            // alert("Debug: Redirigiendo a MP...");
             // Redirect
             window.location.href = init_point;
 
