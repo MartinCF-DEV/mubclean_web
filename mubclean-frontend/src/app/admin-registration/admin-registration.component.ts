@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -143,6 +143,7 @@ export class AdminRegistrationComponent {
     }
 
     private cdr = inject(ChangeDetectorRef);
+    private ngZone = inject(NgZone);
 
     // ... (rest of imports/constructor)
 
@@ -162,7 +163,7 @@ export class AdminRegistrationComponent {
 
             // Create Business
             const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
-            const status = 'pending'; // Start pending, activate after claim
+            const status = 'pending';
 
             const { data, error } = await this.supabase
                 .from('negocios')
@@ -198,24 +199,27 @@ export class AdminRegistrationComponent {
             });
 
             if (!response.ok) {
-                // Determine error
                 const errData = await response.json().catch(() => ({}));
                 const msg = errData.error || errData.details || response.statusText;
                 throw new Error('Error al activar licencia: ' + msg);
             }
 
-            // Refresh profile to reflect new 'active' status
+            // Refresh profile
             await this.auth.loadUserProfile();
 
-            alert('¡Cuenta y Licencia Activadas! Bienvenido a MubClean.');
-            this.router.navigate(['/admin/dashboard']);
+            // Success - Wrap in Zone
+            this.ngZone.run(() => {
+                this.isLoading = false;
+                alert('¡Cuenta y Licencia Activadas! Bienvenido a MubClean.');
+                this.router.navigate(['/admin/dashboard']);
+            });
 
         } catch (e: any) {
-            console.error(e);
-            alert("Error: " + (e.message || JSON.stringify(e)));
-            this.isLoading = false;
-        } finally {
-            this.cdr.detectChanges(); // Trigger UI update manually
+            this.ngZone.run(() => {
+                console.error(e);
+                alert("Error: " + (e.message || JSON.stringify(e)));
+                this.isLoading = false;
+            });
         }
     }
 }
