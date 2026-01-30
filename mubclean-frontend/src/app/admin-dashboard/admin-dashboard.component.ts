@@ -98,7 +98,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             this.business = negocio;
 
             // Check Expiry
-            if (this.business.license_expiry) {
+            if (!this.business.license_expiry) {
+                this.licenseExpired = true;
+            } else {
                 const expiry = new Date(this.business.license_expiry);
                 if (expiry < new Date()) {
                     this.licenseExpired = true;
