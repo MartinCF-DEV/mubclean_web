@@ -249,13 +249,18 @@ export class PublicLicenseComponent {
         body: JSON.stringify({ title, price, planType: plan })
       });
 
-      if (!response.ok) throw new Error('Error al iniciar pago');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        const errMsg = errData.error || response.statusText;
+        throw new Error(`Error Backend (${response.status}): ${errMsg}`);
+      }
 
       const { init_point } = await response.json();
       window.location.href = init_point;
 
-    } catch (e) {
-      alert('No se pudo iniciar el pago. Intenta de nuevo.');
+    } catch (e: any) {
+      console.error(e);
+      alert('Error: ' + (e.message || JSON.stringify(e)));
       this.isLoading = false;
     }
   }
