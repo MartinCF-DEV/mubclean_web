@@ -439,7 +439,7 @@ export class CustomerRequestDetailComponent implements OnInit {
         currency_id: 'MXN'
       }];
 
-      const response = await fetch('http://localhost:3000/api/create_preference', {
+      const response = await fetch(`${environment.apiUrl}/create_preference`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

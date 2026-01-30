@@ -5,10 +5,10 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
 @Component({
-    selector: 'app-admin-payment-callback',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-admin-payment-callback',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="payment-callback-container">
       <div class="card" *ngIf="status === 'success'">
         <div class="icon-circle success">
@@ -39,7 +39,7 @@ import { environment } from '../../environments/environment';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .payment-callback-container {
       display: flex;
       justify-content: center;
@@ -98,52 +98,52 @@ import { environment } from '../../environments/environment';
   `]
 })
 export class AdminPaymentCallbackComponent implements OnInit {
-    status: 'success' | 'failure' | 'pending' = 'pending';
-    private http = inject(HttpClient);
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
+  status: 'success' | 'failure' | 'pending' = 'pending';
+  private http = inject(HttpClient);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
-    ngOnInit() {
-        this.route.paramMap.subscribe(params => {
-            this.status = params.get('status') as any;
-            if (this.status === 'success') {
-                this.confirmPayment();
-            }
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      this.status = params.get('status') as any;
+      if (this.status === 'success') {
+        this.confirmPayment();
+      }
+    });
+  }
+
+  confirmPayment() {
+    const paymentId = this.route.snapshot.queryParamMap.get('payment_id');
+    const externalReference = this.route.snapshot.queryParamMap.get('external_reference'); // business_id
+
+    if (paymentId && externalReference) {
+      // Call backend to confirm
+      // Assuming backend is on port 3000 for local dev, replace with environment.apiUrl if available
+      const apiUrl = `${environment.apiUrl}/confirm_license_payment`;
+
+      this.http.post(apiUrl, { paymentId, businessId: externalReference })
+        .subscribe({
+          next: () => {
+            setTimeout(() => {
+              this.router.navigate(['/admin/dashboard']);
+            }, 2000);
+          },
+          error: (err) => {
+            console.error('Verification failed', err);
+            // Even if verification call fails, if MP says success, we might want to let them in or show error
+            // For now, redirect anyway or stay showing error? 
+            // Let's stay and show error details if needed, but for MVP:
+            alert('Hubo un error verificando tu pago. Contacta a soporte.');
+          }
         });
     }
+  }
 
-    confirmPayment() {
-        const paymentId = this.route.snapshot.queryParamMap.get('payment_id');
-        const externalReference = this.route.snapshot.queryParamMap.get('external_reference'); // business_id
+  retryPayment() {
+    this.router.navigate(['/admin/register']);
+  }
 
-        if (paymentId && externalReference) {
-            // Call backend to confirm
-            // Assuming backend is on port 3000 for local dev, replace with environment.apiUrl if available
-            const apiUrl = 'http://localhost:3000/api/confirm_license_payment';
-
-            this.http.post(apiUrl, { paymentId, businessId: externalReference })
-                .subscribe({
-                    next: () => {
-                        setTimeout(() => {
-                            this.router.navigate(['/admin/dashboard']);
-                        }, 2000);
-                    },
-                    error: (err) => {
-                        console.error('Verification failed', err);
-                        // Even if verification call fails, if MP says success, we might want to let them in or show error
-                        // For now, redirect anyway or stay showing error? 
-                        // Let's stay and show error details if needed, but for MVP:
-                        alert('Hubo un error verificando tu pago. Contacta a soporte.');
-                    }
-                });
-        }
-    }
-
-    retryPayment() {
-        this.router.navigate(['/admin/register']);
-    }
-
-    goToDashboard() {
-        this.router.navigate(['/admin/dashboard']);
-    }
+  goToDashboard() {
+    this.router.navigate(['/admin/dashboard']);
+  }
 }
