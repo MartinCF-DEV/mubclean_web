@@ -200,6 +200,9 @@ export class AdminRegistrationComponent {
                 throw new Error('Error al activar licencia: ' + msg);
             }
 
+            // Refresh profile to reflect new 'active' status
+            await this.auth.loadUserProfile();
+
             alert('¡Cuenta y Licencia Activadas! Bienvenido a MubClean.');
             this.router.navigate(['/admin/dashboard']);
 
