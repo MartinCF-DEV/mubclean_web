@@ -17,7 +17,10 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Frontend URL for callbacks
-const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+// Frontend URL for callbacks
+// Sanitize: remove whitespace and trailing slash
+let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+frontendUrl = frontendUrl.trim().replace(/\/$/, '');
 
 // MercadoPago Setup
 const client = new mercadopago.MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
@@ -133,6 +136,8 @@ app.post('/api/create_guest_license_preference', async (req, res) => {
             },
             auto_return: 'approved',
         };
+
+        console.log('Using back_urls:', body.back_urls); // Debug log
 
         const result = await preference.create({ body });
         res.json({ init_point: result.init_point });
