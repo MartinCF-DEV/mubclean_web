@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -142,6 +142,10 @@ export class AdminRegistrationComponent {
         }
     }
 
+    private cdr = inject(ChangeDetectorRef);
+
+    // ... (rest of imports/constructor)
+
     async onStep2Submit() {
         if (!this.isPaymentConfirmed) {
             alert('Pago no detectado. Redirigiendo a precios.');
@@ -211,7 +215,7 @@ export class AdminRegistrationComponent {
             alert("Error: " + (e.message || JSON.stringify(e)));
             this.isLoading = false;
         } finally {
-            // this.isLoading = false; // Intentionally left commented or handled above to allow redirect
+            this.cdr.detectChanges(); // Trigger UI update manually
         }
     }
 }
