@@ -26,6 +26,10 @@ export class AdminRegistrationComponent {
     accountForm: FormGroup;
     businessForm: FormGroup;
 
+    testConnection() {
+        alert("HOLA - SI FUNCIONA EL BOTON");
+    }
+
     constructor() {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
 
