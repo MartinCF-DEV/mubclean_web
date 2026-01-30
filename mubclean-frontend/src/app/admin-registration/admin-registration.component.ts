@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth.service';
@@ -35,31 +35,8 @@ export class AdminRegistrationComponent {
     accountForm: FormGroup;
     businessForm: FormGroup;
 
-    constructor() {
+    constructor(private route: ActivatedRoute) {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
-
-        const urlTree = this.router.parseUrl(this.router.url);
-        this.currentPlan = urlTree.queryParams['plan'] || 'monthly';
-
-        // Check for payment return
-        const status = urlTree.queryParams['status'] || urlTree.queryParams['collection_status'];
-        const pId = urlTree.queryParams['payment_id'] || urlTree.queryParams['collection_id'];
-
-        if (status === 'approved' && pId) {
-            this.isPaymentConfirmed = true;
-            this.paymentId = pId;
-        } else {
-            // If not paid, redirect to pricing (enforce Pay-First)
-            // But allow a brief moment or check if user is already registered? 
-            // Ideally we redirect immediately.
-            // setTimeout(() => this.router.navigate(['/business-pricing']), 100);
-            // Let's rely on Step 2 submit check to enforce, or just let them see the form but fail/redirect on submit.
-            // Better: If they are ON Step 1, maybe they are just looking?
-            // Let's enforce on Submit or init. 
-            // Update: Let's enforce init.
-        }
-
-        this.updatePlanDetails();
 
         this.accountForm = this.fb.group({
             email: ['', [Validators.required, Validators.email]],
@@ -79,6 +56,31 @@ export class AdminRegistrationComponent {
         if (this.auth.currentUser) {
             this.currentStep = 2;
         }
+    }
+
+    ngOnInit() {
+        // Capture query params robustly
+        this.route.queryParams.subscribe(params => {
+            console.log('Query Params:', params);
+            // alert('Debug Params: ' + JSON.stringify(params)); // Uncomment to debug on mobile
+
+            this.currentPlan = params['plan'] || 'monthly';
+            this.updatePlanDetails();
+
+            // Check for payment return
+            const status = params['status'] || params['collection_status'];
+            const pId = params['payment_id'] || params['collection_id'];
+
+            if (status === 'approved' && pId) {
+                this.isPaymentConfirmed = true;
+                this.paymentId = pId;
+                // alert('Pago confirmado: ' + pId); // Debug
+            } else {
+                // Fallback or just let them stay on step 1 (they can't submit anyway without payment logic?)
+                // Actually, if we want to enforce pay-first, checking here is good.
+                // But let's avoid auto-redirect loop if they just arrived.
+            }
+        });
     }
 
     updatePlanDetails() {
