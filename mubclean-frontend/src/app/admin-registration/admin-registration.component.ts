@@ -101,6 +101,7 @@ export class AdminRegistrationComponent {
             let expiry = null;
 
             // Insert Business
+            // alert("Debug: Creando negocio en base de datos..."); // Uncomment for heavy debugging
             const { data, error } = await this.supabase
                 .from('negocios')
                 .insert({
@@ -110,21 +111,24 @@ export class AdminRegistrationComponent {
                     telefono,
                     email_contacto: emailContacto,
                     descripcion,
-                    activo: true, // Created but inactive until paid? Or active but subscription pending? Kept as active=true but sub_status=pending
+                    activo: true,
                     subscription_status: status,
                     license_expiry: expiry
                 })
                 .select()
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                alert("Error DB: " + error.message);
+                throw error;
+            }
 
             console.log('Negocio creado:', data);
 
-            // Reload user profile to catch new business role/status
+            // Reload user profile
             await this.auth.loadUserProfile();
 
-            // Handle Redirection based on Plan - ALL plans go to Payment Gateway
+            // Handle Redirection based on Plan
             const backendUrl = `${environment.apiUrl}/create_license_preference`;
 
             let price = 0;
@@ -132,7 +136,7 @@ export class AdminRegistrationComponent {
 
             switch (plan) {
                 case 'trial':
-                    price = 10; // Nominal fee for validation (or maybe user wants this?)
+                    price = 10;
                     title = `Licencia Prueba (Validación) - ${nombre}`;
                     break;
                 case 'monthly':
@@ -148,6 +152,8 @@ export class AdminRegistrationComponent {
                     title = `Licencia Mensual - ${nombre}`;
             }
 
+            // alert(`Debug: Conectando con pagos... URL: ${backendUrl}`); // Debug
+
             const response = await fetch(backendUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -156,22 +162,26 @@ export class AdminRegistrationComponent {
                     title: title,
                     price: price,
                     payerEmail: emailContacto,
-                    planType: plan // Send plan type to backend
+                    planType: plan
                 })
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error || 'Error al crear pago');
+                const errData = await response.json().catch(() => ({}));
+                const errMsg = errData.error || response.statusText;
+                alert(`Error Backend (${response.status}): ${errMsg}`); // Visible error
+                throw new Error(errMsg || 'Error al crear pago');
             }
 
             const { init_point } = await response.json();
 
+            // alert("Debug: Redirigiendo a MP...");
             // Redirect
             window.location.href = init_point;
 
         } catch (e: any) {
-            alert("Error al registrar negocio: " + e.message);
+            console.error(e);
+            alert("Error General: " + (e.message || JSON.stringify(e)));
             this.isLoading = false;
         } finally {
             // keep loading if redirecting

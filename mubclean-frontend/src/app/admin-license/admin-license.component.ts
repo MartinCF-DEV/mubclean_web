@@ -169,6 +169,8 @@ export class AdminLicenseComponent implements OnInit {
         ? `Licencia Mensual - ${bus.nombre}`
         : `Licencia Anual - ${bus.nombre}`;
 
+      // alert(`Debug: Iniciando pago... URL: ${backendUrl}`);
+
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -182,7 +184,10 @@ export class AdminLicenseComponent implements OnInit {
       });
 
       if (!response.ok) {
-        throw new Error('Error al conectar con el servidor de pagos');
+        const errData = await response.json().catch(() => ({}));
+        const errMsg = errData.error || response.statusText;
+        alert(`Error Backend License (${response.status}): ${errMsg}`);
+        throw new Error('Error al conectar con el servidor de pagos: ' + errMsg);
       }
 
       const { init_point } = await response.json();
@@ -191,6 +196,7 @@ export class AdminLicenseComponent implements OnInit {
     } catch (e: any) {
       console.error(e);
       this.errorMessage = e.message || 'Ocurrió un error inesperado';
+      alert("Error: " + this.errorMessage);
       this.isLoading = false;
     }
   }
