@@ -164,7 +164,7 @@ app.post('/api/claim_license_payment', async (req, res) => {
         const type = planType || 'monthly'; // default if missing
 
         if (type === 'trial') {
-            expiryDate.setDate(expiryDate.getDate() + 30);
+            expiryDate.setMinutes(expiryDate.getMinutes() + 10); // 10 minutes for testing
         } else if (type === 'monthly') {
             expiryDate.setMonth(expiryDate.getMonth() + 1);
         } else if (type === 'annual') {

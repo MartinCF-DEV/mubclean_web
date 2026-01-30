@@ -23,7 +23,7 @@ import { environment } from '../../environments/environment';
           </div>
           <div class="price-section">
             <span class="amount">Gratis</span>
-            <span class="period">/30 seg</span>
+            <span class="period">/10 min</span>
           </div>
           <ul class="features">
             <li><i class="fas fa-check"></i> Acceso total</li>
