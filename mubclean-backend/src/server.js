@@ -73,7 +73,7 @@ app.post('/api/create_preference', async (req, res) => {
 // Create License Preference (For Business Registration)
 app.post('/api/create_license_preference', async (req, res) => {
     try {
-        const { businessId, title, price, payerEmail } = req.body;
+        const { businessId, title, price, payerEmail, planType } = req.body;
 
         if (!businessId || !price) {
             return res.status(400).json({ error: 'Missing required fields' });
@@ -86,13 +86,13 @@ app.post('/api/create_license_preference', async (req, res) => {
                     quantity: 1,
                     unit_price: Number(price),
                     currency_id: 'MXN',
-                    description: 'Licencia para operar como negocio en Mubclean',
+                    description: `Licencia ${planType} para operar como negocio en Mubclean`,
                 }
             ],
             payer: {
                 email: payerEmail
             },
-            external_reference: businessId,
+            external_reference: JSON.stringify({ businessId, planType }), // Store planType in metadata
             back_urls: {
                 success: `${frontendUrl}/admin/payment/success`,
                 failure: `${frontendUrl}/admin/payment/failure`,
@@ -112,14 +112,44 @@ app.post('/api/create_license_preference', async (req, res) => {
 // Confirm License Payment (Optional/verification webhook alternative)
 app.post('/api/confirm_license_payment', async (req, res) => {
     try {
-        const { paymentId, businessId } = req.body;
+        const { paymentId, businessId } = req.body; // legacy support if frontend sends raw businessId
+        //Ideally we should parse it from external_reference if possible, but frontend might just send what it has.
+        // Actually, let's rely on the frontend passing the planType OR we default. 
+        // BUT wait, in the plan I said I'd update confirm logic.
+        // If `businessId` passed here is just the ID, we don't know the plan type unless we stored it or frontend tells us.
+        // Let's check `admin-payment-callback` - it gets `external_reference` from URL.
+        // In `create_license_preference` above I put JSON in external_reference.
+        // So frontend `external_reference` param will be a JSON string?
+        // MercadoPago `external_reference` field is usually a string.
 
-        // Retrieve payment info from Mercado Pago to verify status
-        // const payment = await client.payment.get({ id: paymentId });
-        // if (payment.status === 'approved') { ... }
+        // Let's keep it simple: The frontend will receive the `external_reference` which IS the JSON string I set above.
+        // The frontend parses it? Or sends it raw? 
+        // `admin-payment-callback.ts` sends `businessId: externalReference`. 
+        // So if I change externalReference to JSON, `businessId` in `confirm_license_payment` will be that JSON string.
 
-        // For this implementation, we trust the frontend 'success' callback + validation
-        // In production, use Webhooks for security.
+        let actualBusinessId = businessId;
+        let planType = 'annual'; // default
+
+        try {
+            const parsed = JSON.parse(businessId);
+            if (parsed.businessId) {
+                actualBusinessId = parsed.businessId;
+                planType = parsed.planType || 'annual';
+            }
+        } catch (e) {
+            // Not JSON, assume it's just the ID (legacy/simple)
+            console.log('External reference is not JSON, usind as ID:', businessId);
+        }
+
+        let expiryDate = new Date();
+        if (planType === 'trial') {
+            expiryDate.setDate(expiryDate.getDate() + 30); // 30 days trial (paid)
+        } else if (planType === 'monthly') {
+            expiryDate.setMonth(expiryDate.getMonth() + 1);
+        } else {
+            // annual
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        }
 
         // Update database
         const { error } = await supabase
@@ -127,9 +157,9 @@ app.post('/api/confirm_license_payment', async (req, res) => {
             .update({
                 subscription_status: 'active',
                 payment_id: paymentId,
-                license_expiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)) // 1 year validity
+                license_expiry: expiryDate
             })
-            .eq('id', businessId);
+            .eq('id', actualBusinessId);
 
         if (error) throw error;
 

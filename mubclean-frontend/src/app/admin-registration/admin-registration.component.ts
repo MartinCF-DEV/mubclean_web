@@ -96,16 +96,9 @@ export class AdminRegistrationComponent {
 
             const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
 
-            // Setup initial status based on plan
+            // Setup initial status - All plans now start as pending payment
             let status = 'pending';
             let expiry = null;
-
-            if (plan === 'trial') {
-                status = 'active';
-                const now = new Date();
-                now.setSeconds(now.getSeconds() + 30); // 30 seconds trial
-                expiry = now.toISOString();
-            }
 
             // Insert Business
             const { data, error } = await this.supabase
@@ -117,7 +110,7 @@ export class AdminRegistrationComponent {
                     telefono,
                     email_contacto: emailContacto,
                     descripcion,
-                    activo: true,
+                    activo: true, // Created but inactive until paid? Or active but subscription pending? Kept as active=true but sub_status=pending
                     subscription_status: status,
                     license_expiry: expiry
                 })
@@ -131,41 +124,51 @@ export class AdminRegistrationComponent {
             // Reload user profile to catch new business role/status
             await this.auth.loadUserProfile();
 
-            // Handle Redirection based on Plan
-            if (plan === 'trial') {
-                // Trial: Go to Dashboard immediately
-                this.router.navigate(['/admin/dashboard']);
-                this.isLoading = false;
-            } else {
-                // Paid: Go to Payment Gateway
-                const backendUrl = 'http://localhost:3000/api/create_license_preference';
+            // Handle Redirection based on Plan - ALL plans go to Payment Gateway
+            const backendUrl = 'http://localhost:3000/api/create_license_preference';
 
-                const price = plan === 'annual' ? 1500 : 150;
-                const title = plan === 'annual'
-                    ? `Licencia Anual - ${nombre}`
-                    : `Licencia Mensual - ${nombre}`;
+            let price = 0;
+            let title = '';
 
-                const response = await fetch(backendUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        businessId: data.id,
-                        title: title,
-                        price: price,
-                        payerEmail: emailContacto
-                    })
-                });
-
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error || 'Error al crear pago');
-                }
-
-                const { init_point } = await response.json();
-
-                // Redirect
-                window.location.href = init_point;
+            switch (plan) {
+                case 'trial':
+                    price = 10; // Nominal fee for validation (or maybe user wants this?)
+                    title = `Licencia Prueba (Validación) - ${nombre}`;
+                    break;
+                case 'monthly':
+                    price = 150;
+                    title = `Licencia Mensual - ${nombre}`;
+                    break;
+                case 'annual':
+                    price = 1500;
+                    title = `Licencia Anual - ${nombre}`;
+                    break;
+                default:
+                    price = 150;
+                    title = `Licencia Mensual - ${nombre}`;
             }
+
+            const response = await fetch(backendUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    businessId: data.id,
+                    title: title,
+                    price: price,
+                    payerEmail: emailContacto,
+                    planType: plan // Send plan type to backend
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'Error al crear pago');
+            }
+
+            const { init_point } = await response.json();
+
+            // Redirect
+            window.location.href = init_point;
 
         } catch (e: any) {
             alert("Error al registrar negocio: " + e.message);
