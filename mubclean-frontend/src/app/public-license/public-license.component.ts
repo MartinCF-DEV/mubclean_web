@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-public-license',
@@ -229,13 +230,19 @@ import { environment } from '../../environments/environment';
 })
 export class PublicLicenseComponent {
   router = inject(Router);
+  auth = inject(AuthService); // Inject AuthService
 
   isLoading = false;
 
   async goToRegister(plan: string) {
     this.isLoading = true;
     try {
-      const backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
+      await this.auth.checkSession(); // Ensure session is loaded
+      const user = this.auth.currentUser;
+      const profile = this.auth.profile;
+
+      let backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
+      let payload: any = {};
 
       let price = 150;
       let title = 'Licencia Mensual';
@@ -243,10 +250,27 @@ export class PublicLicenseComponent {
       if (plan === 'annual') { price = 1500; title = 'Licencia Anual'; }
       if (plan === 'trial') { price = 10; title = 'Validación Prueba'; }
 
+      // Logic: If user is logged in AND has a business, treat as renewal
+      // Cast profile to any to avoid strict type issues
+      const profileAny = profile as any;
+      if (user && profileAny?.business) {
+        backendUrl = `${environment.apiUrl}/create_license_preference`;
+        payload = {
+          businessId: profileAny.business.id,
+          title,
+          price,
+          payerEmail: user.email,
+          planType: plan
+        };
+      } else {
+        // Guest Flow
+        payload = { title, price, planType: plan };
+      }
+
       const response = await fetch(backendUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, price, planType: plan })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
