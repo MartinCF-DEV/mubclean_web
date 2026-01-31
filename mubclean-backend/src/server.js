@@ -23,7 +23,7 @@ let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
 frontendUrl = frontendUrl.trim().replace(/\/$/, '');
 
 // MercadoPago Setup
-const client = new mercadopago.MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+const client = new mercadopago.MercadoPagoConfig({ accessToken: (process.env.MP_ACCESS_TOKEN || '').trim() });
 const preference = new mercadopago.Preference(client);
 
 // Routes
