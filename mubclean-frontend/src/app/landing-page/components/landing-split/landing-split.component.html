@@ -6,11 +6,11 @@
         <h2>{{ title }}</h2>
         <p>{{ text }}</p>
 
-        <button *ngIf="btnLink" class="btn-split" [routerLink]="btnLink" [queryParams]="queryParams">
+        <button *ngIf="btnLink && btnText" class="btn-split" [routerLink]="btnLink" [queryParams]="queryParams">
             {{ btnText }}
             <span class="material-icons">arrow_forward</span>
         </button>
-        <button *ngIf="!btnLink" class="btn-split" (click)="handleAction()">
+        <button *ngIf="!btnLink && btnText" class="btn-split" (click)="handleAction()">
             {{ btnText }}
             <span class="material-icons">touch_app</span>
         </button>

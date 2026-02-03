@@ -35,23 +35,5 @@ export class LandingPageComponent {
     }
 
     // Bound function to pass to child component
-    openClientAppBound = () => {
-        this.openClientApp();
-    }
 
-    openClientApp() {
-        // Path to the APK file in assets
-        const apkUrl = 'assets/mubclean-client.apk';
-
-        // Create a temporary anchor element to trigger the download
-        const link = document.createElement('a');
-        link.href = apkUrl;
-        link.download = 'mubclean-client.apk';
-        link.target = '_blank'; // Optional, but good practice
-
-        // Append to body, click, and remove
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
 }
