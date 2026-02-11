@@ -1,15 +1,32 @@
-<section class="max-steps" id="how-it-works">
-    <div class="steps-header">
-        <h2>¿CÓMO FUNCIONA?</h2>
-        <p>Simple. Rápido. Sin letras chiquitas.</p>
+<section class="how-it-works">
+    <div class="section-header">
+        <h2>Cómo funciona</h2>
+        <p>Simple, rápido y transparente.</p>
     </div>
 
-    <div class="steps-container">
-        <div *ngFor="let s of steps; let last = last" class="step-card">
-            <div class="step-num">{{ s.num }}</div>
-            <h3>{{ s.title }}</h3>
-            <p>{{ s.desc }}</p>
-            <div *ngIf="!last" class="connector-line"></div>
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="step-icon">
+                <span class="material-icons">touch_app</span>
+            </div>
+            <h3>1. Cotiza en línea</h3>
+            <p>Elige tu servicio, tamaño y fecha. Sin llamadas ni esperas.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-icon">
+                <span class="material-icons">verified_user</span>
+            </div>
+            <h3>2. Recibe a un experto</h3>
+            <p>Un profesional verificado llegará a tu domicilio con todo lo necesario.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-icon">
+                <span class="material-icons">thumb_up</span>
+            </div>
+            <h3>3. Disfruta tu espacio</h3>
+            <p>Tu mobiliario quedará como nuevo. Garantía de satisfacción total.</p>
         </div>
     </div>
 </section>
