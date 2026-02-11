@@ -72,81 +72,100 @@ import { AuthService } from '../auth.service';
     </div>
   `,
   styles: [`
+    /* Google Fonts Import */
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;400;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    :host {
+      display: block;
+      font-family: 'Inter', sans-serif;
+    }
+
     .login-wrapper {
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background-color: white;
-      padding: 30px;
+      background-color: #F8FAFC; /* Dashboard bg */
+      padding: 20px;
     }
 
     .login-content {
       width: 100%;
-      max-width: 400px;
+      max-width: 440px;
       display: flex;
       flex-direction: column;
       align-items: stretch;
+      background: white;
+      border: 3px solid #000;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 8px 8px 0 #000;
+      position: relative;
     }
 
+    /* Logo Section */
     .logo-container {
       align-self: center;
-      width: 100px;
-      height: 100px;
-      background-color: rgba(21, 101, 192, 0.1); /* Primary Blue 10% opacity */
-      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      background-color: #EFF6FF;
+      border: 2px solid #000;
+      border-radius: 16px;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      box-shadow: 4px 4px 0 #000;
     }
 
     .logo-image {
-      width: 70px;
-      height: 70px;
+      width: 50px;
+      height: 50px;
       object-fit: contain;
     }
 
     .app-title {
       text-align: center;
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--primary-blue);
-      letter-spacing: -1px;
+      font-size: 36px;
+      font-weight: 800;
+      color: #0F172A;
       margin: 0;
+      font-family: 'Fraunces', serif;
+      letter-spacing: -1px;
     }
 
     .app-subtitle {
       text-align: center;
-      color: var(--text-grey);
+      color: #64748B;
       font-size: 16px;
-      margin: 5px 0 0 0;
+      font-weight: 500;
+      margin: 8px 0 0 0;
     }
 
-    .spacer-50 { height: 50px; }
-    .spacer-30 { height: 30px; }
+    .spacer-50 { height: 40px; }
+    .spacer-30 { height: 24px; }
     .spacer-20 { height: 20px; }
 
     /* Input Styling */
     .input-group {
       display: flex;
       align-items: center;
-      background-color: var(--input-fill);
-      border: 1px solid var(--input-border);
+      background-color: white;
+      border: 2px solid #000;
       border-radius: 12px;
-      padding: 0 12px;
-      height: 56px; /* Typical Flutter input height */
-      transition: border-color 0.2s;
+      padding: 0 16px;
+      height: 56px;
+      transition: all 0.2s;
     }
 
     .input-group:focus-within {
-      border-color: var(--primary-blue);
-      border-width: 2px;
+      transform: translate(-2px, -2px);
+      box-shadow: 4px 4px 0 #000;
     }
 
     .input-icon {
-      color: var(--text-grey);
-      margin-right: 10px;
+      color: #0F172A;
+      margin-right: 12px;
     }
 
     .input-group input {
@@ -155,66 +174,87 @@ import { AuthService } from '../auth.service';
       flex: 1;
       height: 100%;
       font-size: 16px;
+      font-weight: 500;
       outline: none;
-      color: var(--text-color);
+      color: #0F172A;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .input-group input::placeholder {
+      color: #94A3B8;
     }
 
     .icon-button {
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--text-grey);
+      color: #64748B;
       display: flex;
       align-items: center;
       padding: 8px;
+    }
+    
+    .icon-button:hover {
+      color: #0F172A;
     }
 
     /* Links */
     .forgot-pass {
       text-align: right;
-      margin-top: 8px;
+      margin-top: 12px;
     }
 
     .forgot-pass a {
-      color: rgba(21, 101, 192, 0.8);
-      font-weight: 500;
+      color: #64748B;
+      font-weight: 600;
       font-size: 14px;
       cursor: pointer;
       text-decoration: none;
+      transition: color 0.2s;
     }
 
     .forgot-pass a:hover {
+      color: #1565C0;
       text-decoration: underline;
     }
 
     /* Button */
     .primary-button {
-      height: 55px;
-      background-color: var(--primary-blue);
+      height: 56px;
+      background-color: #1565C0;
       color: white;
-      border: none;
+      border: 2px solid #000;
       border-radius: 12px;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 6px var(--shadow-color);
-      transition: background-color 0.2s, transform 0.1s;
+      box-shadow: 4px 4px 0 #000;
+      transition: all 0.2s;
       display: flex;
       justify-content: center;
       align-items: center;
+      font-family: 'Inter', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .primary-button:hover:not(:disabled) {
-      background-color: #0D47A1; /* Darker blue */
+      background-color: #1E40AF;
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 #000;
     }
 
     .primary-button:active:not(:disabled) {
-      transform: translateY(1px);
+      transform: translate(0, 0);
+      box-shadow: 2px 2px 0 #000;
     }
 
     .primary-button:disabled {
-      opacity: 0.7;
+      background-color: #94A3B8;
       cursor: not-allowed;
+      box-shadow: 2px 2px 0 #000;
+      opacity: 1;
+      transform: none;
     }
 
     /* Spinner */
@@ -236,15 +276,17 @@ import { AuthService } from '../auth.service';
     .register-footer {
       display: flex;
       justify-content: center;
-      gap: 5px;
+      gap: 6px;
+      font-size: 15px;
     }
 
     .text-grey {
-      color: var(--text-grey);
+      color: #64748B;
+      font-weight: 500;
     }
 
     .register-link {
-      color: var(--primary-blue);
+      color: #1565C0;
       font-weight: 700;
       text-decoration: none;
       cursor: pointer;
@@ -254,8 +296,41 @@ import { AuthService } from '../auth.service';
       text-decoration: underline;
     }
 
-    .error-msg { color: #d32f2f; text-align: center; margin-top: 10px; }
-    .success-msg { color: #388e3c; text-align: center; margin-top: 10px; }
+    .error-msg { 
+      color: #DC2626; 
+      text-align: center; 
+      margin-top: 16px; 
+      font-weight: 600;
+      font-size: 14px;
+      background: #FEE2E2;
+      border: 2px solid #F87171;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    
+    .success-msg { 
+      color: #15803D; 
+      text-align: center; 
+      margin-top: 16px;
+      font-weight: 600;
+      font-size: 14px;
+      background: #DCFCE7;
+      border: 2px solid #4ADE80;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+      .login-content {
+        padding: 30px 20px;
+        box-shadow: 6px 6px 0 #000;
+      }
+      
+      .app-title {
+        font-size: 28px;
+      }
+    }
   `]
 })
 export class LoginComponent {
