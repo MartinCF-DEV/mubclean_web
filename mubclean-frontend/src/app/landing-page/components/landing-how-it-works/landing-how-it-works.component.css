@@ -48,6 +48,7 @@
     margin: 0 auto 24px;
     box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
     color: #2563EB;
+    /* Optical centering adjustment if needed, but flex center usually works best */
 }
 
 .step-icon .material-icons {

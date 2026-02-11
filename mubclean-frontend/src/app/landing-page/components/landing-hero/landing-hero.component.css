@@ -70,6 +70,13 @@
     transform: translateY(-2px);
 }
 
+.micro-copy {
+    font-size: 14px;
+    color: #9CA3AF;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
 /* Visual */
 .hero-visual {
     flex: 1;
