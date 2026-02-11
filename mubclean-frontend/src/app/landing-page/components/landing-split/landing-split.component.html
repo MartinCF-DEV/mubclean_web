@@ -1,24 +1,39 @@
-<section class="max-split" [class.reverse]="type === 'client'" [id]="type === 'provider' ? 'providers' : 'clients'">
-    <div class="content-block">
-        <div class="badge-sm" [class.green]="type === 'client'">
-            {{ type === 'provider' ? 'PARA EMPRESAS' : 'PARA CLIENTES' }}
-        </div>
-        <h2>{{ title }}</h2>
-        <p>{{ text }}</p>
-
-        <button *ngIf="btnLink && btnText" class="btn-split" [routerLink]="btnLink" [queryParams]="queryParams">
-            {{ btnText }}
-            <span class="material-icons">arrow_forward</span>
-        </button>
-        <button *ngIf="!btnLink && btnText" class="btn-split" (click)="handleAction()">
-            {{ btnText }}
-            <span class="material-icons">touch_app</span>
-        </button>
+<section class="dual-ecosystem">
+    <div class="ecosystem-header">
+        <h2>Un Ecosistema, Dos Soluciones</h2>
+        <p>Conectamos necesidades con soluciones profesionales.</p>
     </div>
 
-    <div class="image-block">
-        <div class="image-frame">
-            <img [src]="imagePath" alt="App visual">
+    <div class="split-container">
+        <!-- Side A: Home -->
+        <div class="split-card client-side">
+            <div class="card-content">
+                <span class="badge-pill">Para tu Hogar</span>
+                <h3>Limpieza experta a domicilio</h3>
+                <p>Pide limpieza de sofás, colchones y más en un clic. Profesionales verificados y pagos seguros.</p>
+                <button class="btn-link" routerLink="/login">
+                    Reservar Servicio <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="card-visual visual-home">
+                <span class="material-icons big-icon">home</span>
+            </div>
+        </div>
+
+        <!-- Side B: Business -->
+        <div class="split-card business-side">
+            <div class="card-content">
+                <span class="badge-pill dark">Para tu Empresa</span>
+                <h3>SaaS de Gestión Integral</h3>
+                <p>Gestiona flotas, hoteles y oficinas. Controla cotizaciones, agenda y personal en una sola plataforma.
+                </p>
+                <button class="btn-link" routerLink="/business-pricing">
+                    MubClean para Empresas <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="card-visual visual-business">
+                <span class="material-icons big-icon">business</span>
+            </div>
         </div>
     </div>
 </section>

@@ -1,21 +1,24 @@
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :host {
     display: block;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 100%;
     z-index: 1000;
 }
 
-.max-navbar {
+.tech-navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
-    background: rgba(255, 255, 255, 0.9);
+    padding: 16px 40px;
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border-bottom: 3px solid #000;
-    /* Hard border */
-    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
-    /* Subtle depth */
+    border-bottom: 1px solid #E5E7EB;
+    font-family: 'Inter', sans-serif;
 }
 
 /* Logo */
@@ -25,128 +28,76 @@
     gap: 12px;
 }
 
-.logo-bg {
-    background: #1565C0;
-    color: #FFD600;
-    /* Yellow Icon */
-    width: 45px;
-    height: 45px;
-    border: 2px solid #000;
-    border-radius: 8px;
-    /* Slightly rounded */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 3px 3px 0 #000;
-    /* Hard shadow */
-}
-
-.logo-icon {
-    font-size: 24px;
-}
-
 .logo-text {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 800;
-    color: #1565C0;
-    letter-spacing: -1px;
-    text-shadow: 1px 1px 0 #E3F2FD;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.03em;
 }
 
 /* Links */
 .nav-links {
     display: flex;
-    gap: 20px;
+    gap: 32px;
 }
 
 .nav-links button {
     background: none;
     border: none;
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    font-size: 16px;
-    color: #333;
+    font-size: 15px;
+    font-weight: 500;
+    color: #4B5563;
     cursor: pointer;
-    position: relative;
-    padding: 5px 10px;
-    transition: all 0.2s;
+    transition: color 0.2s;
+    font-family: 'Inter', sans-serif;
 }
 
 .nav-links button:hover {
-    color: #1565C0;
-    transform: translateY(-2px);
-}
-
-.nav-links button::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0%;
-    height: 3px;
-    background: #FFD600;
-    transition: width 0.2s;
-    border-radius: 2px;
-}
-
-.nav-links button:hover::after {
-    width: 100%;
+    color: #2563EB;
+    /* Tech Blue */
 }
 
 /* Auth Buttons */
 .auth-buttons {
     display: flex;
-    gap: 12px;
-}
-
-.btn-login {
-    background: none;
-    border: 2px solid #1565C0;
-    color: #1565C0;
-    padding: 10px 20px;
-    font-weight: 700;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 3px 3px 0 #E3F2FD;
-    transition: all 0.2s;
-}
-
-.btn-login:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 5px 5px 0 #E3F2FD;
-}
-
-.btn-login:active {
-    transform: translate(0, 0);
-    box-shadow: 0 0 0 #E3F2FD;
-}
-
-.btn-register {
-    background: #FFD600;
-    /* Pop Color */
-    color: #000;
-    border: 2px solid #000;
-    padding: 10px 20px;
-    font-weight: 800;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 4px 4px 0 #000;
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    gap: 16px;
 }
 
-.btn-register:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
-    background: #FFEA00;
+.btn-ghost {
+    background: none;
+    border: 1px solid transparent;
+    color: #4B5563;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
 }
 
-.btn-register:active {
-    transform: translate(0, 0);
-    box-shadow: 0 0 0 #000;
+.btn-ghost:hover {
+    background: #F3F4F6;
+    color: #111827;
+}
+
+.btn-primary {
+    background: #2563EB;
+    /* Tech Blue */
+    color: white;
+    border: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.btn-primary:hover {
+    background: #1D4ED8;
 }
 
 @media (max-width: 768px) {
@@ -154,7 +105,7 @@
         display: none;
     }
 
-    .max-navbar {
-        padding: 10px 15px;
+    .tech-navbar {
+        padding: 16px 20px;
     }
 }

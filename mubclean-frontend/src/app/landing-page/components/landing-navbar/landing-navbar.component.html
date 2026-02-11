@@ -1,8 +1,5 @@
-<nav class="max-navbar">
+<nav class="tech-navbar">
     <div class="logo-container">
-        <div class="logo-bg">
-            <span class="material-icons logo-icon">cleaning_services</span>
-        </div>
         <span class="logo-text">MubClean</span>
     </div>
 
@@ -10,14 +7,13 @@
         <button (click)="onScroll('benefits')">Beneficios</button>
         <button (click)="onScroll('how-it-works')">Cómo funciona</button>
         <button (click)="onScroll('providers')">Empresas</button>
-        <button (click)="onScroll('clients')">Clientes</button>
+        <button (click)="onScroll('security')">Seguridad</button>
     </div>
 
     <div class="auth-buttons">
-        <button class="btn-login" routerLink="/login">Ingresar</button>
-        <button class="btn-register" routerLink="/register">
-            <span class="material-icons">rocket_launch</span>
-            Registrar Empresa
+        <button class="btn-ghost" routerLink="/login">Ingresar</button>
+        <button class="btn-primary" routerLink="/business-pricing">
+            Acceso Empresas
         </button>
     </div>
 </nav>

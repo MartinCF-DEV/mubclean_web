@@ -1,56 +1,55 @@
-.max-footer {
-    background: #000;
-    color: #FFF;
-    padding: 60px 24px;
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+footer {
+    padding: 60px 40px;
+    background: #F9FAFB;
+    border-top: 1px solid #E5E7EB;
+    color: #4B5563;
+    font-family: 'Inter', sans-serif;
 }
 
 .footer-content {
     max-width: 1200px;
     margin: 0 auto;
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    text-align: center;
-    gap: 30px;
 }
 
-.footer-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.footer-brand .material-icons {
-    color: #FFD600;
-    font-size: 32px;
-}
-
-.footer-brand h3 {
-    font-size: 32px;
-    font-family: 'Fraunces', serif;
-    font-weight: 800;
+.footer-brand h4 {
     margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
 }
 
-.copyright {
-    color: #888;
+.footer-brand p {
+    margin: 4px 0 0;
     font-size: 14px;
 }
 
 .footer-links {
     display: flex;
-    gap: 24px;
+    gap: 32px;
 }
 
 .footer-links a {
-    color: #FFF;
+    color: #4B5563;
     text-decoration: none;
-    font-weight: 700;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
 }
 
 .footer-links a:hover {
-    color: #FFD600;
-    border-bottom: 2px solid #FFD600;
+    color: #2563EB;
+}
+
+@media (max-width: 600px) {
+    .footer-content {
+        flex-direction: column;
+        gap: 32px;
+        text-align: center;
+    }
 }

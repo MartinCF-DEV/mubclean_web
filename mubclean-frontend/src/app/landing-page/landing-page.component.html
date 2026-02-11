@@ -1,41 +1,29 @@
 <div class="landing-container">
 
   <header>
-    <nav class="nav-links">
-      <button (click)="scrollToSection('benefits')">Beneficios</button>
-      <button (click)="scrollToSection('how-it-works')">Cómo funciona</button>
-      <button (click)="scrollToSection('providers')">Empresas</button>
-      <button (click)="scrollToSection('clients')">Clientes</button>
-      <button (click)="scrollToSection('security')">Seguridad</button>
-    </nav>
-
-    <div class="auth-buttons">
-      <button class="nav-btn-outline" routerLink="/login">Ingresar</button>
-      <button class="nav-btn-filled" routerLink="/business-pricing">Registrar
-        Empresa</button>
-    </div>
+    <app-landing-navbar></app-landing-navbar>
   </header>
 
-  <app-landing-hero></app-landing-hero>
+  <main>
+    <app-landing-hero></app-landing-hero>
 
-  <app-landing-benefits></app-landing-benefits>
+    <!-- New Dual Ecosystem Section -->
+    <app-landing-split></app-landing-split>
 
-  <div class="divider-section"></div>
+    <div id="how-it-works">
+      <app-landing-how-it-works></app-landing-how-it-works>
+    </div>
 
-  <app-landing-how-it-works></app-landing-how-it-works>
+    <!-- Optional: Benefits could be merged or removed if too cluttered, keeping for now -->
+    <!-- <app-landing-benefits></app-landing-benefits> -->
 
-  <app-landing-split type="provider" title="TODO LO QUE NECESITAS PARA ADMINISTRAR TU EMPRESA"
-    text="El panel administrativo te da control total sobre tu negocio: cotizaciones, agenda, pagos y más. Todo desde cualquier dispositivo."
-    imagePath="assets/landing-provider.png" btnText="Registrar mi empresa" btnLink="/business-pricing">
-  </app-landing-split>
+    <div id="security">
+      <app-landing-security></app-landing-security>
+    </div>
+  </main>
 
-  <app-landing-split type="client" title="ENCUENTRA LIMPIEZA DE CONFIANZA EN MINUTOS"
-    text="Olvídate de buscar en directorios. Encuentra expertos verificados cerca de ti."
-    imagePath="assets/landing-user.jpg">
-  </app-landing-split>
-
-  <app-landing-security></app-landing-security>
-
-  <app-landing-footer></app-landing-footer>
+  <footer>
+    <app-landing-footer></app-landing-footer>
+  </footer>
 
 </div>

@@ -1,65 +1,103 @@
-.max-security {
-    padding: 100px 24px;
-    background: #1565C0;
-    color: white;
+:host {
+    display: block;
+    padding: 80px 20px;
+    background: white;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Trust Logos */
+.trust-container {
     text-align: center;
-    border-bottom: 3px solid #000;
+    margin-bottom: 100px;
+    border-bottom: 1px solid #F3F4F6;
+    padding-bottom: 60px;
 }
 
-.sec-header h2 {
-    font-size: 56px;
-    font-weight: 900;
-    color: #FFD600;
-    font-family: 'Fraunces', serif;
-    margin-bottom: 10px;
-    text-shadow: 3px 3px 0 #000;
+.trust-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #9CA3AF;
+    letter-spacing: 1px;
+    margin-bottom: 32px;
 }
 
-.sec-header p {
+.logo-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 40px;
+    opacity: 0.4;
+    filter: grayscale(100%);
+}
+
+.partner-logo {
+    font-weight: 800;
     font-size: 20px;
-    color: rgba(255, 255, 255, 0.9);
+    color: #374151;
+}
+
+/* Security Cards */
+.section-header {
+    text-align: center;
     margin-bottom: 60px;
 }
 
-.sec-grid {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    flex-wrap: wrap;
+.section-header h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+    letter-spacing: -0.03em;
+}
+
+.section-header p {
+    font-size: 18px;
+    color: #6B7280;
+}
+
+.security-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-.sec-card {
-    background: #FFF;
-    color: #000;
-    padding: 40px 30px;
-    border: 3px solid #000;
+.security-card {
+    padding: 32px;
+    background: #FAFAFA;
     border-radius: 16px;
-    flex: 1;
-    min-width: 250px;
-    box-shadow: 8px 8px 0 #000;
-    transition: transform 0.2s;
+    border: 1px solid #F3F4F6;
+    transition: all 0.2s;
 }
 
-.sec-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 12px 12px 0 #000;
+.security-card:hover {
+    background: white;
+    border-color: #E5E7EB;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
 }
 
-.sec-icon {
-    font-size: 48px;
-    color: #1565C0;
+.icon {
+    font-size: 32px;
+    color: #111827;
     margin-bottom: 20px;
 }
 
-.sec-card h3 {
-    font-size: 24px;
-    font-weight: 800;
+.security-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
     margin-bottom: 12px;
 }
 
-.sec-card p {
-    color: #555;
-    font-weight: 500;
+.security-card p {
+    font-size: 15px;
+    color: #4B5563;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .security-grid {
+        grid-template-columns: 1fr;
+    }
 }
