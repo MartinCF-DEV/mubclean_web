@@ -4,6 +4,7 @@
 :host {
     display: block;
     padding-top: 80px;
+    background: transparent;
     /* Navbar space */
     font-family: 'Inter', sans-serif;
     overflow: hidden;
