@@ -82,30 +82,26 @@
     flex: 1;
     display: flex;
     justify-content: center;
+    position: relative;
 }
 
-.image-placeholder {
+.image-container {
     width: 100%;
-    max-width: 500px;
-    aspect-ratio: 4/3;
-    background: #F3F4F6;
+    max-width: 600px;
+    /* Removed aspect path logic to let image size naturally but bounded */
     border-radius: 24px;
-    border: 1px solid #E5E7EB;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9CA3AF;
+    overflow: hidden;
+    /* Add a subtle shadow/elevation */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-.placeholder-content {
-    text-align: center;
-}
-
-.big-icon {
-    font-size: 64px;
-    margin-bottom: 12px;
+.hero-image {
+    width: 100%;
+    height: auto;
     display: block;
+    object-fit: cover;
 }
+
 
 @media (max-width: 900px) {
     .tech-hero {
