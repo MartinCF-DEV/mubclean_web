@@ -107,7 +107,8 @@ export class AdminRequestsComponent implements OnInit {
     const mapped = all.map(json => ({
       ...json,
       direccion: json['direccion_servicio'] || json['direccion'] || 'Sin dirección',
-      fecha_solicitada: json['fecha_solicitada_cliente'] || json['fecha_solicitada'] || new Date().toISOString()
+      fecha_solicitada: json['fecha_solicitada_cliente'] || json['fecha_solicitada'] || new Date().toISOString(),
+      short_id: json.id ? String(json.id).substring(0, 8).toUpperCase() : ''
     }));
 
     this.nuevas = mapped.filter(s => ['pendiente', 'cotizada'].includes(s.estado));
