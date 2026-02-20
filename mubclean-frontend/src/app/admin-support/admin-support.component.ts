@@ -85,57 +85,99 @@ import { AuthService } from '../auth.service';
 
       <!-- Tab: Incoming (Recibidos) -->
       <div *ngIf="activeTab === 'incoming'" class="tab-content">
+        <div class="sub-tabs-container">
+          <button class="sub-tab" [class.active]="incomingTab === 'pendientes'" (click)="incomingTab = 'pendientes'">
+            Pendientes <span class="badge" *ngIf="incomingPending.length">{{incomingPending.length}}</span>
+          </button>
+          <button class="sub-tab" [class.active]="incomingTab === 'respondidos'" (click)="incomingTab = 'respondidos'">
+            Respondidos <span class="badge" *ngIf="incomingResolved.length">{{incomingResolved.length}}</span>
+          </button>
+        </div>
+
         <div *ngIf="isLoading" class="loading-container">
           <div class="spinner"></div>
         </div>
 
-        <div *ngIf="!isLoading && incomingTickets.length === 0" class="empty-state">
-           <span class="material-icons empty-icon">inbox</span>
-           <h3>No hay reportes recibidos</h3>
-           <p>Los reportes de tus clientes aparecerán aquí.</p>
-        </div>
+        <!-- PENDIENTES -->
+        <ng-container *ngIf="incomingTab === 'pendientes'">
+          <div *ngIf="!isLoading && incomingPending.length === 0" class="empty-state">
+             <span class="material-icons empty-icon">inbox</span>
+             <h3>No hay reportes pendientes</h3>
+             <p>Los reportes de tus clientes aparecerán aquí.</p>
+          </div>
 
-        <div *ngIf="!isLoading && incomingTickets.length > 0" class="ticket-list">
-           <div *ngFor="let t of incomingTickets" class="ticket-card incoming">
-             <div class="ticket-header" (click)="t.expanded = !t.expanded">
-               <div class="ticket-icon" [class.open]="t.estado !== 'resuelto'">
-                  <span class="material-icons">{{ t.estado !== 'resuelto' ? 'report_problem' : 'check_circle' }}</span>
+          <div *ngIf="!isLoading && incomingPending.length > 0" class="ticket-list">
+             <div *ngFor="let t of incomingPending" class="ticket-card incoming">
+               <div class="ticket-header" (click)="t.expanded = !t.expanded">
+                 <div class="ticket-icon" [class.open]="t.estado !== 'resuelto'">
+                    <span class="material-icons">{{ t.estado !== 'resuelto' ? 'report_problem' : 'check_circle' }}</span>
+                 </div>
+                 <div class="ticket-info">
+                   <span class="ticket-subject">{{ t.asunto }}</span>
+                   <span class="ticket-meta">CLIENTE • {{ formatDate(t.created_at) }}</span>
+                 </div>
+                 <div class="action-btn-pill">
+                    <span>Ver</span>
+                    <span class="material-icons expand-icon">{{ t.expanded ? 'expand_less' : 'expand_more' }}</span>
+                 </div>
                </div>
-               <div class="ticket-info">
-                 <span class="ticket-subject">{{ t.asunto }}</span>
-                 <span class="ticket-meta">CLIENTE • {{ formatDate(t.created_at) }}</span>
-               </div>
-               <span class="material-icons expand-icon">{{ t.expanded ? 'expand_less' : 'expand_more' }}</span>
-             </div>
-             
-             <div class="ticket-body" *ngIf="t.expanded">
-               <div class="detail-block">
-                 <strong>Descripción del Cliente:</strong>
-                 <p>{{ t.descripcion }}</p>
-               </div>
-
-               <div *ngIf="t.respuesta_admin" class="admin-response">
-                 <strong>Tu Respuesta:</strong>
-                 <p>{{ t.respuesta_admin }}</p>
-               </div>
-
-               <div *ngIf="!t.respuesta_admin" class="response-form">
-                 <label>Responder al cliente:</label>
-                 <textarea 
-                   [(ngModel)]="t.responseText" 
-                   rows="3" 
-                   placeholder="Escribe una solución..."></textarea>
-                 <button 
-                   class="send-btn" 
-                   (click)="sendResponse(t)" 
-                   [disabled]="!t.responseText || t.sending">
-                   <span *ngIf="t.sending">Enviando...</span>
-                   <span *ngIf="!t.sending">ENVIAR SOLUCIÓN</span>
-                 </button>
+               
+               <div class="ticket-body" *ngIf="t.expanded">
+                 <div class="detail-block">
+                   <strong>Descripción del Cliente:</strong>
+                   <p>{{ t.descripcion }}</p>
+                 </div>
+                 <div *ngIf="!t.respuesta_admin" class="response-form">
+                   <label>Responder al cliente:</label>
+                   <textarea [(ngModel)]="t.responseText" rows="3" placeholder="Escribe una solución..."></textarea>
+                   <button class="send-btn" (click)="sendResponse(t)" [disabled]="!t.responseText || t.sending">
+                     <span *ngIf="t.sending">Enviando...</span>
+                     <span *ngIf="!t.sending">ENVIAR SOLUCIÓN</span>
+                   </button>
+                 </div>
                </div>
              </div>
-           </div>
-        </div>
+          </div>
+        </ng-container>
+
+        <!-- RESPONDIDOS -->
+        <ng-container *ngIf="incomingTab === 'respondidos'">
+          <div *ngIf="!isLoading && incomingResolved.length === 0" class="empty-state">
+             <span class="material-icons empty-icon">done_all</span>
+             <h3>No hay reportes respondidos</h3>
+             <p>El historial de tus respuestas aparecerá aquí.</p>
+          </div>
+
+          <div *ngIf="!isLoading && incomingResolved.length > 0" class="ticket-list">
+             <div *ngFor="let t of incomingResolved" class="ticket-card incoming">
+               <div class="ticket-header" (click)="t.expanded = !t.expanded">
+                 <div class="ticket-icon" [class.open]="t.estado !== 'resuelto'">
+                    <span class="material-icons">{{ t.estado !== 'resuelto' ? 'report_problem' : 'check_circle' }}</span>
+                 </div>
+                 <div class="ticket-info">
+                   <span class="ticket-subject">{{ t.asunto }}</span>
+                   <span class="ticket-meta">CLIENTE • {{ formatDate(t.created_at) }}</span>
+                 </div>
+                 <div class="action-btn-pill">
+                    <span>Ver</span>
+                    <span class="material-icons expand-icon">{{ t.expanded ? 'expand_less' : 'expand_more' }}</span>
+                 </div>
+               </div>
+               
+               <div class="ticket-body" *ngIf="t.expanded">
+                 <div class="detail-block">
+                   <strong>Descripción del Cliente:</strong>
+                   <p>{{ t.descripcion }}</p>
+                 </div>
+                 <div *ngIf="t.respuesta_admin" class="admin-response">
+                   <strong>Tu Respuesta:</strong>
+                   <p>{{ t.respuesta_admin }}</p>
+                 </div>
+               </div>
+             </div>
+          </div>
+        </ng-container>
+
       </div>
 
       <!-- Tab: Create -->
@@ -257,6 +299,16 @@ import { AuthService } from '../auth.service';
     .ticket-meta { font-size: 12px; color: #999; margin-top: 4px; }
     .expand-icon { color: #CCC; }
 
+    .sub-tabs-container { display: flex; gap: 10px; margin-bottom: 20px; }
+    .sub-tab { padding: 8px 16px; border-radius: 99px; border: 1px solid #DDD; background: white; cursor: pointer; color: #666; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .sub-tab.active { background: #1565C0; color: white; border-color: #1565C0; }
+    .badge { background: #E3F2FD; color: #1565C0; padding: 2px 8px; border-radius: 99px; font-size: 12px; font-weight: 800; }
+    .sub-tab.active .badge { background: white; color: #1565C0; }
+
+    .action-btn-pill { display: flex; align-items: center; gap: 4px; background: #F1F5F9; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 700; color: #0F172A; transition: all 0.2s; margin-left: auto; }
+    .ticket-header:hover .action-btn-pill { background: #0F172A; color: white; border-color: #0F172A; }
+    .ticket-header:hover .action-btn-pill .expand-icon { color: white; }
+
     .ticket-body { padding: 0 16px 16px 71px; border-top: 1px solid #F5F5F5; }
     .detail-block { margin-top: 15px; color: #444; line-height: 1.5; }
     .admin-response { 
@@ -309,6 +361,9 @@ export class AdminSupportComponent implements OnInit {
   isLoading = true;
   tickets: any[] = [];
   incomingTickets: any[] = [];
+  incomingPending: any[] = [];
+  incomingResolved: any[] = [];
+  incomingTab: 'pendientes' | 'respondidos' = 'pendientes';
 
   // Create Flow
   step = 0;
@@ -378,7 +433,6 @@ export class AdminSupportComponent implements OnInit {
         .from('soporte_tickets')
         .select('*')
         .in('cliente_id', clientIds)
-        .neq('estado', 'resuelto') // Optional: maybe we want to see resolved too? Let's show all for now, or just open.
         .order('created_at', { ascending: false });
 
       if (tickError) {
@@ -388,23 +442,16 @@ export class AdminSupportComponent implements OnInit {
 
       // 4. Filter in memory: Only keep tickets that mention our Order IDs
       const relevantTickets = (tickets || []).filter((t: any) => {
-        // Check description for Order ID reference
-        const match = t.descripcion?.match(/Referencia Orden ID: ([a-f0-9\-]+)/) ||
-          t.asunto?.match(/\[Orden #([a-f0-9]+)\]/); // approximate check for subject
-
-        // Robust check: if we found a uuid in description
-        const descMatch = t.descripcion?.match(/Referencia Orden ID: ([a-f0-9\-]+)/);
+        const descMatch = t.descripcion?.match(/Referencia Orden ID: ([a-f0-9\-]+)/) || t.descripcion?.match(/Reference Orden ID: ([a-f0-9\-]+)/);
         if (descMatch && descMatch[1]) {
           return myRequestIds.has(descMatch[1]);
         }
-
-        // Fallback: If no order ID, but it's our client... 
-        // Strictly speaking, we only want Order-related tickets if we can't filter by business_id.
-        // But for now, let's stick to strict Order ID matching to avoid noise.
         return false;
       });
 
       this.incomingTickets = relevantTickets.map((t: any) => ({ ...t, expanded: false }));
+      this.incomingPending = this.incomingTickets.filter(t => t.estado !== 'resuelto');
+      this.incomingResolved = this.incomingTickets.filter(t => t.estado === 'resuelto');
 
     } catch (e) {
       console.error(e);
@@ -536,6 +583,13 @@ export class AdminSupportComponent implements OnInit {
       ticket.respuesta_admin = ticket.responseText;
       ticket.estado = 'resuelto';
       ticket.responseText = '';
+
+      this.incomingPending = this.incomingTickets.filter(t => t.estado !== 'resuelto');
+      this.incomingResolved = this.incomingTickets.filter(t => t.estado === 'resuelto');
+
+      if (this.activeTab === 'incoming') {
+        this.incomingTab = 'respondidos'; // switch to respondidos to see the ticket
+      }
 
       alert('Respuesta enviada correctamente');
     } catch (e: any) {
