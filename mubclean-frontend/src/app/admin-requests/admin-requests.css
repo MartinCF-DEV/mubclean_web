@@ -185,13 +185,27 @@
 }
 
 .arrow {
-    color: #9CA3AF;
-    transition: transform 0.2s;
+    font-size: 20px;
 }
 
-.request-item:hover .arrow {
-    color: #111827;
-    transform: translateX(4px);
+.action-btn-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #F1F5F9;
+    padding: 6px 16px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0F172A;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.request-item:hover .action-btn-pill {
+    background: #0F172A;
+    color: white;
+    border-color: #0F172A;
 }
 
 /* Status Colors */

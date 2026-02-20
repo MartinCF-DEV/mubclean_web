@@ -38,6 +38,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     // Lists
     tickets: any[] = []; // Store filtered tickets
+    upcomingJobs: any[] = []; // Store for the modal
 
     refreshInterval: any;
 
@@ -99,9 +100,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
                 }
             }
 
-            // NOTE: For testing purposes, uncomment to force expiry
-            // this.licenseExpired = true;
-
             if (!this.licenseExpired) {
                 await this.fetchData();
             }
@@ -128,42 +126,61 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            const requests = reqs || [];
+            const requests = (reqs || []).map(json => ({
+                ...json,
+                direccion: json['direccion_servicio'] || json['direccion'] || 'Sin dirección',
+                fecha_solicitada: json['fecha_solicitada_cliente'] || json['fecha_solicitada'] || new Date().toISOString()
+            }));
 
             this.calculateStats(requests);
             this.generateChartData(requests);
 
-            // 2. Fetch Relevant Tickets (Smart Link)
-            // Strategy: Get tickets from clients we have worked with, then check description for Order IDs.
+            // 2. Fetch Relevant Tickets
+            let allRelevantTickets: any[] = [];
 
-            // Get unique client IDs from our requests
+            // A) Client Tickets related to our orders
             const clientIds = [...new Set(requests.map(r => r.cliente_id).filter(id => !!id))];
-
             if (clientIds.length > 0) {
-                const { data: tickets, error: ticketError } = await this.supabase
+                const { data: clientTickets } = await this.supabase
                     .from('soporte_tickets')
                     .select('*')
                     .in('cliente_id', clientIds)
-                    .neq('estado', 'resuelto') // Only open tickets
-                    .order('created_at', { ascending: false });
+                    .order('created_at', { ascending: false })
+                    .limit(20);
 
-                if (!ticketError && tickets) {
+                if (clientTickets) {
                     const myRequestIds = new Set(requests.map(r => r.id));
-
-                    this.tickets = tickets.filter((t: any) => {
-                        // Check for ID in description
-                        const match = t.descripcion.match(/Reference Orden ID: ([a-f0-9\-]+)/) ||
-                            t.descripcion.match(/Referencia Orden ID: ([a-f0-9\-]+)/);
-
-                        if (match && match[1]) {
-                            return myRequestIds.has(match[1]);
-                        }
-                        return false;
+                    const related = clientTickets.filter((t: any) => {
+                        const match = t.descripcion?.match(/Reference Orden ID: ([a-f0-9\-]+)/) ||
+                            t.descripcion?.match(/Referencia Orden ID: ([a-f0-9\-]+)/);
+                        return match && match[1] && myRequestIds.has(match[1]);
                     });
+                    allRelevantTickets.push(...related);
                 }
-            } else {
-                this.tickets = [];
             }
+
+            // B) My own tickets (created by the business owner)
+            const { data: myTickets } = await this.supabase
+                .from('soporte_tickets')
+                .select('*')
+                .eq('cliente_id', this.business.owner_id)
+                .order('created_at', { ascending: false })
+                .limit(10);
+
+            if (myTickets) {
+                allRelevantTickets.push(...myTickets);
+            }
+
+            // Sort and limit
+            allRelevantTickets.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+            // Filter out exact duplicates by ID (just in case)
+            const seen = new Set();
+            this.tickets = allRelevantTickets.filter(t => {
+                if (seen.has(t.id)) return false;
+                seen.add(t.id);
+                return true;
+            }).slice(0, 5); // Keep top 5 most recent total
 
             this.newReportsCount = this.tickets.length;
 
@@ -179,7 +196,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
 
     calculateStats(all: any[]) {
-        this.upcomingJobsCount = all.filter(s => s.estado === 'agendada' || s.estado === 'aceptada').length;
+        this.upcomingJobs = all.filter(s => s.estado === 'agendada' || s.estado === 'aceptada');
+        this.upcomingJobsCount = this.upcomingJobs.length;
     }
 
     generateChartData(all: any[]) {
@@ -209,7 +227,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
         if (type === 'jobs') {
             this.modalTitle = 'Próximos Trabajos';
-            this.modalList = []; // Kept for modal compat, now handled via router/different logic, maybe not needed
+            this.modalList = this.upcomingJobs;
         } else {
             this.modalTitle = 'Reportes Nuevos';
             // Use filtered tickets

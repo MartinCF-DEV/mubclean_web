@@ -84,7 +84,10 @@
                     </div>
                     <div class="req-right">
                         <span class="status-tag status-pendiente">{{ (item.tipo || 'Ticket') | uppercase }}</span>
-                        <span class="material-icons arrow">chevron_right</span>
+                        <div class="action-btn-pill">
+                            <span>Ver</span>
+                            <span class="material-icons arrow">chevron_right</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -121,6 +124,10 @@
                             <div class="req-right">
                                 <span class="status-tag" [ngClass]="getColorClass(item.estado)">{{ item.estado |
                                     uppercase }}</span>
+                                <div class="action-btn-pill">
+                                    <span>Ver</span>
+                                    <span class="material-icons arrow">chevron_right</span>
+                                </div>
                             </div>
                         </ng-container>
 
@@ -136,6 +143,10 @@
                             <div class="req-right">
                                 <span class="status-tag status-pendiente">{{ (item.tipo || 'Ticket') | uppercase
                                     }}</span>
+                                <div class="action-btn-pill">
+                                    <span>Ver</span>
+                                    <span class="material-icons arrow">chevron_right</span>
+                                </div>
                             </div>
                         </ng-template>
 
