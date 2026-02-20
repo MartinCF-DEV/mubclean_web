@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
@@ -8,7 +9,7 @@ import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-admin-requests',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-requests.html',
   styleUrls: ['./admin-requests.css'],
 })
@@ -26,6 +27,7 @@ export class AdminRequestsComponent implements OnInit {
   activas: any[] = [];
   historial: any[] = [];
   activeTab: 'nuevas' | 'activas' | 'historial' = 'nuevas';
+  searchTerm: string = '';
 
   constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
@@ -118,9 +120,18 @@ export class AdminRequestsComponent implements OnInit {
   }
 
   getListForTab(): any[] {
-    if (this.activeTab === 'nuevas') return this.nuevas;
-    if (this.activeTab === 'activas') return this.activas;
-    return this.historial;
+    let list = [];
+    if (this.activeTab === 'nuevas') list = this.nuevas;
+    else if (this.activeTab === 'activas') list = this.activas;
+    else list = this.historial;
+
+    if (!this.searchTerm || !this.searchTerm.trim()) return list;
+
+    const term = this.searchTerm.toLowerCase().trim();
+    return list.filter(req =>
+      (req.id && req.id.toLowerCase().includes(term)) ||
+      (req.direccion && req.direccion.toLowerCase().includes(term))
+    );
   }
 
   getEmptyMsg(): string {
