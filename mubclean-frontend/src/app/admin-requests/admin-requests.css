@@ -1,0 +1,318 @@
+/* Base layout */
+.requests-page {
+    padding: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 32px;
+}
+
+.header-text h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.05em;
+}
+
+.header-text p {
+    font-size: 16px;
+    color: #4B5563;
+    margin: 0;
+}
+
+.refresh-btn {
+    background: white;
+    border: 2px solid #E5E7EB;
+    box-shadow: 4px 4px 0px #111827;
+    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #111827;
+}
+
+.refresh-btn:hover:not([disabled]) {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #111827;
+}
+
+.refresh-btn:active:not([disabled]) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #111827;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tabs */
+.custom-tabs {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #E5E7EB;
+    padding-bottom: 16px;
+}
+
+.tab-btn {
+    background: #F3F4F6;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #4B5563;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-btn:hover {
+    background: #E5E7EB;
+    color: #111827;
+}
+
+.tab-btn.active {
+    background: #111827;
+    color: white;
+    border: 2px solid #111827;
+    box-shadow: 4px 4px 0px rgba(17, 24, 39, 0.2);
+    transform: translateY(-2px);
+}
+
+.count-badge {
+    background: #3B82F6;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.tab-btn.active .count-badge {
+    background: white;
+    color: #111827;
+}
+
+/* Request Cards */
+.list-content {
+    background: white;
+    min-height: 200px;
+}
+
+.request-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1px));
+    gap: 16px;
+}
+
+.request-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border: 2px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.request-item:hover {
+    border-color: #111827;
+    box-shadow: 4px 4px 0px #111827;
+    transform: translate(-2px, -2px);
+}
+
+.req-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #E5E7EB;
+}
+
+.req-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.req-date {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.req-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.status-tag {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: #F3F4F6;
+    color: #4B5563;
+}
+
+.arrow {
+    color: #9CA3AF;
+    transition: transform 0.2s;
+}
+
+.request-item:hover .arrow {
+    color: #111827;
+    transform: translateX(4px);
+}
+
+/* Status Colors */
+
+.status-dot.status-pendiente {
+    background: #F59E0B;
+}
+
+.status-tag.status-pendiente {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.status-dot.status-cotizada {
+    background: #8B5CF6;
+}
+
+.status-tag.status-cotizada {
+    background: #EDE9FE;
+    color: #6D28D9;
+}
+
+.status-dot.status-aceptada {
+    background: #10B981;
+}
+
+.status-tag.status-aceptada {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.status-dot.status-agendada {
+    background: #3B82F6;
+}
+
+.status-tag.status-agendada {
+    background: #DBEAFE;
+    color: #1D4ED8;
+}
+
+.status-dot.status-en_proceso {
+    background: #14B8A6;
+}
+
+.status-tag.status-en_proceso {
+    background: #CCFBF1;
+    color: #0F766E;
+}
+
+.status-dot.status-completada {
+    background: #6B7280;
+}
+
+.status-tag.status-completada {
+    background: #F3F4F6;
+    color: #374151;
+}
+
+.status-dot.status-cancelada {
+    background: #EF4444;
+}
+
+.status-tag.status-cancelada {
+    background: #FEE2E2;
+    color: #B91C1C;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 0;
+    text-align: center;
+    color: #6B7280;
+}
+
+.empty-state .material-icons {
+    font-size: 48px;
+    color: #D1D5DB;
+    margin-bottom: 16px;
+}
+
+.empty-state p {
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .requests-page {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .refresh-btn {
+        align-self: flex-end;
+    }
+
+    .custom-tabs {
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .tab-btn {
+        white-space: nowrap;
+    }
+
+    .request-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .req-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

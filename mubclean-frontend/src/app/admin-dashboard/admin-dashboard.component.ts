@@ -37,12 +37,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     weeklyStats: { day: string, count: number, height: number }[] = [];
 
     // Lists
-    nuevas: any[] = [];
-    activas: any[] = [];
-    historial: any[] = [];
     tickets: any[] = []; // Store filtered tickets
 
-    activeTab: 'nuevas' | 'activas' | 'historial' = 'nuevas';
     refreshInterval: any;
 
     constructor() {
@@ -62,10 +58,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         if (this.refreshInterval) clearInterval(this.refreshInterval);
-    }
-
-    setActiveTab(tab: 'nuevas' | 'activas' | 'historial') {
-        this.activeTab = tab;
     }
 
     async checkBusinessAndFetch() {
@@ -138,7 +130,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             if (error) throw error;
             const requests = reqs || [];
 
-            this.processRequests(requests);
             this.calculateStats(requests);
             this.generateChartData(requests);
 
@@ -186,17 +177,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
-    processRequests(all: any[]) {
-        const mapped = all.map(json => ({
-            ...json,
-            direccion: json['direccion_servicio'] || json['direccion'] || 'Sin dirección',
-            fecha_solicitada: json['fecha_solicitada_cliente'] || json['fecha_solicitada'] || new Date().toISOString()
-        }));
-
-        this.nuevas = mapped.filter(s => ['pendiente', 'cotizada'].includes(s.estado));
-        this.activas = mapped.filter(s => ['aceptada', 'agendada', 'en_proceso'].includes(s.estado));
-        this.historial = mapped.filter(s => ['completada', 'cancelada'].includes(s.estado));
-    }
 
     calculateStats(all: any[]) {
         this.upcomingJobsCount = all.filter(s => s.estado === 'agendada' || s.estado === 'aceptada').length;
@@ -229,7 +209,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
         if (type === 'jobs') {
             this.modalTitle = 'Próximos Trabajos';
-            this.modalList = this.activas.filter(s => ['aceptada', 'agendada'].includes(s.estado));
+            this.modalList = []; // Kept for modal compat, now handled via router/different logic, maybe not needed
         } else {
             this.modalTitle = 'Reportes Nuevos';
             // Use filtered tickets
@@ -258,30 +238,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     }
 
     // Helpers
-    getIconForState(estado: string): string {
-        switch (estado) {
-            case 'pendiente': return 'notifications_active';
-            case 'cotizada': return 'request_quote';
-            case 'aceptada': return 'check_circle';
-            case 'agendada': return 'event';
-            case 'en_proceso': return 'cleaning_services';
-            default: return 'history';
-        }
-    }
-
     getColorClass(estado: string): string {
         return `status-${estado}`;
-    }
-
-    getListForTab(): any[] {
-        if (this.activeTab === 'nuevas') return this.nuevas;
-        if (this.activeTab === 'activas') return this.activas;
-        return this.historial;
-    }
-
-    getEmptyMsg(): string {
-        if (this.activeTab === 'nuevas') return "Todo al día. Sin solicitudes nuevas.";
-        if (this.activeTab === 'activas') return "No hay trabajos activos por ahora.";
-        return "Tu historial está limpio.";
     }
 }

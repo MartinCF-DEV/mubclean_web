@@ -48,53 +48,42 @@
         <div class="bar-chart">
             <div class="bar-column" *ngFor="let day of weeklyStats">
                 <div class="bar-track">
-                    <div class="bar-fill" [style.height.%]="day.height" [title]="day.count + ' solicitudes'"></div>
+                    <div class="bar-fill" [style.height.%]="day.height" [title]="day.count + ' solicitudes'">
+                        <span class="bar-value" *ngIf="day.height > 10">{{ day.count }}</span>
+                    </div>
                 </div>
                 <span class="bar-label">{{ day.day }}</span>
             </div>
         </div>
     </section>
 
-    <!-- 4. Recent Activity (Tabs + List) -->
+    <!-- 4. Important Notifications (Replaces Requests List) -->
     <section class="list-section">
         <div class="section-header">
-            <h2>Gestión de Solicitudes</h2>
+            <h2>Notificaciones Importantes</h2>
         </div>
 
-        <div class="custom-tabs">
-            <button class="tab-btn" [class.active]="activeTab === 'nuevas'" (click)="setActiveTab('nuevas')">
-                Nuevas <span class="count-badge" *ngIf="nuevas.length">{{ nuevas.length }}</span>
-            </button>
-            <button class="tab-btn" [class.active]="activeTab === 'activas'" (click)="setActiveTab('activas')">
-                Activas <span class="count-badge" *ngIf="activas.length">{{ activas.length }}</span>
-            </button>
-            <button class="tab-btn" [class.active]="activeTab === 'historial'" (click)="setActiveTab('historial')">
-                Historial
-            </button>
-        </div>
-
-        <div class="list-content">
+        <div class="list-content notifications-content">
             <div *ngIf="isLoading && !business" class="inline-loader">
                 <div class="spinner"></div>
             </div>
 
-            <div *ngIf="!isLoading && getListForTab().length === 0" class="empty-state">
-                <span class="material-icons">inbox</span>
-                <p>{{ getEmptyMsg() }}</p>
+            <div *ngIf="!isLoading && tickets.length === 0" class="empty-state">
+                <span class="material-icons">notifications_none</span>
+                <p>No tienes notificaciones urgentes.</p>
             </div>
 
             <div class="request-cards">
-                <div *ngFor="let req of getListForTab()" class="request-item" (click)="goToDetail(req)">
+                <div *ngFor="let item of tickets" class="request-item ticket-item" (click)="goToDetail(item)">
                     <div class="req-left">
-                        <div class="status-dot" [ngClass]="getColorClass(req.estado)"></div>
+                        <div class="status-dot status-pendiente"></div>
                         <div class="req-info">
-                            <h4>{{ req.direccion }}</h4>
-                            <span class="req-date">{{ req.fecha_solicitada | date:'short' }}</span>
+                            <h4>{{ item.asunto || 'Nuevo Ticket' }}</h4>
+                            <span class="req-date">{{ item.created_at | date:'short' }}</span>
                         </div>
                     </div>
                     <div class="req-right">
-                        <span class="status-tag" [ngClass]="getColorClass(req.estado)">{{ req.estado | uppercase
-                            }}</span>
+                        <span class="status-tag status-pendiente">{{ (item.tipo || 'Ticket') | uppercase }}</span>
                         <span class="material-icons arrow">chevron_right</span>
                     </div>
                 </div>

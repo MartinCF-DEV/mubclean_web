@@ -1,0 +1,50 @@
+<div class="requests-page">
+    <header class="page-header">
+        <div class="header-text">
+            <h1>Gestión de Solicitudes</h1>
+            <p>Administra todas las reservas y trabajos de limpieza</p>
+        </div>
+        <button class="refresh-btn" (click)="fetchRequests()" [disabled]="isLoading">
+            <span class="material-icons" [class.spin]="isLoading">sync</span>
+        </button>
+    </header>
+
+    <div class="custom-tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'nuevas'" (click)="setActiveTab('nuevas')">
+            Nuevas <span class="count-badge" *ngIf="nuevas.length">{{ nuevas.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'activas'" (click)="setActiveTab('activas')">
+            Activas <span class="count-badge" *ngIf="activas.length">{{ activas.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'historial'" (click)="setActiveTab('historial')">
+            Historial
+        </button>
+    </div>
+
+    <div class="list-content">
+        <div *ngIf="isLoading && !business" class="inline-loader">
+            <div class="spinner"></div>
+        </div>
+
+        <div *ngIf="!isLoading && getListForTab().length === 0" class="empty-state">
+            <span class="material-icons">inbox</span>
+            <p>{{ getEmptyMsg() }}</p>
+        </div>
+
+        <div class="request-cards">
+            <div *ngFor="let req of getListForTab()" class="request-item" (click)="goToDetail(req)">
+                <div class="req-left">
+                    <div class="status-dot" [ngClass]="getColorClass(req.estado)"></div>
+                    <div class="req-info">
+                        <h4>{{ req.direccion }}</h4>
+                        <span class="req-date">{{ req.fecha_solicitada | date:'short' }}</span>
+                    </div>
+                </div>
+                <div class="req-right">
+                    <span class="status-tag" [ngClass]="getColorClass(req.estado)">{{ req.estado | uppercase }}</span>
+                    <span class="material-icons arrow">chevron_right</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

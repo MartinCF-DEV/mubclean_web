@@ -258,6 +258,18 @@
     min-height: 4px;
     border: 1px solid #000;
     box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.bar-value {
+    position: absolute;
+    top: -24px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #0F172A;
+    font-family: 'Fraunces', serif;
 }
 
 .bar-label {

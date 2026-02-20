@@ -5,7 +5,8 @@
         <!-- Logo Area -->
         <div class="sidebar-header">
             <div class="logo-area" *ngIf="!isCollapsed">
-                <img src="logo.png" alt="MubClean" class="logo-full">
+                <img src="assets/logoexpandido.png" alt="MubClean" class="logo-full"
+                    style="max-height: 40px; margin-left: 10px;">
             </div>
             <div class="logo-icon-only" *ngIf="isCollapsed">
                 <img src="logo.png" alt="M" class="logo-mini">
@@ -35,6 +36,11 @@
             <a routerLink="/admin/support" routerLinkActive="active" class="nav-item" title="Soporte">
                 <span class="material-icons">support_agent</span>
                 <span class="label" *ngIf="!isCollapsed">Soporte</span>
+            </a>
+            <!-- Solicitudes -->
+            <a routerLink="/admin/requests" routerLinkActive="active" class="nav-item" title="Solicitudes">
+                <span class="material-icons">assignment</span>
+                <span class="label" *ngIf="!isCollapsed">Solicitudes</span>
             </a>
             <!-- Catálogo -->
             <a routerLink="/admin/services" routerLinkActive="active" class="nav-item" title="Catálogo">

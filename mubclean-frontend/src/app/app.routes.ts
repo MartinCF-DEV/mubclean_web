@@ -43,6 +43,7 @@ export const routes: Routes = [
         loadComponent: () => import('./admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
         children: [
             { path: 'dashboard', loadComponent: () => import('./admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent) },
+            { path: 'requests', loadComponent: () => import('./admin-requests/admin-requests').then(m => m.AdminRequestsComponent) },
             { path: 'request/:id', loadComponent: () => import('./admin-request-detail/admin-request-detail.component').then(m => m.AdminRequestDetailComponent) },
             { path: 'employees', loadComponent: () => import('./admin-employees/admin-employees.component').then(m => m.AdminEmployeesComponent) },
             { path: 'support', loadComponent: () => import('./admin-support/admin-support.component').then(m => m.AdminSupportComponent) },
