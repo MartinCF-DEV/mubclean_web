@@ -145,6 +145,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
                     .from('soporte_tickets')
                     .select('*')
                     .in('cliente_id', clientIds)
+                    .neq('estado', 'resuelto')
                     .order('created_at', { ascending: false })
                     .limit(20);
 
@@ -164,6 +165,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
                 .from('soporte_tickets')
                 .select('*')
                 .eq('cliente_id', this.business.owner_id)
+                .neq('estado', 'resuelto')
                 .order('created_at', { ascending: false })
                 .limit(10);
 
