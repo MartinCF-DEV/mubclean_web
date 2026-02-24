@@ -34,12 +34,15 @@
                 </div>
             </div>
 
-            <div class="card-content">
-                <div class="card-header flex justify-between items-center w-full">
-                    <h3 class="service-title" (click)="openDialog(s)">{{ s.nombre }}</h3>
-                    <!-- Switch Tailwind -->
-                    <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-right"
-                        title="Activar/Desactivar" style="transform: scale(0.75); transform-origin: center right;">
+            <div class="card-content flex flex-col w-full">
+                <!-- Solo Título y Toggle -->
+                <div class="flex justify-between items-start w-full">
+                    <h3 class="service-title flex-1 pr-4 m-0" (click)="openDialog(s)" style="word-break: break-word;">{{
+                        s.nombre }}</h3>
+                    <!-- Switch Tailwind con scale-50 agresivo -->
+                    <label
+                        class="relative inline-flex items-center cursor-pointer scale-50 transform origin-top-right flex-shrink-0"
+                        title="Activar/Desactivar" style="transform: scale(0.50); transform-origin: top right;">
                         <input type="checkbox" class="sr-only peer" [checked]="s.activo" (change)="toggleActive(s)">
                         <div
                             class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500">
@@ -47,7 +50,9 @@
                     </label>
                 </div>
 
-                <p class="service-desc">{{ s.descripcion || 'Sin descripción' }}</p>
+                <!-- Descripción debajo, línea completa -->
+                <p class="service-desc text-sm text-gray-500 w-full mt-2 mb-4" style="word-break: break-word;">{{
+                    s.descripcion || 'Sin descripción' }}</p>
                 <div class="meta-info">
                     <span class="badge type" *ngIf="s.tipo_servicio">{{ s.tipo_servicio }}</span>
                     <span class="status-text">{{ s.activo ? 'Activo' : 'Inactivo' }}</span>
