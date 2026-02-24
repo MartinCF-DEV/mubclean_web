@@ -49,12 +49,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.checkBusinessAndFetch();
 
-        // Auto-refresh stats every 10s
+        // Auto-refresh stats every 2s (Poling)
         this.refreshInterval = setInterval(() => {
             if (this.business && !this.licenseExpired) {
                 this.fetchData(true);
             }
-        }, 10000);
+        }, 2000);
     }
 
     ngOnDestroy() {
@@ -173,6 +173,19 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
                 allRelevantTickets.push(...myTickets);
             }
 
+            // C) Unassigned or pending Requests (Act as notifications)
+            const pendingRequests = requests.filter(r => r.estado === 'pendiente' || r.estado === 'EN_PROCESO');
+            pendingRequests.slice(0, 10).forEach(pr => {
+                allRelevantTickets.push({
+                    id: pr.id,
+                    asunto: '¡Nueva Solicitud: ' + pr.direccion + '!',
+                    tipo: 'solicitud',
+                    created_at: pr.created_at,
+                    isRequest: true,
+                    reqData: pr
+                });
+            });
+
             // Sort and limit
             allRelevantTickets.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -229,7 +242,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         // For Tickets, we should ideally go to a Ticket Detail page or Support tab.
         // Let's check matching logic.
 
-        if (req.asunto) {
+        if (req.isRequest) {
+            this.router.navigate(['/admin/request', req.id]);
+        } else if (req.asunto) {
             // It is a ticket
             this.router.navigate(['/admin/support']); // Go to support list
         } else {
@@ -239,6 +254,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
     // Helpers
     getColorClass(estado: string): string {
-        return `status-${estado}`;
+        if (!estado) return 'status-pendiente';
+        const e = estado.toLowerCase().replace(' ', '_');
+        return `status-${e}`;
+    }
+
+    formatStatus(status: string): string {
+        if (!status) return 'Desconocido';
+        const str = status.replace('_', ' ').toLowerCase();
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 }
