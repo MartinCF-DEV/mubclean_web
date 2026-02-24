@@ -38,26 +38,7 @@
         </div>
     </section>
 
-    <!-- 3. Chart Section -->
-    <section class="chart-section">
-        <div class="section-header">
-            <h2>Tendencia de Solicitudes</h2>
-            <span class="badge">Últimos 7 días</span>
-        </div>
-
-        <div class="bar-chart">
-            <div class="bar-column" *ngFor="let day of weeklyStats">
-                <div class="bar-track">
-                    <div class="bar-fill" [style.height.%]="day.height" [title]="day.count + ' solicitudes'">
-                        <span class="bar-value" *ngIf="day.height > 10">{{ day.count }}</span>
-                    </div>
-                </div>
-                <span class="bar-label">{{ day.day }}</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- 4. Important Notifications (Replaces Requests List) -->
+    <!-- 3. Important Notifications (Replaces Requests List) -->
     <section class="list-section">
         <div class="section-header">
             <h2>Notificaciones Importantes</h2>
@@ -90,6 +71,26 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Chart Section -->
+    <section class="chart-section mt-10">
+        <div class="section-header">
+            <h2>Tendencia de Solicitudes</h2>
+            <span class="badge">Últimos 7 días</span>
+        </div>
+
+        <div class="bar-chart">
+            <div class="bar-column" *ngFor="let day of weeklyStats">
+                <div class="bar-track">
+                    <div class="bar-fill bg-blue-600" [style.height.%]="day.height"
+                        [title]="day.count + ' solicitudes'">
+                        <span class="bar-value" *ngIf="day.height > 10">{{ day.count }}</span>
+                    </div>
+                </div>
+                <span class="bar-label">{{ day.day }}</span>
             </div>
         </div>
     </section>

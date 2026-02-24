@@ -21,7 +21,9 @@ import { AuthService } from '../auth.service';
       <div *ngIf="!isLoading && business" class="profile-card">
         
         <!-- Banner Section -->
-        <div class="banner-area" [style.backgroundImage]="getBannerUrl(business.portada_url)">
+        <div class="banner-area relative">
+            <img *ngIf="business.portada_url" [src]="business.portada_url" 
+                 class="w-full h-full object-cover object-center absolute inset-0 rounded-t-3xl" alt="Banner" style="width: 100%; height: 100%; object-fit: cover; object-position: center; border-top-left-radius: 24px; border-top-right-radius: 24px; pointer-events: none;">
             <input type="file" #bannerInput style="display: none" (change)="uploadImage($event, 'portada')" accept="image/*">
             <button class="edit-banner-btn" (click)="bannerInput.click()" title="Cambiar Portada">
                 <span class="material-icons">edit</span>
@@ -106,12 +108,7 @@ import { AuthService } from '../auth.service';
     .banner-area {
         height: 200px;
         background-color: #E3F2FD;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
         position: relative;
-        object-fit: cover;
-        object-position: center;
     }
     /* Button positioned directly on banner */
     .edit-banner-btn {

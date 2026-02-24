@@ -44,7 +44,7 @@ import { AuthService } from '../auth.service';
           </div>
 
           <div class="actions">
-            <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-right">
+            <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-right" style="transform: scale(0.75); transform-origin: center right;">
               <input type="checkbox" class="sr-only peer" [checked]="emp.activo" (change)="toggleStatus(emp)">
               <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
             </label>

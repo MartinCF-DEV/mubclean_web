@@ -43,12 +43,22 @@
                     </div>
                 </div>
 
-                <!-- Photos Carousel -->
-                <div class="photos-scroller" *ngIf="item.fotos_solicitud?.length">
-                    <div class="photo-thumb" *ngFor="let photo of item.fotos_solicitud">
-                        <img [src]="photo.foto_url" alt="Evidencia">
+                <!-- Photos Carousel or empty logic -->
+                <div *ngIf="item.fotos_solicitud && item.fotos_solicitud.length > 0; else noPhotos">
+                    <div class="photos-scroller">
+                        <ng-container *ngFor="let photo of item.fotos_solicitud">
+                            <div class="photo-thumb" *ngIf="photo.foto_url">
+                                <img [src]="photo.foto_url" alt="Evidencia">
+                            </div>
+                        </ng-container>
                     </div>
                 </div>
+                <ng-template #noPhotos>
+                    <div class="flex items-center text-gray-400 my-2">
+                        <span class="material-icons mr-2" style="font-size: 20px;">weekend</span>
+                        <span class="text-sm">Sin imágenes adjuntas</span>
+                    </div>
+                </ng-template>
 
                 <!-- Price Input or Display -->
                 <div class="price-section">
