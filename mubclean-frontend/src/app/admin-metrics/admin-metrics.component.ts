@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
@@ -11,7 +11,7 @@ import { AuthService } from '../auth.service';
     templateUrl: './admin-metrics.component.html',
     styleUrls: ['./admin-metrics.component.css']
 })
-export class AdminMetricsComponent implements OnInit {
+export class AdminMetricsComponent implements OnInit, OnDestroy {
     auth = inject(AuthService);
     private cdr = inject(ChangeDetectorRef);
     private supabase: SupabaseClient;
@@ -25,16 +25,29 @@ export class AdminMetricsComponent implements OnInit {
     completedJobs = 0;
     averageRating = 0;
 
+    refreshInterval: any;
+
     constructor() {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
     }
 
     ngOnInit() {
         this.fetchData();
+
+        // Auto-refresh stats every 2s (Poling)
+        this.refreshInterval = setInterval(() => {
+            if (this.business) {
+                this.fetchData(true);
+            }
+        }, 2000);
     }
 
-    async fetchData() {
-        this.isLoading = true;
+    ngOnDestroy() {
+        if (this.refreshInterval) clearInterval(this.refreshInterval);
+    }
+
+    async fetchData(silent = false) {
+        if (!silent) this.isLoading = true;
         try {
             const user = this.auth.currentUser;
             if (!user) return;
@@ -65,8 +78,10 @@ export class AdminMetricsComponent implements OnInit {
         } catch (e) {
             console.error(e);
         } finally {
-            this.isLoading = false;
-            this.cdr.detectChanges();
+            if (!silent) {
+                this.isLoading = false;
+                this.cdr.detectChanges();
+            }
         }
     }
 
