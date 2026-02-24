@@ -30,7 +30,7 @@
     font-size: 22px;
     font-weight: 800;
     margin: 0;
-    font-family: 'Fraunces', serif;
+    font-family: 'Inter', sans-serif;
     color: #0F172A;
 }
 
@@ -85,7 +85,7 @@
 
 .card h2 {
     font-size: 26px;
-    font-family: 'Fraunces', serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 800;
     color: #0F172A;
     margin: 0 0 12px;

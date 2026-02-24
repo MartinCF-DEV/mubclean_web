@@ -49,7 +49,7 @@
                         </div>
                     </div>
                     <div class="req-right">
-                        <span class="status-tag" [ngClass]="getColorClass(req.estado)">{{ req.estado | uppercase
+                        <span class="status-tag" [ngClass]="getColorClass(req.estado)">{{ formatStatus(req.estado)
                             }}</span>
                         <div class="action-btn-pill">
                             <span>Ver</span>

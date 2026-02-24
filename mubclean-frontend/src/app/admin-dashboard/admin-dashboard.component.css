@@ -25,7 +25,7 @@
     font-size: 32px;
     font-weight: 800;
     color: #0F172A;
-    font-family: 'Fraunces', serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .header-text p {
@@ -109,8 +109,8 @@
 }
 
 .purple-card {
-    background-color: #8B5CF6;
-    /* Vibrant Purple */
+    background-color: #1E3A8A;
+    /* Dark Blue matching Theme */
     color: white;
 }
 
@@ -195,7 +195,7 @@
     font-size: 24px;
     font-weight: 800;
     color: #0F172A;
-    font-family: 'Fraunces', serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .badge {
@@ -239,8 +239,9 @@
 
 .bar-fill {
     width: 100%;
-    background: #1565C0;
-    border-radius: 8px;
+    background: #BFDBFE;
+    /* Secondary Blue Light */
+    border-radius: 8px 8px 0 0;
     transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 4px;
     position: relative;
@@ -486,7 +487,7 @@
     margin: 0;
     font-size: 20px;
     color: #0F172A;
-    font-family: 'Fraunces', serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 700;
 }
 
@@ -595,7 +596,7 @@
     margin: 0;
     font-size: 24px;
     font-weight: 800;
-    font-family: 'Fraunces', serif;
+    font-family: 'Inter', sans-serif;
     color: #0F172A;
 }
 

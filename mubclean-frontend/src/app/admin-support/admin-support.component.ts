@@ -280,8 +280,8 @@ import { AuthService } from '../auth.service';
     .loading-container { display: flex; justify-content: center; padding: 40px; }
     .spinner { width: 30px; height: 30px; border: 3px solid rgba(21,101,192,0.2); border-top-color: #1565C0; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .empty-state { text-align: center; color: #999; margin-top: 40px; }
-    .empty-icon { font-size: 60px; color: #DDD; }
+    .empty-state { text-align: center; color: #4B5563; margin-top: 40px; font-weight: 500; }
+    .empty-icon { font-size: 60px; color: #6B7280; }
 
     /* List */
     .ticket-list { display: flex; flex-direction: column; gap: 20px; }
