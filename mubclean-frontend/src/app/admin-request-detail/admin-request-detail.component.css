@@ -11,8 +11,8 @@
     padding: 0 10px;
     display: flex;
     align-items: center;
-    border-bottom: 3px solid #000;
-    box-shadow: 0 4px 0 rgba(0, 0, 0, 1);
+    border-bottom: 1px solid #E5E7EB;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -51,8 +51,8 @@
     border-radius: 99px;
     background: white;
     margin-bottom: 24px;
-    border: 2px solid #000;
-    box-shadow: 2px 2px 0 #000;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .status-icon {
@@ -114,8 +114,8 @@
     background: white;
     border-radius: 16px;
     padding: 20px;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 h2 {
@@ -152,8 +152,8 @@ h2 {
     border-radius: 16px;
     padding: 20px;
     margin-bottom: 20px;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .item-header {
@@ -172,8 +172,8 @@ h2 {
     align-items: center;
     justify-content: center;
     margin-right: 16px;
-    border: 2px solid #000;
-    box-shadow: 2px 2px 0 #000;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .item-main h3 {
@@ -204,7 +204,7 @@ h2 {
     height: 80px;
     flex-shrink: 0;
     border-radius: 12px;
-    border: 2px solid #000;
+    border: 1px solid #CBD5E1;
     overflow: hidden;
 }
 
@@ -224,7 +224,7 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    border: 2px solid #000;
+    border: 1px solid #CBD5E1;
     border-radius: 12px;
     padding: 0 10px;
     width: 150px;
@@ -276,19 +276,19 @@ h2 {
 .primary-btn {
     background-color: #1565C0;
     color: white;
-    border: 2px solid #000;
+    border: 1px solid #1E3A8A;
     padding: 16px;
     border-radius: 12px;
     font-weight: 800;
     font-size: 16px;
     cursor: pointer;
-    box-shadow: 4px 4px 0 #000;
+    box-shadow: 0 4px 6px -1px rgba(21, 101, 192, 0.3);
     transition: all 0.2s;
 }
 
 .primary-btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px -1px rgba(21, 101, 192, 0.4);
 }
 
 .success-btn {
@@ -323,7 +323,7 @@ h2 {
 input,
 select {
     padding: 12px;
-    border: 2px solid #000;
+    border: 1px solid #CBD5E1;
     border-radius: 12px;
     font-size: 15px;
     font-family: inherit;
@@ -333,7 +333,7 @@ select {
 input:focus,
 select:focus {
     outline: none;
-    box-shadow: 4px 4px 0 #1565C0;
+    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
 }
 
 .loading-full {
