@@ -265,13 +265,13 @@ import { AuthService } from '../auth.service';
     </div>
   `,
   styles: [`
-    .page-container { padding: 30px; max-width: 800px; margin: 0 auto; }
-    .page-header h1 { color: #1565C0; margin-bottom: 20px; }
+    .page-container { padding: 30px; max-width: 800px; margin: 0 auto; font-family: 'Inter', sans-serif;}
+    .page-header h1 { color: #000; margin-bottom: 20px; font-family: 'Fraunces', serif; font-weight: 800; }
 
     /* Tabs */
     .tabs { display: flex; border-bottom: 1px solid #EEE; margin-bottom: 20px; }
     .tab {
-      padding: 12px 24px; cursor: pointer; color: #666; font-weight: 500; border-bottom: 2px solid transparent;
+      padding: 12px 24px; cursor: pointer; color: #444; font-weight: 700; border-bottom: 3px solid transparent;
     }
     .tab.active { color: #1565C0; border-bottom-color: #1565C0; }
 
@@ -283,30 +283,31 @@ import { AuthService } from '../auth.service';
     .empty-icon { font-size: 60px; color: #DDD; }
 
     /* List */
-    .ticket-list { display: flex; flex-direction: column; gap: 15px; }
-    .ticket-card { background: white; border: 1px solid #EEE; border-radius: 12px; overflow: hidden; }
-    .ticket-header { padding: 16px; display: flex; align-items: center; cursor: pointer; background: white; }
-    .ticket-header:hover { background: #F9FAFB; }
+    .ticket-list { display: flex; flex-direction: column; gap: 20px; }
+    .ticket-card { background: white; border: 2px solid #000; border-radius: 16px; overflow: hidden; box-shadow: 4px 4px 0 #000; transition: transform 0.2s; }
+    .ticket-header { padding: 20px; display: flex; align-items: center; cursor: pointer; background: white; }
+    .ticket-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
     
     .ticket-icon { 
-      width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      margin-right: 15px; background: #EEE; color: #999;
+      width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      margin-right: 15px; background: #F1F5F9; color: #475569; border: 2px solid #000; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
     }
-    .ticket-icon.open { background: #FFF3E0; color: #F57C00; }
+    .ticket-icon.open { background: #FFFBEB; color: #D97706; }
     
     .ticket-info { flex: 1; display: flex; flex-direction: column; }
     .ticket-subject { font-weight: 700; color: #333; }
     .ticket-meta { font-size: 12px; color: #999; margin-top: 4px; }
     .expand-icon { color: #CCC; }
 
-    .sub-tabs-container { display: flex; gap: 10px; margin-bottom: 20px; }
-    .sub-tab { padding: 8px 16px; border-radius: 99px; border: 1px solid #DDD; background: white; cursor: pointer; color: #666; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-    .sub-tab.active { background: #1565C0; color: white; border-color: #1565C0; }
-    .badge { background: #E3F2FD; color: #1565C0; padding: 2px 8px; border-radius: 99px; font-size: 12px; font-weight: 800; }
+    .sub-tabs-container { display: flex; gap: 12px; margin-bottom: 24px; }
+    .sub-tab { padding: 10px 20px; border-radius: 8px; border: 2px solid #000; background: #F8FAFC; cursor: pointer; color: #000; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 3px 3px 0 #000; transition: all 0.2s; }
+    .sub-tab:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #000; background: #E5E7EB; }
+    .sub-tab.active { background: #1565C0; color: white; border-color: #000; }
+    .badge { background: #E3F2FD; color: #1565C0; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 800; border: 2px solid #000; }
     .sub-tab.active .badge { background: white; color: #1565C0; }
 
-    .action-btn-pill { display: flex; align-items: center; gap: 4px; background: #F1F5F9; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 700; color: #0F172A; transition: all 0.2s; margin-left: auto; }
-    .ticket-header:hover .action-btn-pill { background: #0F172A; color: white; border-color: #0F172A; }
+    .action-btn-pill { display: flex; align-items: center; gap: 4px; background: #F1F5F9; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 800; color: #000; border: 2px solid transparent; transition: all 0.2s; margin-left: auto; }
+    .ticket-header:hover .action-btn-pill { background: #1565C0; color: white; border-color: #1565C0; }
     .ticket-header:hover .action-btn-pill .expand-icon { color: white; }
 
     .ticket-body { padding: 0 16px 16px 71px; border-top: 1px solid #F5F5F5; }
@@ -317,40 +318,47 @@ import { AuthService } from '../auth.service';
     .pending-msg { margin-top: 15px; color: #999; font-size: 13px; }
 
     /* Create Flow */
-    .category-list h2 { font-size: 18px; margin-bottom: 20px; }
+    .category-list h2 { font-size: 18px; margin-bottom: 20px; font-family: 'Fraunces', serif; font-weight: 700; color: #000;}
     .category-card { 
-      background: white; border: 1px solid #EEE; border-radius: 12px; padding: 20px;
-      display: flex; align-items: center; cursor: pointer; margin-bottom: 12px;
-      transition: all 0.2s;
+      background: white; border: 2px solid #000; border-radius: 16px; padding: 20px;
+      display: flex; align-items: center; cursor: pointer; margin-bottom: 16px;
+      transition: all 0.2s; box-shadow: 4px 4px 0 #000;
     }
-    .category-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .category-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
     .cat-icon { 
       width: 50px; height: 50px; border-radius: 50%; background: #E3F2FD; color: #1565C0;
       display: flex; align-items: center; justify-content: center; margin-right: 15px;
     }
-    .cat-info h3 { margin: 0 0 5px; font-size: 16px; }
+    .cat-info h3 { margin: 0 0 5px; font-size: 16px; font-weight: 700; color: #000; }
     .cat-info p { margin: 0; color: #666; font-size: 13px; }
     .arrow { margin-left: auto; color: #CCC; }
 
-    .form-details { background: white; padding: 30px; border-radius: 16px; border: 1px solid #EEE; }
-    .back-btn { background: none; border: none; color: #666; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 20px; padding: 0; }
+    .form-details { background: white; padding: 30px; border-radius: 16px; border: 2px solid #000; box-shadow: 6px 6px 0 #000; }
+    .back-btn { background: none; border: none; color: #000; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 20px; padding: 0; }
+    .back-btn:hover { color: #1565C0; }
     
     .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #000; }
     .form-group input, .form-group textarea, .form-group select { 
-      width: 95%; padding: 12px; border: 1px solid #DDD; border-radius: 8px; font-family: inherit; font-size: 14px;
+      width: 95%; padding: 12px; border: 2px solid #000; border-radius: 12px; font-family: inherit; font-size: 14px; transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none; box-shadow: 4px 4px 0 #CBD5E1;
     }
     .submit-btn {
-      width: 100%; padding: 14px; background: #1565C0; color: white; border: none; border-radius: 8px;
-      font-weight: 700; cursor: pointer; font-size: 16px;
+      width: 100%; padding: 14px; background: #1565C0; color: white; border: 2px solid #000; border-radius: 12px;
+      font-weight: 800; cursor: pointer; font-size: 16px; box-shadow: 4px 4px 0 #000; transition: all 0.2s;
     }
-    .submit-btn:disabled { background: #CCC; cursor: not-allowed; }
+    .submit-btn:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; background: #1976D2; }
+    .submit-btn:disabled { background: #94A3B8; cursor: not-allowed; transform: none; box-shadow: 2px 2px 0 #000; }
     
-    .response-form { margin-top: 15px; padding-top: 15px; border-top: 1px solid #EEE; }
-    .response-form label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
-    .response-form textarea { width: 95%; padding: 10px; border: 1px solid #DDD; border-radius: 8px; font-family: inherit; resize: vertical; }
-    .send-btn { margin-top: 10px; padding: 10px 20px; background: #1565C0; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-    .send-btn:disabled { background: #CCC; cursor: not-allowed; }
+    .response-form { margin-top: 15px; padding-top: 15px; border-top: 2px dashed #EEE; }
+    .response-form label { display: block; font-weight: 700; margin-bottom: 8px; color: #000; }
+    .response-form textarea { width: 95%; padding: 12px; border: 2px solid #000; border-radius: 12px; font-family: inherit; resize: vertical; transition: all 0.2s;}
+    .response-form textarea:focus { outline: none; box-shadow: 4px 4px 0 #CBD5E1; }
+    .send-btn { margin-top: 12px; padding: 12px 24px; background: #1565C0; color: white; border: 2px solid #000; border-radius: 12px; font-weight: 800; cursor: pointer; box-shadow: 3px 3px 0 #000; transition: all 0.2s;}
+    .send-btn:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #000; }
+    .send-btn:disabled { background: #94A3B8; cursor: not-allowed; box-shadow: 2px 2px 0 #000; transform: none;}
   `]
 })
 export class AdminSupportComponent implements OnInit {

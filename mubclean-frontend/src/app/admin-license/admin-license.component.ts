@@ -60,7 +60,7 @@ import { environment } from '../../environments/environment';
   styles: [`
     .license-container {
       min-height: 100vh;
-      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      background-color: #f8fafc;
       padding: 2rem;
       font-family: 'Inter', sans-serif;
       display: flex;
@@ -75,8 +75,8 @@ import { environment } from '../../environments/environment';
     }
 
     .header-text { margin-bottom: 2rem; }
-    .header-text h1 { font-size: 2rem; font-weight: 800; color: #1f2937; margin-bottom: 0.5rem; }
-    .header-text p { color: #6b7280; }
+    .header-text h1 { font-family: 'Fraunces', serif; font-size: 2.5rem; font-weight: 800; color: #000; margin-bottom: 0.5rem; }
+    .header-text p { color: #000; font-weight: 600;}
 
     .cards-row {
       display: flex;
@@ -92,44 +92,47 @@ import { environment } from '../../environments/environment';
       flex: 1;
       min-width: 300px;
       max-width: 400px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      border: 1px solid #e5e7eb;
+      box-shadow: 6px 6px 0 #000;
+      border: 3px solid #000;
       display: flex;
       flex-direction: column;
+      transition: all 0.2s;
     }
 
     .license-card.highlight {
-        border-color: #2563eb;
-        box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
-        transform: scale(1.02);
+        background: #F8FAFC;
+        box-shadow: 8px 8px 0 #000;
+        transform: translate(-2px, -2px);
     }
 
-    .plan-name { font-size: 1.5rem; font-weight: 700; color: #111827; }
-    .plan-price { margin: 1.5rem 0; color: #1f2937; }
-    .amount { font-size: 3rem; font-weight: 800; }
-    .period { color: #6b7280; }
+    .plan-name { font-size: 1.5rem; font-weight: 800; color: #000; font-family: 'Fraunces', serif; }
+    .plan-price { margin: 1.5rem 0; color: #000; }
+    .amount { font-size: 3.5rem; font-weight: 800; font-family: 'Fraunces', serif; }
+    .period { color: #555; font-weight: 700; }
 
     .features { list-style: none; padding: 0; margin-bottom: 2rem; text-align: left; }
-    .features li { margin-bottom: 0.75rem; color: #4b5563; display: flex; align-items: center; gap: 0.5rem; }
-    .features i { color: #059669; }
+    .features li { margin-bottom: 0.75rem; color: #000; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;}
+    .features i { color: #1565C0; }
 
     .btn-pay {
       margin-top: auto;
       width: 100%;
       padding: 1rem;
       border-radius: 12px;
-      border: none;
-      font-weight: 600;
+      border: 2px solid #000;
+      font-weight: 800;
       cursor: pointer;
       font-size: 1rem;
       transition: all 0.2s;
+      box-shadow: 4px 4px 0 #000;
+      font-family: 'Inter', sans-serif;
     }
 
-    .btn-primary { background: #2563eb; color: white; }
-    .btn-secondary { background: #eff6ff; color: #2563eb; }
+    .btn-primary { background: #1565C0; color: white; }
+    .btn-secondary { background: white; color: #000; }
     
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary:hover { background: #dbeafe; }
+    .btn-primary:hover { background: #1976D2; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+    .btn-secondary:hover { background: #F8FAFC; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000;}
   `]
 })
 export class AdminLicenseComponent implements OnInit {

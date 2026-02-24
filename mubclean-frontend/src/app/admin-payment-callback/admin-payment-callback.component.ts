@@ -45,14 +45,15 @@ import { environment } from '../../environments/environment';
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #f4f6f9;
+      background-color: #f8fafc;
       font-family: 'Inter', sans-serif;
     }
     .card {
       background: white;
       padding: 3rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      box-shadow: 6px 6px 0 #000;
+      border: 3px solid #000;
       text-align: center;
       max-width: 400px;
       width: 90%;
@@ -61,6 +62,8 @@ import { environment } from '../../environments/environment';
       width: 80px;
       height: 80px;
       border-radius: 50%;
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -71,16 +74,21 @@ import { environment } from '../../environments/environment';
     .failure { background-color: #fee2e2; color: #dc2626; }
     .pending { background-color: #fef3c7; color: #d97706; }
     
-    h2 { color: #1f2937; margin-bottom: 0.5rem; }
-    p { color: #6b7280; margin-bottom: 1.5rem; }
+    h2 { color: #000; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-weight: 800;}
+    p { color: #000; margin-bottom: 1.5rem; font-weight: 600;}
     
     button {
       padding: 0.75rem 1.5rem;
-      border-radius: 6px;
-      border: none;
-      font-weight: 500;
+      border-radius: 12px;
+      border: 2px solid #000;
+      font-weight: 800;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: all 0.2s;
+      box-shadow: 4px 4px 0 #000;
+    }
+    button:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 #000;
     }
     .btn-retry { background-color: #dc2626; color: white; }
     .btn-dashboard { background-color: #4f46e5; color: white; }
