@@ -89,8 +89,8 @@ import { AuthService } from '../auth.service';
   `,
   styles: [`
     .page-container { padding: 30px; max-width: 800px; margin: 0 auto; font-family: 'Inter', sans-serif;}
-    .page-header h1 { color: #000; margin: 0 0 5px; font-family: 'Fraunces', serif; font-weight: 800;}
-    .subtitle { color: #555; font-weight: 600; margin: 0 0 30px; }
+    .page-header h1 { color: #0F172A; margin: 0 0 8px; font-family: 'Fraunces', serif; font-weight: 800;}
+    .subtitle { color: #64748B; font-weight: 500; font-size: 16px; margin: 0 0 30px; }
 
     .loading-container { display: flex; justify-content: center; padding: 50px; }
     .spinner { width: 30px; height: 30px; border: 3px solid rgba(21,101,192,0.2); border-top-color: #1565C0; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -98,8 +98,8 @@ import { AuthService } from '../auth.service';
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .profile-card { 
-        background: white; border-radius: 16px; overflow: hidden; 
-        box-shadow: 6px 6px 0 #000; border: 3px solid #000;
+        background: white; border-radius: 24px; overflow: hidden; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.04);
     }
 
     /* Banner */
@@ -117,22 +117,22 @@ import { AuthService } from '../auth.service';
         right: 15px;
         width: 40px; 
         height: 40px; 
-        border-radius: 8px;
+        border-radius: 12px;
         background: white; 
-        color: #000; 
-        border: 2px solid #000;
-        box-shadow: 3px 3px 0 #000;
+        color: #64748B; 
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         display: flex; 
         align-items: center; 
         justify-content: center;
         cursor: pointer; 
-        transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+        transition: all 0.2s;
         z-index: 10;
     }
     .edit-banner-btn:hover { 
-        transform: translate(-2px, -2px);
-        box-shadow: 5px 5px 0 #000;
-        background: #F8FAFC;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        color: #0F172A;
     }
     .edit-banner-btn .material-icons { font-size: 20px; }
 
@@ -145,48 +145,48 @@ import { AuthService } from '../auth.service';
     .logo-wrapper {
         position: relative;
         width: 120px; height: 120px;
-        border-radius: 16px; border: 3px solid #000;
+        border-radius: 20px; border: 4px solid white;
         background: white;
-        box-shadow: 4px 4px 0 #000;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     }
     .logo-wrapper img {
-        width: 100%; height: 100%; border-radius: 12px; object-fit: cover;
+        width: 100%; height: 100%; border-radius: 16px; object-fit: cover;
     }
     
     .edit-logo-btn {
-        position: absolute; bottom: -10px; right: -10px;
-        width: 36px; height: 36px; border-radius: 8px;
-        background: #1565C0; color: white; border: 2px solid #000;
+        position: absolute; bottom: -8px; right: -8px;
+        width: 36px; height: 36px; border-radius: 50%;
+        background: #1565C0; color: white; border: 3px solid white;
         display: flex; align-items: center; justify-content: center;
-        cursor: pointer; box-shadow: 2px 2px 0 #000; transition: all 0.2s;
+        cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: all 0.2s;
     }
-    .edit-logo-btn:hover { background: #0D47A1; transform: translate(-2px, -2px); box-shadow: 4px 4px 0 #000;}
+    .edit-logo-btn:hover { background: #1976D2; transform: scale(1.1); }
     .edit-logo-btn .material-icons { font-size: 18px; }
 
     .header-info { padding-bottom: 10px; }
-    .header-info h2 { margin: 0; font-size: 24px; color: #000; font-weight: 800; font-family: 'Fraunces', serif;}
-    .header-info p { margin: 4px 0 0; color: #555; font-size: 14px; font-weight: 600;}
+    .header-info h2 { margin: 0; font-size: 24px; color: #0F172A; font-weight: 800; font-family: 'Fraunces', serif;}
+    .header-info p { margin: 4px 0 0; color: #64748B; font-size: 15px; font-weight: 500;}
 
     /* Form */
     .form-section { padding: 0 30px 40px; }
     .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; font-weight: 700; font-size: 13px; color: #000; margin-bottom: 6px; }
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; font-weight: 600; font-size: 14px; color: #334155; margin-bottom: 8px; }
     .form-group input, .form-group textarea {
-        width: 100%; box-sizing: border-box; padding: 12px;
-        border: 2px solid #000; border-radius: 12px;
+        width: 100%; box-sizing: border-box; padding: 12px 16px;
+        border: 1px solid #E2E8F0; border-radius: 12px; background: #F8FAFC;
         font-family: inherit; font-size: 14px; transition: all 0.2s;
     }
-    .form-group input:focus, .form-group textarea:focus { border-color: #000; outline: none; box-shadow: 4px 4px 0 #CBD5E1; }
+    .form-group input:focus, .form-group textarea:focus { border-color: #1565C0; background: white; outline: none; box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
 
-    .actions { margin-top: 20px; display: flex; justify-content: flex-end; }
+    .actions { margin-top: 32px; display: flex; justify-content: flex-end; }
     .save-btn { 
-        padding: 14px 40px; background: #1565C0; color: white; border: 2px solid #000; border-radius: 12px; 
-        font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 4px 4px 0 #000; transition: all 0.2s; font-family: 'Inter', sans-serif;
+        padding: 14px 40px; background: #1565C0; color: white; border: none; border-radius: 12px; 
+        font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 12px rgba(21,101,192,0.2); transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 16px;
     }
-    .save-btn:hover:not(:disabled) { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; background: #1976D2;}
-    .save-btn:disabled { background: #94A3B8; cursor: not-allowed; transform: none; box-shadow: 2px 2px 0 #000;}
+    .save-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(21,101,192,0.3); background: #1976D2;}
+    .save-btn:disabled { background: #94A3B8; cursor: not-allowed; transform: none; box-shadow: none;}
   `]
 })
 export class AdminProfileComponent implements OnInit {

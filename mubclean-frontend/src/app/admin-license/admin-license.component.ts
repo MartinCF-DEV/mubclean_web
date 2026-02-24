@@ -75,8 +75,8 @@ import { environment } from '../../environments/environment';
     }
 
     .header-text { margin-bottom: 2rem; }
-    .header-text h1 { font-family: 'Fraunces', serif; font-size: 2.5rem; font-weight: 800; color: #000; margin-bottom: 0.5rem; }
-    .header-text p { color: #000; font-weight: 600;}
+    .header-text h1 { font-family: 'Fraunces', serif; font-size: 2.5rem; font-weight: 800; color: #0F172A; margin-bottom: 0.5rem; }
+    .header-text p { color: #64748B; font-weight: 500;}
 
     .cards-row {
       display: flex;
@@ -88,51 +88,54 @@ import { environment } from '../../environments/environment';
     .license-card {
       background: white;
       border-radius: 20px;
-      padding: 2rem;
+      padding: 2.5rem;
       flex: 1;
       min-width: 300px;
       max-width: 400px;
-      box-shadow: 6px 6px 0 #000;
-      border: 3px solid #000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      border: 1px solid rgba(0,0,0,0.04);
       display: flex;
       flex-direction: column;
-      transition: all 0.2s;
+      transition: all 0.3s;
     }
 
     .license-card.highlight {
-        background: #F8FAFC;
-        box-shadow: 8px 8px 0 #000;
-        transform: translate(-2px, -2px);
+        background: white;
+        box-shadow: 0 10px 40px rgba(21,101,192,0.1);
+        border: 2px solid rgba(21,101,192,0.2);
+        transform: translateY(-4px);
     }
+    
+    .license-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.06); border-color: rgba(21,101,192,0.2); }
 
-    .plan-name { font-size: 1.5rem; font-weight: 800; color: #000; font-family: 'Fraunces', serif; }
-    .plan-price { margin: 1.5rem 0; color: #000; }
+    .plan-name { font-size: 1.5rem; font-weight: 800; color: #0F172A; font-family: 'Fraunces', serif; }
+    .plan-price { margin: 1.5rem 0; color: #0F172A; }
     .amount { font-size: 3.5rem; font-weight: 800; font-family: 'Fraunces', serif; }
-    .period { color: #555; font-weight: 700; }
+    .period { color: #64748B; font-weight: 600; }
 
     .features { list-style: none; padding: 0; margin-bottom: 2rem; text-align: left; }
-    .features li { margin-bottom: 0.75rem; color: #000; display: flex; align-items: center; gap: 0.5rem; font-weight: 600;}
-    .features i { color: #1565C0; }
+    .features li { margin-bottom: 0.75rem; color: #334155; display: flex; align-items: center; gap: 0.5rem; font-weight: 500;}
+    .features i { color: #1565C0; font-size: 14px; }
 
     .btn-pay {
       margin-top: auto;
       width: 100%;
       padding: 1rem;
       border-radius: 12px;
-      border: 2px solid #000;
-      font-weight: 800;
+      border: none;
+      font-weight: 600;
       cursor: pointer;
       font-size: 1rem;
       transition: all 0.2s;
-      box-shadow: 4px 4px 0 #000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       font-family: 'Inter', sans-serif;
     }
 
-    .btn-primary { background: #1565C0; color: white; }
-    .btn-secondary { background: white; color: #000; }
+    .btn-primary { background: #1565C0; color: white; box-shadow: 0 4px 12px rgba(21,101,192,0.2); }
+    .btn-secondary { background: white; color: #0F172A; border: 1px solid #E2E8F0; }
     
-    .btn-primary:hover { background: #1976D2; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
-    .btn-secondary:hover { background: #F8FAFC; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000;}
+    .btn-primary:hover { background: #1976D2; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(21,101,192,0.3); }
+    .btn-secondary:hover { background: #F8FAFC; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); color: #1565C0;}
   `]
 })
 export class AdminLicenseComponent implements OnInit {

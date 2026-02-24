@@ -94,13 +94,13 @@ import { AuthService } from '../auth.service';
     h1 { margin: 0; font-size: 32px; font-weight: 800; color: #0F172A; font-family: 'Fraunces', serif; }
     
     .add-btn {
-      background: white; color: #0F172A; border: 2px solid #000; padding: 12px 24px;
+      background: #1565C0; color: white; border: none; padding: 12px 24px;
       border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px;
-      font-weight: 700; transition: all 0.2s; box-shadow: 4px 4px 0 #000;
+      font-weight: 600; transition: all 0.2s; box-shadow: 0 4px 12px rgba(21,101,192,0.2);
       font-family: 'Inter', sans-serif;
     }
-    .add-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; background: #F8FAFC; }
-    .add-btn:active { transform: translate(0, 0); box-shadow: 2px 2px 0 #000; }
+    .add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(21,101,192,0.3); background: #1976D2; }
+    .add-btn:active { transform: translateY(0); box-shadow: 0 2px 4px rgba(21,101,192,0.2); }
 
     .loading-container { display: flex; justify-content: center; padding: 50px; }
     .spinner { border: 4px solid #F1F5F9; border-radius: 50%; border-top: 4px solid #000; width: 40px; height: 40px; animation: spin 1s linear infinite; }
@@ -111,19 +111,19 @@ import { AuthService } from '../auth.service';
 
     .employee-list { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
     .employee-card {
-      background: white; border-radius: 16px; padding: 24px;
+      background: white; border-radius: 20px; padding: 24px;
       display: flex; align-items: center; gap: 20px;
-      box-shadow: 6px 6px 0 #000; border: 2px solid #000;
-      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04);
+      transition: all 0.3s;
     }
-    .employee-card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 #000; }
-    .employee-card.inactive { opacity: 0.7; background: #F1F5F9; border-style: dashed; }
+    .employee-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.06); border-color: rgba(21,101,192,0.2); }
+    .employee-card.inactive { opacity: 0.7; background: #F8FAFC; border-style: dashed; }
     
     .avatar {
-      width: 56px; height: 56px; border-radius: 50%; background-color: #F1F5F9;
-      color: #0F172A; display: flex; align-items: center; justify-content: center;
-      font-weight: 800; background-size: cover; background-position: center;
-      border: 2px solid #000; font-size: 18px;
+      width: 56px; height: 56px; border-radius: 50%; background-color: #EFF6FF;
+      color: #1565C0; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; background-size: cover; background-position: center;
+      border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); font-size: 18px;
     }
     
     .info { flex: 1; overflow: hidden; }
@@ -136,46 +136,45 @@ import { AuthService } from '../auth.service';
     /* Switch with Neo Style */
     .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #CBD5E1; transition: .4s; border-radius: 20px; border: 2px solid #000; }
-    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; border: 1px solid #000; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #CBD5E1; transition: .4s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     input:checked + .slider { background-color: #22C55E; }
     input:checked + .slider:before { transform: translateX(20px); }
 
     /* Modal */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6); z-index: 2000;
+      background: rgba(15, 23, 42, 0.4); z-index: 2000;
       display: flex; align-items: center; justify-content: center;
       backdrop-filter: blur(4px);
     }
     .modal { 
-      background: white; padding: 32px; border-radius: 20px; 
+      background: white; padding: 32px; border-radius: 24px; 
       width: 90%; max-width: 450px; 
-      box-shadow: 8px 8px 0 #000; border: 3px solid #000;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: none;
     }
-    .modal h2 { margin-top: 0; font-family: 'Fraunces', serif; font-size: 24px; font-weight: 800; }
-    .form-group { margin: 20px 0; display: flex; flex-direction: column; gap: 8px; }
-    .form-group label { font-weight: 700; font-size: 14px; color: #0F172A; }
+    .modal h2 { margin-top: 0; font-family: 'Fraunces', serif; font-size: 24px; font-weight: 800; color: #0F172A;}
+    .form-group { margin: 24px 0; display: flex; flex-direction: column; gap: 8px; }
+    .form-group label { font-weight: 600; font-size: 14px; color: #334155; }
     .form-group input { 
-      padding: 12px; border: 2px solid #000; border-radius: 12px; 
-      font-size: 16px; font-family: 'Inter', sans-serif; outline: none; transition: box-shadow 0.2s;
+      padding: 12px 16px; border: 1px solid #E2E8F0; border-radius: 12px; 
+      font-size: 15px; font-family: 'Inter', sans-serif; outline: none; transition: all 0.2s; background: #F8FAFC;
     }
-    .form-group input:focus { box-shadow: 4px 4px 0 #CBD5E1; }
+    .form-group input:focus { border-color: #1565C0; background: white; box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
     
-    .error-msg { color: #EF4444; font-size: 13px; margin-top: -10px; margin-bottom: 20px; font-weight: 600; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 16px; margin-top: 32px; }
+    .error-msg { color: #EF4444; font-size: 13px; margin-top: -10px; margin-bottom: 20px; font-weight: 500; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; }
     
     .cancel-btn, .confirm-btn { 
       padding: 12px 24px; border-radius: 12px; cursor: pointer; 
-      font-weight: 700; font-family: 'Inter', sans-serif;
-      border: 2px solid #000; box-shadow: 4px 4px 0 #000; transition: all 0.2s;
+      font-weight: 600; font-family: 'Inter', sans-serif; font-size: 15px;
+      transition: all 0.2s;
     }
-    .cancel-btn:hover, .confirm-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
-    .cancel-btn:active, .confirm-btn:active { transform: translate(0, 0); box-shadow: 2px 2px 0 #000; }
-    
-    .cancel-btn { background: white; color: #0F172A; }
-    .confirm-btn { background: #1565C0; color: white; }
-    .confirm-btn:disabled { background: #94A3B8; cursor: not-allowed; transform: none; box-shadow: 2px 2px 0 #000; }
+    .cancel-btn { background: white; color: #64748B; border: 1px solid #E2E8F0; }
+    .cancel-btn:hover { background: #F8FAFC; color: #0F172A; }
+    .confirm-btn { background: #1565C0; color: white; border: none; box-shadow: 0 4px 12px rgba(21,101,192,0.2); }
+    .confirm-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(21,101,192,0.3); background: #1976D2;}
+    .confirm-btn:disabled { background: #94A3B8; cursor: not-allowed; transform: none; box-shadow: none; }
   `]
 })
 export class AdminEmployeesComponent implements OnInit {

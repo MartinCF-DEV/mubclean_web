@@ -51,9 +51,9 @@ import { environment } from '../../environments/environment';
     .card {
       background: white;
       padding: 3rem;
-      border-radius: 16px;
-      box-shadow: 6px 6px 0 #000;
-      border: 3px solid #000;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.04);
       text-align: center;
       max-width: 400px;
       width: 90%;
@@ -62,8 +62,8 @@ import { environment } from '../../environments/environment';
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      border: 3px solid #000;
-      box-shadow: 4px 4px 0 #000;
+      border: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -74,24 +74,24 @@ import { environment } from '../../environments/environment';
     .failure { background-color: #fee2e2; color: #dc2626; }
     .pending { background-color: #fef3c7; color: #d97706; }
     
-    h2 { color: #000; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-weight: 800;}
-    p { color: #000; margin-bottom: 1.5rem; font-weight: 600;}
+    h2 { color: #0F172A; margin-bottom: 0.5rem; font-family: 'Fraunces', serif; font-weight: 800;}
+    p { color: #64748B; margin-bottom: 1.5rem; font-weight: 500;}
     
     button {
       padding: 0.75rem 1.5rem;
       border-radius: 12px;
-      border: 2px solid #000;
-      font-weight: 800;
+      border: none;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      box-shadow: 4px 4px 0 #000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     button:hover {
-      transform: translate(-2px, -2px);
-      box-shadow: 6px 6px 0 #000;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     }
-    .btn-retry { background-color: #dc2626; color: white; }
-    .btn-dashboard { background-color: #4f46e5; color: white; }
+    .btn-retry { background-color: #dc2626; color: white; box-shadow: 0 4px 12px rgba(220,38,38,0.2); }
+    .btn-dashboard { background-color: #1565C0; color: white; box-shadow: 0 4px 12px rgba(21,101,192,0.2); }
     
     .spinner {
       border: 4px solid #f3f3f3;

@@ -14,31 +14,31 @@
 h1 {
     margin: 0;
     font-size: 32px;
-    color: #000;
+    color: #0F172A;
     font-family: 'Fraunces', serif;
     font-weight: 800;
 }
 
 .add-btn {
-    background: white;
-    color: #000;
-    border: 2px solid #000;
+    background: #1565C0;
+    color: white;
+    border: none;
     padding: 12px 24px;
     border-radius: 12px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-weight: 700;
+    font-weight: 600;
     transition: all 0.2s;
-    box-shadow: 4px 4px 0 #000;
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.2);
     font-family: 'Inter', sans-serif;
 }
 
 .add-btn:hover {
-    background: #F8FAFC;
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(21, 101, 192, 0.3);
 }
 
 /* Loading / Empty */
@@ -88,18 +88,18 @@ h1 {
 
 .service-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
-    border: 2px solid #000;
-    box-shadow: 6px 6px 0 #000;
-    transition: all 0.2s;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
 }
 
 .service-card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 8px 8px 0 #000;
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
 .service-card.inactive {
@@ -197,14 +197,13 @@ h1 {
 }
 
 .badge {
-    background: #E3F2FD;
+    background: #EFF6FF;
     color: #1565C0;
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 11px;
-    font-weight: 700;
-    border: 2px solid #000;
-    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    border: none;
 }
 
 .status-text {
@@ -277,11 +276,11 @@ input:checked+.slider:before {
 .modal {
     background: white;
     padding: 0;
-    border-radius: 20px;
+    border-radius: 24px;
     width: 90%;
-    max-width: 450px;
-    box-shadow: 8px 8px 0 #000;
-    border: 3px solid #000;
+    max-width: 500px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border: none;
     display: flex;
     flex-direction: column;
     max-height: 90vh;
@@ -304,24 +303,23 @@ input:checked+.slider:before {
 }
 
 .close-icon {
-    background: white;
-    border: 2px solid #000;
+    background: #F1F5F9;
+    border: none;
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #000;
+    color: #64748B;
     padding: 0;
-    box-shadow: 2px 2px 0 #000;
     transition: all 0.2s;
 }
 
 .close-icon:hover {
-    background: #FECACA;
-    transform: scale(1.1);
+    background: #E2E8F0;
+    color: #0F172A;
 }
 
 .modal-body {
@@ -332,8 +330,8 @@ input:checked+.slider:before {
 .image-picker {
     height: 180px;
     background-color: #F8FAFC;
-    border-radius: 12px;
-    border: 2px dashed #000;
+    border-radius: 16px;
+    border: 2px dashed #CBD5E1;
     margin-bottom: 24px;
     display: flex;
     align-items: center;
@@ -348,8 +346,6 @@ input:checked+.slider:before {
 .image-picker:hover {
     border-color: #1565C0;
     background-color: #EFF6FF;
-    border-style: solid;
-    box-shadow: 4px 4px 0 #1565C0;
 }
 
 .upload-placeholder {
@@ -396,19 +392,21 @@ input:checked+.slider:before {
 .form-group textarea {
     width: 100%;
     box-sizing: border-box;
-    padding: 12px;
-    border: 2px solid #000;
+    padding: 12px 16px;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
     font-family: inherit;
     font-size: 14px;
     transition: all 0.2s;
+    background: #F8FAFC;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-    border-color: #000;
+    border-color: #1565C0;
     outline: none;
-    box-shadow: 4px 4px 0 #CBD5E1;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
 }
 
 .modal-footer {
@@ -425,60 +423,57 @@ input:checked+.slider:before {
 
 .cancel-btn {
     background: white;
-    border: 2px solid #000;
-    color: #0F172A;
+    border: 1px solid #E2E8F0;
+    color: #64748B;
     padding: 12px 20px;
     border-radius: 12px;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 4px 4px 0 #000;
     transition: all 0.2s;
 }
 
 .cancel-btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
+    background: #F8FAFC;
+    color: #0F172A;
 }
 
 .save-btn {
     background: #1565C0;
-    border: 2px solid #000;
+    border: none;
     color: white;
     padding: 12px 24px;
     border-radius: 12px;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 4px 4px 0 #000;
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.2);
     transition: all 0.2s;
 }
 
 .save-btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(21, 101, 192, 0.3);
     background: #1976D2;
 }
 
 .save-btn:disabled {
     background: #94A3B8;
     cursor: not-allowed;
-    box-shadow: 2px 2px 0 #000;
+    box-shadow: none;
     transform: none;
 }
 
 .delete-btn {
     background: white;
     color: #EF4444;
-    border: 2px solid #000;
+    border: 1px solid #FECACA;
     padding: 12px 20px;
     border-radius: 12px;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 4px 4px 0 #000;
     transition: all 0.2s;
 }
 
 .delete-btn:hover {
     background: #FEF2F2;
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
+    border-color: #EF4444;
 }
