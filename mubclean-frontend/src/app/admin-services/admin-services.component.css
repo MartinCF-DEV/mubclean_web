@@ -162,9 +162,8 @@ h1 {
 }
 
 .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    margin-bottom: 8px;
+    /* Restored bottom margin, flexbox aligns via Tailwind */
 }
 
 .service-title {
@@ -220,7 +219,7 @@ h1 {
     display: inline-block;
     width: 34px;
     height: 18px;
-    transform: scale(0.9);
+    transform: scale(0.75);
 }
 
 .switch input {

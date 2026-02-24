@@ -108,7 +108,10 @@ import { AuthService } from '../auth.service';
         background-color: #E3F2FD;
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat;
         position: relative;
+        object-fit: cover;
+        object-position: center;
     }
     /* Button positioned directly on banner */
     .edit-banner-btn {
