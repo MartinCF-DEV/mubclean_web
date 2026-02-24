@@ -185,4 +185,10 @@ export class AdminRequestDetailComponent implements OnInit {
     goBack() {
         this.router.navigate(['/admin/dashboard']);
     }
+
+    formatStatus(status: string): string {
+        if (!status) return '';
+        const formatted = status.replace(/_/g, ' ');
+        return formatted.charAt(0).toUpperCase() + formatted.slice(1).toLowerCase();
+    }
 }

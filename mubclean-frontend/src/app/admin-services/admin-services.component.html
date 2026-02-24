@@ -36,10 +36,13 @@
             <div class="card-content">
                 <div class="card-header flex justify-between items-center w-full">
                     <h3 class="service-title" (click)="openDialog(s)">{{ s.nombre }}</h3>
-                    <!-- Switch -->
-                    <label class="switch" title="Activar/Desactivar">
-                        <input type="checkbox" [checked]="s.activo" (change)="toggleActive(s)">
-                        <span class="slider round"></span>
+                    <!-- Switch Tailwind -->
+                    <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-right"
+                        title="Activar/Desactivar">
+                        <input type="checkbox" class="sr-only peer" [checked]="s.activo" (change)="toggleActive(s)">
+                        <div
+                            class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500">
+                        </div>
                     </label>
                 </div>
 

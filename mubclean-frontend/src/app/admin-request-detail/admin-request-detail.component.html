@@ -15,7 +15,7 @@
         <!-- Status Header -->
         <div class="status-header" [ngClass]="'status-' + request.estado">
             <span class="material-icons status-icon">info</span>
-            <span class="status-text">{{ request.estado | uppercase }}</span>
+            <span class="status-text">{{ formatStatus(request.estado) }}</span>
         </div>
 
         <!-- Sections -->
