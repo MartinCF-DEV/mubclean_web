@@ -75,22 +75,41 @@
         </div>
     </section>
 
-    <!-- 4. Chart Section -->
-    <section class="chart-section mt-10">
+    <!-- 4. Recent Activity (Latest Requests) -->
+    <section class="list-section mt-10">
         <div class="section-header">
-            <h2>Tendencia de Solicitudes</h2>
-            <span class="badge">Últimos 7 días</span>
+            <h2>Actividad Reciente</h2>
+            <span class="badge">Últimas 5 Solicitudes</span>
         </div>
 
-        <div class="bar-chart">
-            <div class="bar-column" *ngFor="let day of weeklyStats">
-                <div class="bar-track">
-                    <div class="bar-fill bg-blue-600" [style.height.%]="day.height"
-                        [title]="day.count + ' solicitudes'">
-                        <span class="bar-value" *ngIf="day.height > 10">{{ day.count }}</span>
+        <div class="list-content">
+            <div *ngIf="isLoading && !business" class="inline-loader">
+                <div class="spinner"></div>
+            </div>
+
+            <div *ngIf="!isLoading && recentRequests.length === 0" class="empty-state">
+                <span class="material-icons">inbox</span>
+                <p>No hay solicitudes recientes.</p>
+            </div>
+
+            <div class="request-cards">
+                <div *ngFor="let item of recentRequests" class="request-item" (click)="goToDetail(item)">
+                    <div class="req-left">
+                        <div class="status-dot" [ngClass]="getColorClass(item.estado)"></div>
+                        <div class="req-info">
+                            <h4>{{ item.direccion }}</h4>
+                            <span class="req-date">{{ item.fecha_solicitada | date:'short' }}</span>
+                        </div>
+                    </div>
+                    <div class="req-right">
+                        <span class="status-tag" [ngClass]="getColorClass(item.estado)">{{ item.estado | uppercase
+                            }}</span>
+                        <div class="action-btn-pill">
+                            <span>Ver</span>
+                            <span class="material-icons arrow">chevron_right</span>
+                        </div>
                     </div>
                 </div>
-                <span class="bar-label">{{ day.day }}</span>
             </div>
         </div>
     </section>

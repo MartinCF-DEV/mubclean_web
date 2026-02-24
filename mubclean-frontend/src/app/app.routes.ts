@@ -49,6 +49,7 @@ export const routes: Routes = [
             { path: 'support', loadComponent: () => import('./admin-support/admin-support.component').then(m => m.AdminSupportComponent) },
             { path: 'profile', loadComponent: () => import('./admin-profile/admin-profile.component').then(m => m.AdminProfileComponent) },
             { path: 'services', loadComponent: () => import('./admin-services/admin-services.component').then(m => m.AdminServicesComponent) },
+            { path: 'metrics', loadComponent: () => import('./admin-metrics/admin-metrics.component').then(m => m.AdminMetricsComponent) },
             { path: 'payment/:status', loadComponent: () => import('./admin-payment-callback/admin-payment-callback.component').then(m => m.AdminPaymentCallbackComponent) },
             { path: 'license', loadComponent: () => import('./admin-license/admin-license.component').then(m => m.AdminLicenseComponent) },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

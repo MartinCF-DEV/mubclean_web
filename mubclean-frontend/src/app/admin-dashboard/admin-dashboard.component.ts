@@ -34,11 +34,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     // Stats
     upcomingJobsCount = 0;
     newReportsCount = 0;
-    weeklyStats: { day: string, count: number, height: number }[] = [];
 
     // Lists
     tickets: any[] = []; // Store filtered tickets
     upcomingJobs: any[] = []; // Store for the modal
+    recentRequests: any[] = []; // Store for Recent Activity
 
     refreshInterval: any;
 
@@ -133,7 +133,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             }));
 
             this.calculateStats(requests);
-            this.generateChartData(requests);
+            this.recentRequests = requests.slice(0, 5);
 
             // 2. Fetch Relevant Tickets
             let allRelevantTickets: any[] = [];
@@ -202,26 +202,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.upcomingJobsCount = this.upcomingJobs.length;
     }
 
-    generateChartData(all: any[]) {
-        const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-        const today = new Date();
-        const stats = [];
-
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date(today);
-            d.setDate(today.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            const dayName = days[d.getDay()];
-            const count = all.filter(r => r.created_at?.startsWith(dateStr)).length;
-            stats.push({ day: dayName, count });
-        }
-
-        const max = Math.max(...stats.map(s => s.count), 1);
-        this.weeklyStats = stats.map(s => ({
-            ...s,
-            height: Math.round((s.count / max) * 100)
-        }));
-    }
 
     openModal(type: 'jobs' | 'reports') {
         this.modalType = type;
