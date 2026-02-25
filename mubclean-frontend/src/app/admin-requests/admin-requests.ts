@@ -93,7 +93,23 @@ export class AdminRequestsComponent implements OnInit {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      const requests = reqs || [];
+      const rawRequests = reqs || [];
+
+      // Map client profiles
+      const clientIds = [...new Set(rawRequests.map(r => r.cliente_id).filter(id => !!id))];
+      let clientsMap: any = {};
+      if (clientIds.length > 0) {
+        const { data: profiles } = await this.supabase
+          .from('perfiles')
+          .select('id, nombre_completo')
+          .in('id', clientIds);
+
+        if (profiles) {
+          profiles.forEach(p => clientsMap[p.id] = p.nombre_completo);
+        }
+      }
+
+      const requests = rawRequests.map(r => ({ ...r, nombre_cliente: clientsMap[r.cliente_id] || 'Cliente Desconocido' }));
       this.processRequests(requests);
     } catch (e) {
       console.error(e);

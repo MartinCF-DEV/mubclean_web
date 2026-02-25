@@ -97,7 +97,9 @@
                     <div class="req-left">
                         <div class="status-dot" [ngClass]="getColorClass(item.estado)"></div>
                         <div class="req-info">
-                            <h4>{{ item.direccion }}</h4>
+                            <h4 style="margin-bottom: 2px;">{{ item.nombre_cliente }}</h4>
+                            <h4 style="font-size: 13px; color: #64748B; font-weight: 500; margin: 0 0 6px;">{{
+                                item.direccion }}</h4>
                             <span class="req-date">{{ item.fecha_solicitada | date:'short' }}</span>
                         </div>
                     </div>

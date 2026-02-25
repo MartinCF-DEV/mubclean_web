@@ -43,9 +43,11 @@
                     <div class="req-left">
                         <div class="status-dot" [ngClass]="getColorClass(req.estado)"></div>
                         <div class="req-info">
-                            <h4>{{ req.direccion }}</h4>
-                            <span class="req-date">Folio {{ req.short_id }} • {{ req.fecha_solicitada
-                                | date:'short' }}</span>
+                            <h4 style="margin-bottom: 2px;">{{ req.nombre_cliente }}</h4>
+                            <h4 style="font-size: 13px; color: #64748B; font-weight: 500; margin: 0 0 6px;">{{
+                                req.direccion }}</h4>
+                            <span class="req-date">Folio {{ req.short_id }} • {{ req.fecha_solicitada | date:'short'
+                                }}</span>
                         </div>
                     </div>
                     <div class="req-right">

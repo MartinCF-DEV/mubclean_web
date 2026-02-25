@@ -126,10 +126,25 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
+
+            const clientIds = [...new Set((reqs || []).map(r => r.cliente_id).filter(id => !!id))];
+            let clientsMap: any = {};
+            if (clientIds.length > 0) {
+                const { data: profiles } = await this.supabase
+                    .from('perfiles')
+                    .select('id, nombre_completo')
+                    .in('id', clientIds);
+
+                if (profiles) {
+                    profiles.forEach(p => clientsMap[p.id] = p.nombre_completo);
+                }
+            }
+
             const requests = (reqs || []).map(json => ({
                 ...json,
                 direccion: json['direccion_servicio'] || json['direccion'] || 'Sin dirección',
-                fecha_solicitada: json['fecha_solicitada_cliente'] || json['fecha_solicitada'] || new Date().toISOString()
+                fecha_solicitada: json['fecha_solicitada_cliente'] || json['fecha_solicitada'] || new Date().toISOString(),
+                nombre_cliente: clientsMap[json.cliente_id] || 'Cliente Desconocido'
             }));
 
             this.calculateStats(requests);
@@ -139,7 +154,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             let allRelevantTickets: any[] = [];
 
             // A) Client Tickets related to our orders
-            const clientIds = [...new Set(requests.map(r => r.cliente_id).filter(id => !!id))];
             if (clientIds.length > 0) {
                 const { data: clientTickets } = await this.supabase
                     .from('soporte_tickets')
@@ -178,7 +192,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             pendingRequests.slice(0, 10).forEach(pr => {
                 allRelevantTickets.push({
                     id: pr.id,
-                    asunto: '¡Nueva Solicitud: ' + pr.direccion + '!',
+                    asunto: '¡Nueva Solicitud: ' + pr.nombre_cliente + ' en ' + pr.direccion + '!',
                     tipo: 'solicitud',
                     created_at: pr.created_at,
                     isRequest: true,
