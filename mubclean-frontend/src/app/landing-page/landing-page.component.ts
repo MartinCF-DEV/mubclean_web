@@ -1,25 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LandingNavbarComponent } from './components/landing-navbar/landing-navbar.component';
-import { LandingHeroComponent } from './components/landing-hero/landing-hero.component';
-import { LandingHowItWorksComponent } from './components/landing-how-it-works/landing-how-it-works.component';
-import { LandingSplitComponent } from './components/landing-split/landing-split.component';
-import { LandingSecurityComponent } from './components/landing-security/landing-security.component';
-import { LandingFooterComponent } from './components/landing-footer/landing-footer.component';
 
 @Component({
     selector: 'app-landing-page',
     standalone: true,
     imports: [
         CommonModule,
-        RouterModule,
-        LandingNavbarComponent,
-        LandingHeroComponent,
-        LandingHowItWorksComponent,
-        LandingSplitComponent,
-        LandingSecurityComponent,
-        LandingFooterComponent
+        RouterModule
     ],
     templateUrl: './landing-page.component.html',
     styleUrls: ['./landing-page.component.css']
