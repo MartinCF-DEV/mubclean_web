@@ -285,6 +285,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         }
     }
 
+    goToMetrics() {
+        this.router.navigate(['/admin/metrics']);
+    }
+
     // Helpers
     getColorClass(estado: string): string {
         if (!estado) return 'status-pendiente';
