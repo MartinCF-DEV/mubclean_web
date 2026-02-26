@@ -8,7 +8,7 @@
         <div *ngIf="currentStep === 2" class="step-indicator">Paso 2 de 2</div>
     </header>
 
-    <div class="content-wrapper">
+    <div class="content-wrapper" *ngIf="isPaymentConfirmed">
         <!-- STEP 1: ACCOUNT -->
         <div class="card" *ngIf="currentStep === 1">
             <div class="card-header">
@@ -82,5 +82,12 @@
                 </button>
             </form>
         </div>
+    </div>
+
+    <!-- PENDING/CHECKING STATE -->
+    <div class="content-wrapper" *ngIf="!isPaymentConfirmed" style="text-align: center; padding: 60px 20px;">
+        <h2 style="color: #1e293b; font-size: 24px; font-weight: 700; margin-bottom: 10px;">Verificando Autorización...
+        </h2>
+        <p style="color: #64748b; font-size: 16px;">Por favor espera un momento mientras validamos el pago seguro.</p>
     </div>
 </div>

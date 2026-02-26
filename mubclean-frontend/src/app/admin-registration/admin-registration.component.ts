@@ -74,11 +74,13 @@ export class AdminRegistrationComponent {
             if (status === 'approved' && pId) {
                 this.isPaymentConfirmed = true;
                 this.paymentId = pId;
-                // alert('Pago confirmado: ' + pId); // Debug
             } else {
-                // Fallback or just let them stay on step 1 (they can't submit anyway without payment logic?)
-                // Actually, if we want to enforce pay-first, checking here is good.
-                // But let's avoid auto-redirect loop if they just arrived.
+                this.isPaymentConfirmed = false;
+                // Allow a small delay to ensure routing logic fires without visual glitching
+                setTimeout(() => {
+                    alert('El pago no fue completado o fue cancelado. Serás redirigido.');
+                    this.router.navigate(['/business-pricing']);
+                }, 100);
             }
         });
     }
