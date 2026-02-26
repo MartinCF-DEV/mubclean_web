@@ -29,6 +29,12 @@ export class AdminRequestsComponent implements OnInit {
   activeTab: 'nuevas' | 'activas' | 'historial' = 'nuevas';
   searchTerm: string = '';
 
+  // Calendar State
+  viewMode: 'list' | 'calendar' = 'list';
+  currentMonth: Date = new Date();
+  calendarDays: { date: Date, isCurrentMonth: boolean, requests: any[] }[] = [];
+  weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
   constructor() {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
@@ -130,6 +136,76 @@ export class AdminRequestsComponent implements OnInit {
     this.nuevas = mapped.filter(s => ['pendiente', 'cotizada'].includes(s.estado));
     this.activas = mapped.filter(s => ['aceptada', 'agendada', 'en_proceso'].includes(s.estado));
     this.historial = mapped.filter(s => ['completada', 'cancelada'].includes(s.estado));
+
+    this.generateCalendar();
+  }
+
+  // --- Calendar Logic ---
+  toggleViewMode() {
+    this.viewMode = this.viewMode === 'list' ? 'calendar' : 'list';
+  }
+
+  previousMonth() {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+    this.generateCalendar();
+  }
+
+  nextMonth() {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+    this.generateCalendar();
+  }
+
+  generateCalendar() {
+    this.calendarDays = [];
+
+    const year = this.currentMonth.getFullYear();
+    const month = this.currentMonth.getMonth();
+
+    // First day of current month (0-6)
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    // Number of days in current month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // Number of days in previous month
+    const prevDaysInMonth = new Date(year, month, 0).getDate();
+
+    // All mapped requests to check bounds
+    const allReqs = [...this.nuevas, ...this.activas, ...this.historial];
+
+    // Previous month filler days
+    for (let x = firstDayIndex; x > 0; x--) {
+      const d = new Date(year, month - 1, prevDaysInMonth - x + 1);
+      this.calendarDays.push({
+        date: d,
+        isCurrentMonth: false,
+        requests: this.getRequestsForDate(d, allReqs)
+      });
+    }
+
+    // Current month days
+    for (let i = 1; i <= daysInMonth; i++) {
+      const d = new Date(year, month, i);
+      this.calendarDays.push({
+        date: d,
+        isCurrentMonth: true,
+        requests: this.getRequestsForDate(d, allReqs)
+      });
+    }
+
+    // Next month filler days (to complete 42 cells / 6 weeks if needed)
+    const remainingCells = 42 - this.calendarDays.length;
+    for (let j = 1; j <= remainingCells; j++) {
+      const d = new Date(year, month + 1, j);
+      this.calendarDays.push({
+        date: d,
+        isCurrentMonth: false,
+        requests: this.getRequestsForDate(d, allReqs)
+      });
+    }
+  }
+
+  getRequestsForDate(date: Date, allReqs: any[]): any[] {
+    const dateStr = date.toISOString().split('T')[0];
+    return allReqs.filter(r => r.fecha_solicitada?.startsWith(dateStr));
   }
 
   goToDetail(req: any) {

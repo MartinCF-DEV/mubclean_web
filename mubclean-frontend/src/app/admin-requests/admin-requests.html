@@ -4,9 +4,17 @@
             <h1>Gestión de Solicitudes</h1>
             <p>Administra todas las reservas y trabajos de limpieza</p>
         </div>
-        <button class="refresh-btn" (click)="fetchRequests()" [disabled]="isLoading">
-            <span class="material-icons" [class.spin]="isLoading">sync</span>
-        </button>
+        <div style="display: flex; gap: 12px;">
+            <button class="export-btn" (click)="toggleViewMode()"
+                style="background-color: #f8fafc; border: 2px solid #cbd5e1; color: #334155; padding: 10px 16px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <span class="material-icons" style="font-size: 20px;">{{ viewMode === 'list' ? 'calendar_month' :
+                    'view_list' }}</span>
+                {{ viewMode === 'list' ? 'Calendario' : 'Lista' }}
+            </button>
+            <button class="refresh-btn" (click)="fetchRequests()" [disabled]="isLoading">
+                <span class="material-icons" [class.spin]="isLoading">sync</span>
+            </button>
+        </div>
     </header>
 
     <div class="controls-section">
@@ -28,7 +36,7 @@
             </button>
         </div>
 
-        <div class="list-content">
+        <div class="list-content" *ngIf="viewMode === 'list'">
             <div *ngIf="isLoading && !business" class="inline-loader">
                 <div class="spinner"></div>
             </div>
@@ -61,4 +69,48 @@
                 </div>
             </div>
         </div>
+
+        <!-- CALENDAR VIEW -->
+        <div class="calendar-content" *ngIf="viewMode === 'calendar'"
+            style="background: white; border-radius: 20px; border: 1px solid #e2e8f0; padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a;">{{ currentMonth | date:'MMMM
+                    yyyy' | titlecase }}</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button (click)="previousMonth()"
+                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #334155;"><span
+                            class="material-icons">chevron_left</span></button>
+                    <button (click)="nextMonth()"
+                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #334155;"><span
+                            class="material-icons">chevron_right</span></button>
+                </div>
+            </div>
+
+            <div
+                style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #e2e8f0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                <!-- Days Header -->
+                <div *ngFor="let day of weekDays"
+                    style="background: #f8fafc; padding: 12px; text-align: center; font-weight: 700; font-size: 13px; color: #64748b;">
+                    {{ day }}
+                </div>
+
+                <!-- Calendar Cells -->
+                <div *ngFor="let day of calendarDays"
+                    style="background: white; min-height: 120px; padding: 8px; display: flex; flex-direction: column;"
+                    [style.opacity]="day.isCurrentMonth ? '1' : '0.4'">
+                    <span
+                        style="display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; color: #334155; text-align: right;">{{
+                        day.date | date:'d' }}</span>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px; overflow-y: auto; max-height: 80px;">
+                        <div *ngFor="let req of day.requests" (click)="goToDetail(req)"
+                            style="font-size: 11px; padding: 4px 6px; border-radius: 4px; background: #eff6ff; color: #1e40af; border-left: 3px solid #3b82f6; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600;"
+                            [title]="req.nombre_cliente + ' - ' + formatStatus(req.estado)">
+                            {{ req.nombre_cliente }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
