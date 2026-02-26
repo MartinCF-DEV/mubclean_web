@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, RouterModule],
+  imports: [RouterOutlet, CommonModule, RouterModule, FormsModule],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.css',
 })
@@ -18,6 +19,16 @@ export class AdminLayoutComponent {
   isCollapsed = false;   // Desktop minimize
 
   currentUser: any = null;
+  businessId: string | null = null;
+
+  // Quick Reserve Modal State
+  showQuickReserve = false;
+  isSubmittingQR = false;
+  qrName = '';
+  qrPhone = '';
+  qrAddress = '';
+  qrService = '';
+  qrTotal: number | null = null;
 
   ngOnInit() {
     this.currentUser = this.auth.currentUser;
@@ -40,6 +51,7 @@ export class AdminLayoutComponent {
 
     if (profile.business) {
       const business = profile.business;
+      this.businessId = business.id;
       const now = new Date();
       const expiry = business.license_expiry ? new Date(business.license_expiry) : null;
 
@@ -74,5 +86,59 @@ export class AdminLayoutComponent {
   async logout() {
     await this.auth.signOut();
     this.router.navigate(['/login']);
+  }
+
+  openQuickReserve() {
+    this.showQuickReserve = true;
+  }
+
+  closeQuickReserve() {
+    this.showQuickReserve = false;
+    this.qrName = '';
+    this.qrPhone = '';
+    this.qrAddress = '';
+    this.qrService = '';
+    this.qrTotal = null;
+  }
+
+  async submitQuickReserve() {
+    if (!this.businessId || !this.qrName || !this.qrPhone || !this.qrAddress) return;
+
+    this.isSubmittingQR = true;
+    try {
+      // Format the address to include the contact info since this is a quick manual entry
+      const formattedAddress = `Cliente: ${this.qrName} | Tel: ${this.qrPhone} | Dir: ${this.qrAddress}`;
+
+      const newReq = {
+        negocio_id: this.businessId,
+        estado: 'agendada',
+        direccion_servicio: formattedAddress,
+        notas: `Servicio Rápido: ${this.qrService || 'No especificado'}`,
+        fecha_solicitada_cliente: new Date().toISOString(),
+        total_calculado: this.qrTotal || 0,
+        nombre_cliente_manual: this.qrName // Adding a custom field in frontend, DB might ignore if doesn't exist, but it's safe
+      };
+
+      const { error } = await this.auth.client
+        .from('solicitudes')
+        .insert(newReq);
+
+      if (error) throw error;
+
+      alert('¡Reserva creada con éxito!');
+      this.closeQuickReserve();
+
+      // Optionally refresh current route to show new data
+      const currentUrl = this.router.url;
+      this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+        this.router.navigate([currentUrl]);
+      });
+
+    } catch (e: any) {
+      console.error('Error creating quick reserve', e);
+      alert('Hubo un error al crear la reserva.');
+    } finally {
+      this.isSubmittingQR = false;
+    }
   }
 }

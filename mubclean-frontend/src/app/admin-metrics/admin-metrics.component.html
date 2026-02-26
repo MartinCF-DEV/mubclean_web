@@ -1,7 +1,15 @@
 <div class="metrics-page">
-    <header class="page-header">
-        <h1>Métricas y Reportes</h1>
-        <p>Analíticas clave de tu operación</p>
+    <header class="page-header"
+        style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+        <div>
+            <h1>Métricas y Reportes</h1>
+            <p>Analíticas clave de tu operación</p>
+        </div>
+        <button (click)="exportToCSV()" class="export-btn"
+            style="background-color: #f8fafc; border: 2px solid #cbd5e1; color: #334155; padding: 10px 16px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;">
+            <span class="material-icons" style="font-size: 20px;">download</span>
+            Exportar CSV
+        </button>
     </header>
 
     <div *ngIf="isLoading" class="loading-container">
@@ -47,25 +55,61 @@
             </div>
         </section>
 
-        <!-- Chart Section -->
-        <section class="chart-section mt-8">
-            <div class="section-header flex justify-between items-center mb-8">
-                <h2 class="text-xl font-bold text-slate-800 m-0">Tendencia de Solicitudes</h2>
-                <span class="badge bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold">Últimos 7
-                    días</span>
-            </div>
+        <!-- Charts Grid -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 32px;">
 
-            <div class="bar-chart">
-                <div class="bar-column" *ngFor="let day of weeklyStats">
-                    <div class="bar-track">
-                        <div class="bar-fill bg-blue-600" [style.height.%]="day.height"
-                            [title]="day.count + ' solicitudes'">
-                            <span class="bar-value" *ngIf="day.height > 10">{{ day.count }}</span>
-                        </div>
-                    </div>
-                    <span class="bar-label">{{ day.day }}</span>
+            <!-- Trend Section -->
+            <section class="chart-section" style="margin-top: 0;">
+                <div class="section-header flex justify-between items-center mb-8">
+                    <h2 class="text-xl font-bold text-slate-800 m-0">Tendencia de Solicitudes</h2>
+                    <span class="badge bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold">Últimos 7
+                        días</span>
                 </div>
-            </div>
-        </section>
+
+                <div class="bar-chart">
+                    <div class="bar-column" *ngFor="let day of weeklyStats">
+                        <div class="bar-track">
+                            <div class="bar-fill bg-blue-600" [style.height.%]="day.height"
+                                [title]="day.count + ' solicitudes'">
+                                <span class="bar-value" *ngIf="day.height > 10">{{ day.count }}</span>
+                            </div>
+                        </div>
+                        <span class="bar-label">{{ day.day }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Retention Section -->
+            <section class="chart-section" style="margin-top: 0;">
+                <div class="section-header flex justify-between items-center mb-8" style="margin-bottom: 10px;">
+                    <h2 class="text-xl font-bold text-slate-800 m-0">Retención</h2>
+                </div>
+                <p style="text-align: center; color: #64748b; font-size: 13px; margin-bottom: 20px;">Clientes
+                    recurrentes vs totales</p>
+
+                <svg viewBox="0 0 36 36" class="circular-chart blue">
+                    <path class="circle-bg" d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="circle" [attr.stroke-dasharray]="retentionRate + ', 100'" d="M18 2.0845
+                        a 15.9155 15.9155 0 0 1 0 31.831
+                        a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <text x="18" y="20.35" class="percentage">{{ retentionRate }}%</text>
+                </svg>
+
+                <div style="display: flex; justify-content: space-around; margin-top: 20px;">
+                    <div style="text-align: center;">
+                        <span style="display: block; font-size: 18px; font-weight: 700; color: #0f172a;">{{
+                            recurringClients }}</span>
+                        <span style="font-size: 12px; color: #64748b;">Recurrentes</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="display: block; font-size: 18px; font-weight: 700; color: #0f172a;">{{ newClients
+                            }}</span>
+                        <span style="font-size: 12px; color: #64748b;">Nuevos</span>
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 </div>
