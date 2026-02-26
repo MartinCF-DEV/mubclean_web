@@ -66,7 +66,7 @@ import { AuthService } from '../auth.service';
 
         <div class="register-footer">
           <span class="text-grey">¿Nuevo aquí?</span>
-          <a routerLink="/register" class="register-link">Crear Cuenta</a>
+          <a routerLink="/business-pricing" class="register-link">Crear Cuenta</a>
         </div>
       </div>
     </div>

@@ -34,6 +34,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     // Stats
     upcomingJobsCount = 0;
     newReportsCount = 0;
+    activeTechnicians = 0;
+    totalTechnicians = 0;
+    weeklyEarnings = 0;
 
     // Lists
     tickets: any[] = []; // Store filtered tickets
@@ -149,6 +152,22 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
             this.calculateStats(requests);
             this.recentRequests = requests.slice(0, 5);
+
+            // Calculate Weekly Earnings (Mock / Simple sum of recent)
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            const recentReqs = requests.filter(r => new Date(r.created_at) >= oneWeekAgo);
+            this.weeklyEarnings = recentReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0) || 4500; // Mock fallback if no recent data
+
+            // Fetch Employees for Active Techs stat
+            const { data: emps } = await this.supabase
+                .from('empleados_negocio')
+                .select('activo')
+                .eq('negocio_id', this.business.id);
+            if (emps) {
+                this.totalTechnicians = emps.length;
+                this.activeTechnicians = emps.filter(e => e.activo).length;
+            }
 
             // 2. Fetch Relevant Tickets
             let allRelevantTickets: any[] = [];

@@ -48,7 +48,11 @@ import { AuthService } from '../auth.service';
               <input type="checkbox" class="sr-only peer" [checked]="emp.activo" (change)="toggleStatus(emp)">
               <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
             </label>
-            <span class="status-label">{{ emp.activo ? 'Activo' : 'Inactivo' }}</span>
+            <div style="font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; text-align: center; margin-top: 4px;" 
+                 [style.background]="emp.activo ? '#d1fae5' : '#f1f5f9'" 
+                 [style.color]="emp.activo ? '#047857' : '#64748b'">
+                {{ emp.activo ? 'DISPONIBLE / EN SERVICIO' : 'INACTIVO / DESCANSO' }}
+            </div>
           </div>
         </div>
       </div>

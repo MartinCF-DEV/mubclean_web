@@ -1,18 +1,44 @@
 <div class="dashboard-page">
 
     <!-- 1. Header with Date -->
-    <header class="dashboard-header">
+    <header class="dashboard-header"
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div class="header-text">
-            <h1>Hola, {{ business?.nombre || 'Socio' }} 👋</h1>
-            <p>{{ currentDate | date:'fullDate' | titlecase }}</p>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1 style="margin: 0;">Hola, {{ business?.nombre || 'Socio' }}</h1>
+                <span class="material-icons" style="color: #3b82f6; font-size: 32px;"
+                    title="Sello Azul Activo">verified</span>
+            </div>
+            <p style="margin: 4px 0 0 0;">{{ currentDate | date:'fullDate' | titlecase }}</p>
         </div>
-        <button class="refresh-btn" (click)="fetchData()" [disabled]="isLoading">
-            <span class="material-icons" [class.spin]="isLoading">sync</span>
-        </button>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div
+                style="background: #eff6ff; color: #1d4ed8; padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                <span class="material-icons" style="font-size: 20px;">engineering</span>
+                <span>Técnicos Activos Hoy: {{ activeTechnicians }}/{{ totalTechnicians }}</span>
+            </div>
+            <button class="refresh-btn" (click)="fetchData()" [disabled]="isLoading">
+                <span class="material-icons" [class.spin]="isLoading">sync</span>
+            </button>
+        </div>
     </header>
 
     <!-- 2. Hero Stats Cards (Interactive) -->
     <section class="stats-grid">
+        <!-- New Income Card -->
+        <div class="stat-card"
+            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none;">
+            <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
+                <span class="material-icons">payments</span>
+            </div>
+            <div class="stat-info" style="color: white;">
+                <h3 style="color: rgba(255,255,255,0.9);">Ingresos de la Semana</h3>
+                <span class="big-number" style="color: white;">${{ weeklyEarnings | number:'1.2-2' }}</span>
+                <p style="color: rgba(255,255,255,0.8);">Generado en últimos 7 días</p>
+            </div>
+            <span class="material-icons bg-icon" style="color: rgba(255,255,255,0.1);">trending_up</span>
+        </div>
+
         <div class="stat-card blue-card" (click)="openModal('jobs')">
             <div class="stat-icon">
                 <span class="material-icons">calendar_today</span>

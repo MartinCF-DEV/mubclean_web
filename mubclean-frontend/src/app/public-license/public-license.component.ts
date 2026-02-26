@@ -31,7 +31,9 @@ import { AuthService } from '../auth.service';
             <li><i class="fas fa-check"></i> Sin compromiso</li>
             <li><i class="fas fa-check"></i> Crea tu perfil</li>
           </ul>
-          <button (click)="goToRegister('trial')" class="btn-plan btn-trial">Probar Gratis</button>
+          <button (click)="goToRegister('trial')" class="btn-plan btn-trial" [disabled]="isLoading">
+            {{ isLoading ? 'Procesando...' : 'Probar Gratis' }}
+          </button>
         </div>
 
         <!-- Monthly Plan -->
@@ -50,7 +52,9 @@ import { AuthService } from '../auth.service';
             <li><i class="fas fa-check"></i> Facturación mensual</li>
             <li><i class="fas fa-check"></i> Cancela cuando quieras</li>
           </ul>
-          <button (click)="goToRegister('monthly')" class="btn-plan btn-monthly">Elegir Mensual</button>
+          <button (click)="goToRegister('monthly')" class="btn-plan btn-monthly" [disabled]="isLoading">
+            {{ isLoading ? 'Procesando...' : 'Elegir Mensual' }}
+          </button>
         </div>
 
         <!-- Annual Plan -->
@@ -70,7 +74,9 @@ import { AuthService } from '../auth.service';
             <li><i class="fas fa-check"></i> Soporte Prioritario</li>
             <li><i class="fas fa-check"></i> Insignia de Verificado</li>
           </ul>
-          <button (click)="goToRegister('annual')" class="btn-plan btn-annual">Elegir Anual</button>
+          <button (click)="goToRegister('annual')" class="btn-plan btn-annual" [disabled]="isLoading">
+            {{ isLoading ? 'Procesando...' : 'Elegir Anual' }}
+          </button>
         </div>
       </div>
     </div>
@@ -230,39 +236,81 @@ import { AuthService } from '../auth.service';
 })
 export class PublicLicenseComponent {
   router = inject(Router);
+  auth = inject(AuthService);
   isLoading = false;
 
   async goToRegister(plan: string) {
+    if (this.isLoading) return;
     this.isLoading = true;
-    try {
-      const backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
 
+    try {
       let price = 150;
       let title = 'Licencia Mensual';
 
       if (plan === 'annual') { price = 1500; title = 'Licencia Anual'; }
       if (plan === 'trial') { price = 10; title = 'Validación Prueba'; }
 
-      const payload = { title, price, planType: plan };
+      const user = this.auth.currentUser;
 
-      const response = await fetch(backendUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      if (user) {
+        // User is logged in -> Renewal Flow
+        const { data: negocio } = await this.auth.client
+          .from('negocios')
+          .select('id')
+          .eq('owner_id', user.id)
+          .maybeSingle();
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        const errMsg = errData.error || response.statusText;
-        throw new Error(`Error Backend (${response.status}): ${errMsg}`);
+        if (!negocio) {
+          throw new Error("No se encontró un negocio asociado a esta cuenta para renovar.");
+        }
+
+        const backendUrl = `${environment.apiUrl}/create_license_preference`;
+        const payload = {
+          businessId: negocio.id,
+          payerEmail: user.email,
+          title,
+          price,
+          planType: plan
+        };
+
+        const response = await fetch(backendUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(`Error Backend (${response.status}): ${errData.error || response.statusText}`);
+        }
+
+        const { init_point } = await response.json();
+        window.location.href = init_point;
+
+      } else {
+        // User is not logged in -> Guest Registration Flow
+        const backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
+        const payload = { title, price, planType: plan };
+
+        const response = await fetch(backendUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(`Error Backend (${response.status}): ${errData.error || response.statusText}`);
+        }
+
+        const { init_point } = await response.json();
+        window.location.href = init_point;
       }
-
-      const { init_point } = await response.json();
-      window.location.href = init_point;
 
     } catch (e: any) {
       console.error(e);
       alert('Error: ' + (e.message || JSON.stringify(e)));
+    } finally {
       this.isLoading = false;
     }
   }

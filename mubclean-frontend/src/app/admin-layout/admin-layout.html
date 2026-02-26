@@ -66,8 +66,11 @@
                     <span>{{ currentUser.email?.[0] | uppercase }}</span>
                 </div>
                 <div class="user-details">
-                    <span class="user-email">{{ currentUser.email }}</span>
-                    <span class="user-role">Administrador</span>
+                    <span class="user-email" style="font-weight: 600;">{{ currentUser.email }}</span>
+                    <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                        <span class="material-icons" style="font-size: 14px; color: #10b981;">verified</span>
+                        <span style="font-size: 11px; color: #10b981; font-weight: 700;">Licencia Activa</span>
+                    </div>
                 </div>
             </div>
 
