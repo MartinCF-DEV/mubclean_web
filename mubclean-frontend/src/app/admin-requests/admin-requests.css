@@ -372,4 +372,49 @@
         width: 100%;
         justify-content: space-between;
     }
+
+    /* Calendar Mobile Adjustments */
+    .calendar-content {
+        padding: 16px !important;
+    }
+
+    .calendar-content h2 {
+        font-size: 16px !important;
+    }
+
+    .calendar-content [style*="grid-template-columns"] {
+        display: flex !important;
+        flex-direction: column;
+        gap: 8px !important;
+        background: transparent !important;
+        border: none !important;
+    }
+
+    /* Hide the traditional day headers on mobile since each card will have the date */
+    .calendar-content [style*="grid-template-columns"]>div:nth-child(-n+7) {
+        display: none !important;
+    }
+
+    /* Convert cells to cards */
+    .calendar-content [style*="grid-template-columns"]>div:nth-child(n+8) {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        min-height: auto !important;
+        padding: 12px !important;
+    }
+
+    /* Hide empty filler days from previous/next month on mobile */
+    .calendar-content [style*="grid-template-columns"]>div:nth-child(n+8)[style*="opacity: 0.4"] {
+        display: none !important;
+    }
+
+    /* Make the date number badge-like on mobile */
+    .calendar-content [style*="grid-template-columns"]>div:nth-child(n+8)>span {
+        text-align: left !important;
+        display: inline-block !important;
+        background: #f1f5f9;
+        padding: 4px 12px;
+        border-radius: 99px;
+        color: #0f172a !important;
+    }
 }
