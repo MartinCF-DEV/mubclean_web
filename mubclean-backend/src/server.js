@@ -84,7 +84,9 @@ app.post('/api/create_license_preference', async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        const body = {
+        const isTestMode = (process.env.MP_ACCESS_TOKEN || '').includes('4355428689557725');
+
+        let body = {
             items: [
                 {
                     title: title || 'Licencia Anual Mubclean',
@@ -94,9 +96,6 @@ app.post('/api/create_license_preference', async (req, res) => {
                     description: `Licencia ${planType} para operar como negocio en Mubclean`,
                 }
             ],
-            payer: {
-                email: payerEmail
-            },
             external_reference: JSON.stringify({ businessId, planType }), // Store planType in metadata
             back_urls: {
                 success: `${frontendUrl}/admin/payment/success`,
@@ -106,8 +105,13 @@ app.post('/api/create_license_preference', async (req, res) => {
             auto_return: 'approved',
         };
 
+        if (!isTestMode) {
+            body.payer = {
+                email: payerEmail
+            };
+        }
+
         const result = await preference.create({ body });
-        const isTestMode = (process.env.MP_ACCESS_TOKEN || '').includes('4355428689557725');
         res.json({ init_point: isTestMode ? result.sandbox_init_point : result.init_point });
     } catch (error) {
         console.error('Error creating license preference:', error);
