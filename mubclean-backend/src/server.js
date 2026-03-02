@@ -175,12 +175,31 @@ app.post('/api/claim_license_payment', async (req, res) => {
 
         console.log('Claim Request Recibido:', { paymentId, businessId, planType }); // DEBUG LOG
 
-        // Calculate Expiry
+        // Fetch current business to calculate proper expiry accumulation
+        const { data: currentBusiness, error: fetchError } = await supabase
+            .from('negocios')
+            .select('license_expiry, prueba_utilizada')
+            .eq('id', businessId)
+            .single();
+
+        if (fetchError || !currentBusiness) {
+            throw new Error('Business not found to calculate expiry');
+        }
+
         let expiryDate = new Date();
-        const type = planType || 'monthly'; // default if missing
+        const type = planType || 'monthly';
+
+        // Base expiration on existing one if paying for renewal
+        if (type !== 'trial' && currentBusiness.license_expiry) {
+            const currentExpiry = new Date(currentBusiness.license_expiry);
+            if (currentExpiry > new Date()) {
+                expiryDate = currentExpiry;
+            }
+        }
 
         if (type === 'trial') {
-            expiryDate.setDate(expiryDate.getDate() + 30); // 30 days trial
+            // 14 days trial
+            expiryDate.setDate(expiryDate.getDate() + 14);
         } else if (type === 'monthly') {
             expiryDate.setMonth(expiryDate.getMonth() + 1);
         } else if (type === 'annual') {
@@ -190,15 +209,22 @@ app.post('/api/claim_license_payment', async (req, res) => {
         console.log('Expiry calculado:', expiryDate);
 
         // Update database
+        let updateData = {
+            subscription_status: 'active',
+            payment_id: paymentId,
+            license_expiry: expiryDate
+        };
+
+        if (type === 'trial') {
+            updateData.prueba_utilizada = true;
+            updateData.fecha_fin_prueba = expiryDate;
+        }
+
         const { data, error, count } = await supabase
             .from('negocios')
-            .update({
-                subscription_status: 'active',
-                payment_id: paymentId,
-                license_expiry: expiryDate
-            })
+            .update(updateData)
             .eq('id', businessId)
-            .select(); // Add select to see if row returns
+            .select();
 
         console.log('Update Result:', { error, count, data });
 

@@ -101,6 +101,16 @@
         </header>
 
         <div class="content-scroll">
+            <!-- Trial Banner -->
+            <div *ngIf="trialDaysRemaining !== null && trialDaysRemaining > 0" class="trial-banner">
+                <div class="banner-content">
+                    <span class="material-icons">hourglass_empty</span>
+                    <span>Estás en tu periodo de prueba. Te quedan <strong>{{ trialDaysRemaining }}
+                            días</strong>.</span>
+                </div>
+                <button routerLink="/admin/license" class="btn-upgrade">Elegir Plan</button>
+            </div>
+
             <router-outlet></router-outlet>
         </div>
     </main>

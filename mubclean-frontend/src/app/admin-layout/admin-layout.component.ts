@@ -20,6 +20,7 @@ export class AdminLayoutComponent {
 
   currentUser: any = null;
   businessId: string | null = null;
+  trialDaysRemaining: number | null = null;
 
   // Quick Reserve Modal State
   showQuickReserve = false;
@@ -56,21 +57,34 @@ export class AdminLayoutComponent {
       const expiry = business.license_expiry ? new Date(business.license_expiry) : null;
 
       if (business.subscription_status !== 'active') {
-        // Redirect if not active (e.g. pending)
-        // But allow them to see payment pages, so check route. 
-        // Since this is the layout for dashboard, we block.
-        if (this.router.url.includes('/admin/payment')) return; // Allow payment callbacks
+        if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
 
         alert('Tu licencia no está activa. Por favor realiza el pago.');
-        // Force payment flow or logout?
-        // Maybe redirect to a specific "pay now" page or show modal.
-        // For now, redirect to payment pending page if exists or show alert.
-      } else if (expiry && expiry < now) {
-        alert('Tu licencia ha expirado. Por favor renueva tu suscripción.');
-        // Logic to redirect to renewal
-        if (this.router.url.includes('/admin/payment')) return;
-        // Redirect to a renewal options page? 
-        // For MVP: Alert and maybe redirect to support or payment.
+        this.router.navigate(['/admin/license']);
+      } else {
+        // It's active, check for trial or standard expiration
+        if (business.prueba_utilizada && business.fecha_fin_prueba) {
+          const end = new Date(business.fecha_fin_prueba);
+          const diffTime = end.getTime() - now.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays <= 0) {
+            // Trial expired! The Wall
+            if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
+            alert('Tu periodo de prueba de 14 días ha finalizado. Por favor elige un plan para continuar operando.');
+            this.router.navigate(['/admin/license']);
+            return;
+          } else {
+            // Show banner
+            this.trialDaysRemaining = diffDays;
+          }
+        } else if (expiry && expiry < now) {
+          // Standard expiration
+          if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
+          alert('Tu licencia ha expirado. Por favor renueva tu suscripción.');
+          this.router.navigate(['/admin/license']);
+          return;
+        }
       }
     }
   }

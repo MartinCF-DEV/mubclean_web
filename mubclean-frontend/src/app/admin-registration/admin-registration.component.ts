@@ -88,19 +88,19 @@ export class AdminRegistrationComponent {
     updatePlanDetails() {
         switch (this.currentPlan) {
             case 'trial':
-                this.planPrice = 10;
-                this.planName = 'Validación Tarjeta (Reembolsable)';
+                this.planPrice = 0;
+                this.planName = '14 Días de Prueba';
                 break;
             case 'monthly':
-                this.planPrice = 150;
+                this.planPrice = 599;
                 this.planName = 'Suscripción Mensual';
                 break;
             case 'annual':
-                this.planPrice = 1500;
+                this.planPrice = 5990;
                 this.planName = 'Suscripción Anual';
                 break;
             default:
-                this.planPrice = 150;
+                this.planPrice = 599;
                 this.planName = 'Suscripción Mensual';
         }
     }

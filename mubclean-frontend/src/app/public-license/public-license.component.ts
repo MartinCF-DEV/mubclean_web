@@ -24,7 +24,7 @@ import { AuthService } from '../auth.service';
           </div>
           <div class="price-section">
             <span class="amount">Gratis</span>
-            <span class="period">/30 días</span>
+            <span class="period">/14 días</span>
           </div>
           <ul class="features">
             <li><i class="fas fa-check"></i> Acceso total</li>
@@ -44,7 +44,7 @@ import { AuthService } from '../auth.service';
           </div>
           <div class="price-section">
             <span class="currency">$</span>
-            <span class="amount">150</span>
+            <span class="amount">599</span>
             <span class="period">/mes</span>
           </div>
           <ul class="features">
@@ -66,7 +66,7 @@ import { AuthService } from '../auth.service';
           </div>
           <div class="price-section">
             <span class="currency">$</span>
-            <span class="amount">1,500</span>
+            <span class="amount">5,990</span>
             <span class="period">/año</span>
           </div>
           <ul class="features">
@@ -244,21 +244,36 @@ export class PublicLicenseComponent {
     this.isLoading = true;
 
     try {
-      let price = 150;
+      let price = 0; // Initialize price
       let title = 'Licencia Mensual';
 
-      if (plan === 'annual') { price = 1500; title = 'Licencia Anual'; }
-      if (plan === 'trial') { price = 10; title = 'Validación Prueba'; }
+      if (plan === 'annual') { price = 5990; title = 'Licencia Anual'; }
+      if (plan === 'monthly') { price = 599; title = 'Licencia Mensual'; }
+      if (plan === 'trial') { price = 150; title = 'Licencia de Prueba'; } // Set price for trial if needed for consistency, though it's bypassed
 
       const user = this.auth.currentUser;
 
       if (user) {
-        // User is logged in -> Renewal Flow
+        // User is logged in -> Check for existing business
         const { data: negocio } = await this.auth.client
           .from('negocios')
-          .select('id')
+          .select('id, prueba_utilizada')
           .eq('owner_id', user.id)
           .maybeSingle();
+
+        if (negocio && plan === 'trial') {
+          alert('Esta cuenta ya tiene un negocio registrado. Por favor, selecciona un plan de pago para renovar.');
+          this.isLoading = false;
+          return;
+        }
+
+        // If logged in but no business yet (edge case), or allowed trial:
+        if (plan === 'trial') {
+          this.router.navigate(['/business-register'], {
+            queryParams: { plan: 'trial', status: 'approved', payment_id: 'trial_' + new Date().getTime() }
+          });
+          return;
+        }
 
         if (!negocio) {
           throw new Error("No se encontró un negocio asociado a esta cuenta para renovar.");
@@ -288,7 +303,15 @@ export class PublicLicenseComponent {
         window.location.href = init_point;
 
       } else {
-        // User is not logged in -> Guest Registration Flow
+        // User is not logged in
+        if (plan === 'trial') {
+          this.router.navigate(['/business-register'], {
+            queryParams: { plan: 'trial', status: 'approved', payment_id: 'trial_' + new Date().getTime() }
+          });
+          return;
+        }
+
+        // Guest Registration Flow for Paid Plans
         const backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
         const payload = { title, price, planType: plan };
 
