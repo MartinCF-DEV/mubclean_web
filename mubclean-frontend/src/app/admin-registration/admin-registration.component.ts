@@ -21,14 +21,20 @@ export class AdminRegistrationComponent {
     private cdr = inject(ChangeDetectorRef);
     private ngZone = inject(NgZone);
 
-    // Pasos: 1 = Cuenta, 2 = Selecciona Plan, 3 = Info del Negocio
+    // Steps: 1 = Account, 2 = Plan, 3 = Business
     currentStep = 1;
     isLoading = false;
 
-    // Plan Details (selected in step 2)
+    // Plan Info
     currentPlan = '';
     planPrice = 0;
     planName = '';
+
+    // Toast
+    toastMessage = '';
+    toastType: 'success' | 'error' | 'info' = 'info';
+    toastVisible = false;
+    private toastTimer: any;
 
     accountForm: FormGroup;
     businessForm: FormGroup;
@@ -46,31 +52,42 @@ export class AdminRegistrationComponent {
             nombre: ['', Validators.required],
             direccion: ['', Validators.required],
             telefono: ['', Validators.required],
-            emailContacto: ['', [Validators.required, Validators.email]],
-            descripcion: ['', Validators.required]
+            emailContacto: ['', [Validators.required, Validators.email]]
+            // descripcion removed to reduce registration friction
         });
     }
 
     async ngOnInit() {
-        // If user is already logged in, check if they already have a business
         if (this.auth.currentUser) {
             const user = this.auth.currentUser;
             const { data: negocio } = await this.supabase
                 .from('negocios')
-                .select('id, subscription_status, prueba_utilizada')
+                .select('id')
                 .eq('owner_id', user.id)
                 .maybeSingle();
 
             if (negocio) {
-                // User already has a business, redirect to dashboard or license page
-                alert('Ya tienes un negocio registrado. Redirigiendo a tu panel...');
                 this.router.navigate(['/admin/dashboard']);
                 return;
             }
-
-            // Has account but no business yet, skip to plan selection
+            // Auto-fill email from logged in user
+            this.businessForm.patchValue({ emailContacto: user.email });
             this.currentStep = 2;
         }
+    }
+
+    showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
+        if (this.toastTimer) clearTimeout(this.toastTimer);
+        this.ngZone.run(() => {
+            this.toastMessage = message;
+            this.toastType = type;
+            this.toastVisible = true;
+            this.cdr.detectChanges();
+            this.toastTimer = setTimeout(() => {
+                this.toastVisible = false;
+                this.cdr.detectChanges();
+            }, 4000);
+        });
     }
 
     selectPlan(plan: string) {
@@ -99,26 +116,33 @@ export class AdminRegistrationComponent {
         const { email, password, confirmPassword } = this.accountForm.value;
 
         if (password !== confirmPassword) {
-            alert("Las contraseñas no coinciden");
+            this.showToast('Las contraseñas no coinciden. Por favor verifica.', 'error');
             this.isLoading = false;
             return;
         }
 
         try {
             const { data, error } = await this.supabase.auth.signUp({ email, password });
-            if (error) throw error;
+            if (error) {
+                if (error.message.includes('already registered') || error.message.includes('already been registered')) {
+                    this.showToast('Este correo ya tiene una cuenta registrada. ¿Quieres iniciar sesión?', 'error');
+                } else {
+                    this.showToast(error.message || 'Error al crear la cuenta.', 'error');
+                }
+                return;
+            }
 
             if (data.user) {
                 await this.auth.checkSession();
+                // Pre-fill email in step 3
+                this.businessForm.patchValue({ emailContacto: email });
                 this.ngZone.run(() => {
-                    this.currentStep = 2; // Go to plan selection
+                    this.currentStep = 2;
                     this.cdr.detectChanges();
                 });
             }
         } catch (e: any) {
-            this.ngZone.run(() => {
-                alert("Error al crear cuenta: " + e.message);
-            });
+            this.showToast(e.message || 'Error inesperado al crear la cuenta.', 'error');
         } finally {
             this.ngZone.run(() => {
                 this.isLoading = false;
@@ -129,7 +153,7 @@ export class AdminRegistrationComponent {
 
     async onStep3Submit() {
         if (!this.currentPlan) {
-            alert('Por favor selecciona un plan primero.');
+            this.showToast('Por favor selecciona un plan primero.', 'error');
             this.currentStep = 2;
             return;
         }
@@ -138,9 +162,9 @@ export class AdminRegistrationComponent {
 
         try {
             const user = this.auth.currentUser;
-            if (!user) throw new Error("No hay usuario autenticado. Completa el paso 1 primero.");
+            if (!user) throw new Error('No hay usuario autenticado. Completa el paso 1 primero.');
 
-            const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
+            const { nombre, direccion, telefono, emailContacto } = this.businessForm.value;
 
             const { data, error } = await this.supabase
                 .from('negocios')
@@ -150,7 +174,7 @@ export class AdminRegistrationComponent {
                     direccion,
                     telefono,
                     email_contacto: emailContacto,
-                    descripcion,
+                    descripcion: '',
                     activo: true,
                     subscription_status: 'pending',
                     license_expiry: null
@@ -159,11 +183,8 @@ export class AdminRegistrationComponent {
                 .single();
 
             if (error) throw error;
-            console.log('Negocio creado en DB:', data);
-
             await this.auth.loadUserProfile();
 
-            // If trial: activate directly without MercadoPago
             if (this.currentPlan === 'trial') {
                 const claimUrl = `${environment.apiUrl}/claim_license_payment`;
                 const response = await fetch(claimUrl, {
@@ -176,30 +197,27 @@ export class AdminRegistrationComponent {
                     })
                 });
 
-                if (!response.ok) throw new Error('Error al activar prueba gratuita');
+                if (!response.ok) throw new Error('Error al activar la prueba gratuita.');
 
                 this.ngZone.run(() => {
                     this.isLoading = false;
-                    alert('¡Prueba Gratuita de 14 Días Activada! Bienvenido a MubClean.');
                     this.router.navigate(['/admin/dashboard']);
                 });
                 return;
             }
 
-            // For Monthly / Annual: generate MercadoPago checkout
+            // Monthly / Annual: go to MercadoPago
             const backendUrl = `${environment.apiUrl}/create_license_preference`;
-            const payload = {
-                businessId: data.id,
-                payerEmail: emailContacto || user.email,
-                title: this.planName,
-                price: this.planPrice,
-                planType: this.currentPlan
-            };
-
             const mpResponse = await fetch(backendUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    businessId: data.id,
+                    payerEmail: emailContacto || user.email,
+                    title: this.planName,
+                    price: this.planPrice,
+                    planType: this.currentPlan
+                })
             });
 
             if (!mpResponse.ok) {
@@ -212,8 +230,7 @@ export class AdminRegistrationComponent {
 
         } catch (e: any) {
             this.ngZone.run(() => {
-                console.error(e);
-                alert("Error: " + (e.message || JSON.stringify(e)));
+                this.showToast(e.message || 'Error inesperado. Intenta de nuevo.', 'error');
                 this.isLoading = false;
             });
         }
