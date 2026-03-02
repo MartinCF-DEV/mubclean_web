@@ -5,11 +5,18 @@
             <span class="material-icons brand-icon">clean_hands</span>
             <h1>MubClean</h1>
         </div>
-        <div *ngIf="currentStep === 2" class="step-indicator">Paso 2 de 2</div>
+        <div class="step-indicator">
+            <span [class.active]="currentStep === 1" [class.done]="currentStep > 1">1</span>
+            <span class="divider">—</span>
+            <span [class.active]="currentStep === 2" [class.done]="currentStep > 2">2</span>
+            <span class="divider">—</span>
+            <span [class.active]="currentStep === 3">3</span>
+        </div>
     </header>
 
     <div class="content-wrapper">
-        <!-- STEP 1: ACCOUNT -->
+
+        <!-- PASO 1: CREAR CUENTA -->
         <div class="card" *ngIf="currentStep === 1">
             <div class="card-header">
                 <div class="icon-circle">
@@ -31,15 +38,75 @@
                 </div>
 
                 <button type="submit" class="submit-btn" [disabled]="isLoading || accountForm.invalid">
-                    {{ isLoading ? 'Creando...' : 'Crear Cuenta' }}
+                    {{ isLoading ? 'Creando...' : 'Crear Cuenta y Continuar' }}
                 </button>
             </form>
 
             <p class="terms">Al continuar, aceptas nuestros términos y condiciones.</p>
+            <p class="login-link">¿Ya tienes cuenta? <a routerLink="/login">Iniciar Sesión</a></p>
         </div>
 
-        <!-- STEP 2: BUSINESS INFO -->
-        <div class="card" *ngIf="currentStep === 2">
+        <!-- PASO 2: SELECCIONAR PLAN -->
+        <div class="card plan-card" *ngIf="currentStep === 2">
+            <div class="card-header">
+                <div class="icon-circle green">
+                    <span class="material-icons">sell</span>
+                </div>
+                <h2>Elige tu Plan</h2>
+                <p>Selecciona como quieres empezar con MubClean.</p>
+            </div>
+
+            <div class="plans-grid">
+                <!-- Trial -->
+                <div class="plan-option trial" (click)="selectPlan('trial')">
+                    <div class="plan-badge">Sin costo</div>
+                    <div class="plan-title">Prueba 14 Días</div>
+                    <div class="plan-price-display">
+                        <span class="big-price">Gratis</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li><span class="material-icons">check</span> Acceso total</li>
+                        <li><span class="material-icons">check</span> Sin tarjeta</li>
+                    </ul>
+                    <button class="plan-btn btn-trial">Empezar Prueba</button>
+                </div>
+
+                <!-- Monthly -->
+                <div class="plan-option monthly" (click)="selectPlan('monthly')">
+                    <div class="plan-title">Plan Mensual</div>
+                    <div class="plan-price-display">
+                        <span class="currency">$</span>
+                        <span class="big-price">599</span>
+                        <span class="period">/mes</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li><span class="material-icons">check</span> Acceso completo</li>
+                        <li><span class="material-icons">check</span> Cancelación flexible</li>
+                    </ul>
+                    <button class="plan-btn btn-monthly">Elegir Mensual</button>
+                </div>
+
+                <!-- Annual -->
+                <div class="plan-option annual" (click)="selectPlan('annual')">
+                    <div class="plan-badge highlight">2 meses GRATIS</div>
+                    <div class="plan-title">Plan Anual</div>
+                    <div class="plan-price-display">
+                        <span class="currency">$</span>
+                        <span class="big-price">5,990</span>
+                        <span class="period">/año</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li><span class="material-icons">check</span> Ahorra $1,198 MXN</li>
+                        <li><span class="material-icons">check</span> Soporte VIP</li>
+                        <li><span class="material-icons">check</span> Verificado</li>
+                    </ul>
+                    <button class="plan-btn btn-annual">Elegir Anual</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASO 3: DATOS DEL NEGOCIO -->
+        <div class="card" *ngIf="currentStep === 3">
             <div class="card-header">
                 <div class="icon-circle blue">
                     <span class="material-icons">store_mall_directory</span>
@@ -48,7 +115,18 @@
                 <p>Ya casi terminamos. Configura el perfil de tu empresa.</p>
             </div>
 
-            <form [formGroup]="businessForm" (ngSubmit)="onStep2Submit()">
+            <!-- Plan Selected Review -->
+            <div class="selected-plan-box">
+                <span class="material-icons">sell</span>
+                <div>
+                    <p class="plan-label">Plan seleccionado:</p>
+                    <p class="plan-value">{{ planName }} <span *ngIf="planPrice > 0">($ {{ planPrice | number }}
+                            MXN)</span></p>
+                </div>
+                <button class="change-plan-btn" (click)="currentStep = 2">Cambiar</button>
+            </div>
+
+            <form [formGroup]="businessForm" (ngSubmit)="onStep3Submit()">
                 <div class="form-group">
                     <input type="text" formControlName="nombre" placeholder="Nombre del Negocio">
                 </div>

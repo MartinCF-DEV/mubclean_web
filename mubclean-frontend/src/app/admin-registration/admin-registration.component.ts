@@ -18,15 +18,17 @@ export class AdminRegistrationComponent {
     private router = inject(Router);
     private auth = inject(AuthService);
     private supabase: SupabaseClient;
+    private cdr = inject(ChangeDetectorRef);
+    private ngZone = inject(NgZone);
 
-    // Pasos: 1 = Cuenta, 2 = Negocio
+    // Pasos: 1 = Cuenta, 2 = Selecciona Plan, 3 = Info del Negocio
     currentStep = 1;
     isLoading = false;
 
-    // Plan Details
-    currentPlan = 'monthly';
-    planPrice = 599;
-    planName = 'Suscripción Mensual';
+    // Plan Details (selected in step 2)
+    currentPlan = '';
+    planPrice = 0;
+    planName = '';
 
     accountForm: FormGroup;
     businessForm: FormGroup;
@@ -47,40 +49,47 @@ export class AdminRegistrationComponent {
             emailContacto: ['', [Validators.required, Validators.email]],
             descripcion: ['', Validators.required]
         });
+    }
 
-        // Si ya existe usuario, saltar al paso 2
+    async ngOnInit() {
+        // If user is already logged in, check if they already have a business
         if (this.auth.currentUser) {
+            const user = this.auth.currentUser;
+            const { data: negocio } = await this.supabase
+                .from('negocios')
+                .select('id, subscription_status, prueba_utilizada')
+                .eq('owner_id', user.id)
+                .maybeSingle();
+
+            if (negocio) {
+                // User already has a business, redirect to dashboard or license page
+                alert('Ya tienes un negocio registrado. Redirigiendo a tu panel...');
+                this.router.navigate(['/admin/dashboard']);
+                return;
+            }
+
+            // Has account but no business yet, skip to plan selection
             this.currentStep = 2;
         }
     }
 
-    ngOnInit() {
-        this.route.queryParams.subscribe(params => {
-            console.log('Query Params:', params);
-
-            this.currentPlan = params['plan'] || 'monthly';
-            this.updatePlanDetails();
-        });
-    }
-
-    updatePlanDetails() {
-        switch (this.currentPlan) {
+    selectPlan(plan: string) {
+        this.currentPlan = plan;
+        switch (plan) {
             case 'trial':
                 this.planPrice = 0;
-                this.planName = '14 Días de Prueba';
+                this.planName = '14 Días de Prueba Gratuita';
                 break;
             case 'monthly':
                 this.planPrice = 599;
-                this.planName = 'Suscripción Mensual';
+                this.planName = 'Licencia Mensual';
                 break;
             case 'annual':
                 this.planPrice = 5990;
-                this.planName = 'Suscripción Anual';
+                this.planName = 'Licencia Anual';
                 break;
-            default:
-                this.planPrice = 599;
-                this.planName = 'Suscripción Mensual';
         }
+        this.currentStep = 3;
     }
 
     async onStep1Submit() {
@@ -96,19 +105,14 @@ export class AdminRegistrationComponent {
         }
 
         try {
-            // Registrar usuario en Supabase Auth
-            const { data, error } = await this.supabase.auth.signUp({
-                email,
-                password,
-            });
-
+            const { data, error } = await this.supabase.auth.signUp({ email, password });
             if (error) throw error;
 
-            // Si el registro es exitoso (y posiblemente auto-login), pasar al paso 2
             if (data.user) {
+                await this.auth.checkSession();
                 this.ngZone.run(() => {
-                    this.auth.checkSession();
-                    this.currentStep = 2;
+                    this.currentStep = 2; // Go to plan selection
+                    this.cdr.detectChanges();
                 });
             }
         } catch (e: any) {
@@ -122,10 +126,13 @@ export class AdminRegistrationComponent {
             });
         }
     }
-    private cdr = inject(ChangeDetectorRef);
-    private ngZone = inject(NgZone);
 
-    async onStep2Submit() {
+    async onStep3Submit() {
+        if (!this.currentPlan) {
+            alert('Por favor selecciona un plan primero.');
+            this.currentStep = 2;
+            return;
+        }
         if (this.businessForm.invalid) return;
         this.isLoading = true;
 
@@ -133,9 +140,7 @@ export class AdminRegistrationComponent {
             const user = this.auth.currentUser;
             if (!user) throw new Error("No hay usuario autenticado. Completa el paso 1 primero.");
 
-            // Create Business
             const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
-            const status = 'pending'; // Inicia como pendiente hasta que se pague
 
             const { data, error } = await this.supabase
                 .from('negocios')
@@ -147,7 +152,7 @@ export class AdminRegistrationComponent {
                     email_contacto: emailContacto,
                     descripcion,
                     activo: true,
-                    subscription_status: status,
+                    subscription_status: 'pending',
                     license_expiry: null
                 })
                 .select()
@@ -156,23 +161,22 @@ export class AdminRegistrationComponent {
             if (error) throw error;
             console.log('Negocio creado en DB:', data);
 
-            // Refrescar perfil en app
             await this.auth.loadUserProfile();
 
-            // 1) Si eligió Prueba Gratuita (14 días), activarlo directo sin MP
+            // If trial: activate directly without MercadoPago
             if (this.currentPlan === 'trial') {
                 const claimUrl = `${environment.apiUrl}/claim_license_payment`;
                 const response = await fetch(claimUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        paymentId: 'trial_' + new Date().getTime(), // Fake ID
+                        paymentId: 'trial_' + new Date().getTime(),
                         businessId: data.id,
                         planType: 'trial'
                     })
                 });
 
-                if (!response.ok) throw new Error('Error al activar prueba');
+                if (!response.ok) throw new Error('Error al activar prueba gratuita');
 
                 this.ngZone.run(() => {
                     this.isLoading = false;
@@ -182,7 +186,7 @@ export class AdminRegistrationComponent {
                 return;
             }
 
-            // 2) Si eligió Mensual o Anual, generar ticket de MercadoPago (Checkout Seguro)
+            // For Monthly / Annual: generate MercadoPago checkout
             const backendUrl = `${environment.apiUrl}/create_license_preference`;
             const payload = {
                 businessId: data.id,
@@ -204,8 +208,6 @@ export class AdminRegistrationComponent {
             }
 
             const { init_point } = await mpResponse.json();
-
-            // Redirigir la ventana actual al Checkout
             window.location.href = init_point;
 
         } catch (e: any) {
