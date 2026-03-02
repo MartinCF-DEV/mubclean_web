@@ -109,6 +109,12 @@ app.post('/api/create_license_preference', async (req, res) => {
             body.payer = {
                 email: payerEmail
             };
+        } else {
+            // Offline Sandbox payments require an email to generate the virtual ticket.
+            // A real email triggers account conflict, a dummy email bypasses both errors safely.
+            body.payer = {
+                email: "test_user_789456@testuser.com"
+            };
         }
 
         const result = await preference.create({ body });
