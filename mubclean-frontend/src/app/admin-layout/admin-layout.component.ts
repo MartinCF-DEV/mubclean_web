@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { AuthService } from '../auth.service';
 export class AdminLayoutComponent {
   private router = inject(Router);
   private auth = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   isSidebarOpen = false; // Mobile toggle
   isCollapsed = false;   // Desktop minimize
@@ -69,6 +70,7 @@ export class AdminLayoutComponent {
             return;
           } else {
             this.trialDaysRemaining = diffDays;
+            this.cdr.detectChanges(); // Force view update after async
           }
         } else if (expiry && expiry < now) {
           if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
