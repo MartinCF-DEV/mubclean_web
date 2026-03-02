@@ -77,10 +77,13 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
             this.rawRequests = requests;
             this.generateChartData(requests);
 
-            // Mock KPIs placeholders
+            // Real KPIs from actual data
             this.totalEarnings = requests.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
-            this.completedJobs = requests.filter(r => r.estado === 'completada').length || 15;
-            this.averageRating = 4.8; // Constant mock for now
+            this.completedJobs = requests.filter(r => r.estado === 'completada').length;
+            const ratedRequests = requests.filter(r => r.calificacion && r.calificacion > 0);
+            this.averageRating = ratedRequests.length > 0
+                ? Math.round((ratedRequests.reduce((acc, r) => acc + r.calificacion, 0) / ratedRequests.length) * 10) / 10
+                : 0;
             this.calculateRetention(requests);
 
         } catch (e) {

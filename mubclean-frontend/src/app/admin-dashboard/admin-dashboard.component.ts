@@ -157,7 +157,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             const oneWeekAgo = new Date();
             oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
             const recentReqs = requests.filter(r => new Date(r.created_at) >= oneWeekAgo);
-            this.weeklyEarnings = recentReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0) || 4500; // Mock fallback if no recent data
+            this.weeklyEarnings = recentReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
 
             // Fetch Employees for Active Techs stat
             const { data: emps } = await this.supabase
