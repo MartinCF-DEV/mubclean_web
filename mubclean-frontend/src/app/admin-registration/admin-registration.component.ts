@@ -71,7 +71,7 @@ export class AdminRegistrationComponent {
             const status = params['status'] || params['collection_status'];
             const pId = params['payment_id'] || params['collection_id'];
 
-            if (status === 'approved' && pId) {
+            if ((status === 'approved' || status === 'pending' || status === 'in_process') && pId) {
                 this.isPaymentConfirmed = true;
                 this.paymentId = pId;
             } else {
