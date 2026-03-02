@@ -37,18 +37,12 @@ export class AdminLayoutComponent {
   }
 
   async checkLicense() {
+    // Force a fresh reload from Supabase to avoid race conditions after registration
+    await this.auth.loadUserProfile();
+
     const profile = this.auth.profile;
 
-    // Check if we have profile and business data loaded (might need to wait or rely on signal effect)
-    // For simplicity, we assume auth service loads it. 
-    // Ideally we should use an effect() or subscribe to the signal.
-
-    // Simple check if data is already there or rely on auth to reload
-    // We will do a direct check here to be safe if auth is still loading
-    if (!profile) {
-      // Wait for auth? relying on auth service redirecting if not logged in.
-      return;
-    }
+    if (!profile) return;
 
     if (profile.business) {
       const business = profile.business;
@@ -69,17 +63,14 @@ export class AdminLayoutComponent {
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
           if (diffDays <= 0) {
-            // Trial expired! The Wall
             if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
             alert('Tu periodo de prueba de 14 días ha finalizado. Por favor elige un plan para continuar operando.');
             this.router.navigate(['/admin/license']);
             return;
           } else {
-            // Show banner
             this.trialDaysRemaining = diffDays;
           }
         } else if (expiry && expiry < now) {
-          // Standard expiration
           if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
           alert('Tu licencia ha expirado. Por favor renueva tu suscripción.');
           this.router.navigate(['/admin/license']);
