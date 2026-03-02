@@ -114,7 +114,9 @@ export class AdminPaymentCallbackComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.status = params.get('status') as any;
-      if (this.status === 'success') {
+      // In Sandbox, offline payments return 'pending'. Since we don't have webhooks configured yet,
+      // we temporarily confirm them here so the user isn't stuck behind the paywall.
+      if (this.status === 'success' || this.status === 'pending') {
         this.confirmPayment();
       }
     });
