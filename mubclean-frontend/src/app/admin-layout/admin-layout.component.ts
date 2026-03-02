@@ -61,7 +61,7 @@ export class AdminLayoutComponent {
         if (business.prueba_utilizada && business.fecha_fin_prueba) {
           const end = new Date(business.fecha_fin_prueba);
           const diffTime = end.getTime() - now.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
           if (diffDays <= 0) {
             if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
