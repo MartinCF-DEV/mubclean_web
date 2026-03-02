@@ -66,7 +66,8 @@ app.post('/api/create_preference', async (req, res) => {
 
         const result = await preference.create({ body });
 
-        res.json({ init_point: result.init_point });
+        const isTestMode = (process.env.MP_ACCESS_TOKEN || '').startsWith('TEST-');
+        res.json({ init_point: isTestMode ? result.sandbox_init_point : result.init_point });
     } catch (error) {
         console.error('Error creating preference:', error);
         res.status(500).json({ error: 'Failed to create preference' });
@@ -105,7 +106,8 @@ app.post('/api/create_license_preference', async (req, res) => {
         };
 
         const result = await preference.create({ body });
-        res.json({ init_point: result.init_point });
+        const isTestMode = (process.env.MP_ACCESS_TOKEN || '').startsWith('TEST-');
+        res.json({ init_point: isTestMode ? result.sandbox_init_point : result.init_point });
     } catch (error) {
         console.error('Error creating license preference:', error);
         res.status(500).json({ error: 'Failed to create preference' });
@@ -140,7 +142,8 @@ app.post('/api/create_guest_license_preference', async (req, res) => {
         console.log('Using back_urls:', body.back_urls); // Debug log
 
         const result = await preference.create({ body });
-        res.json({ init_point: result.init_point });
+        const isTestMode = (process.env.MP_ACCESS_TOKEN || '').startsWith('TEST-');
+        res.json({ init_point: isTestMode ? result.sandbox_init_point : result.init_point });
     } catch (error) {
         console.error('Error creating guest preference:', error);
         // Return detailed error to frontend for debugging
