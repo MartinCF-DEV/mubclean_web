@@ -26,8 +26,14 @@
                 <div class="stat-info">
                     <h3>Ganancias Totales</h3>
                     <span class="big-number text-slate-800">${{ totalEarnings | number:'1.2-2' }}</span>
-                    <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
-                        <span style="color: #10b981; font-size: 13px; font-weight: 700;">▲ +15% vs. el mes pasado</span>
+                    <div class="mom-comparison" *ngIf="lastMonthEarnings > 0 || currentMonthEarnings > 0">
+                        <span [class.positive]="monthOverMonthPositive" [class.negative]="!monthOverMonthPositive">
+                            {{ monthOverMonthPositive ? '▲' : '▼' }}
+                            {{ monthOverMonthChange | number:'1.0-0' }}% vs. el mes pasado
+                        </span>
+                    </div>
+                    <div class="mom-comparison" *ngIf="lastMonthEarnings === 0 && currentMonthEarnings === 0">
+                        <span class="neutral">— Sin datos del mes anterior</span>
                     </div>
                 </div>
             </div>
@@ -68,13 +74,13 @@
 
                 <div class="bar-chart">
                     <div class="bar-column" *ngFor="let day of weeklyStats">
+                        <div class="bar-value-top" *ngIf="day.count > 0">{{ day.count }}</div>
                         <div class="bar-track">
-                            <div class="bar-fill bg-blue-600" [style.height.%]="day.height"
+                            <div class="bar-fill" [style.height.%]="day.height" [class.has-data]="day.count > 0"
                                 [title]="day.count + ' solicitudes'">
-                                <span class="bar-value" *ngIf="day.height > 10">{{ day.count }}</span>
                             </div>
                         </div>
-                        <span class="bar-label">{{ day.day }}</span>
+                        <span class="bar-label" [class.active-label]="day.count > 0">{{ day.day }}</span>
                     </div>
                 </div>
             </section>

@@ -20,7 +20,7 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
     business: any = null;
     weeklyStats: { day: string, count: number, height: number }[] = [];
 
-    // Placeholders for KPIs
+    // KPIs
     totalEarnings = 0;
     completedJobs = 0;
     averageRating = 0;
@@ -28,7 +28,13 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
     recurringClients = 0;
     newClients = 0;
 
-    // Data for Export
+    // Month-over-Month
+    currentMonthEarnings = 0;
+    lastMonthEarnings = 0;
+    monthOverMonthChange = 0; // % change
+    monthOverMonthPositive = true;
+
+    // Raw data for export
     rawRequests: any[] = [];
 
     refreshInterval: any;
@@ -39,12 +45,8 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.fetchData();
-
-        // Auto-refresh stats every 2s (Poling)
         this.refreshInterval = setInterval(() => {
-            if (this.business) {
-                this.fetchData(true);
-            }
+            if (this.business) this.fetchData(true);
         }, 2000);
     }
 
@@ -77,14 +79,17 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
             this.rawRequests = requests;
             this.generateChartData(requests);
 
-            // Real KPIs from actual data
+            // Real KPIs
             this.totalEarnings = requests.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
             this.completedJobs = requests.filter(r => r.estado === 'completada').length;
+
             const ratedRequests = requests.filter(r => r.calificacion && r.calificacion > 0);
             this.averageRating = ratedRequests.length > 0
                 ? Math.round((ratedRequests.reduce((acc, r) => acc + r.calificacion, 0) / ratedRequests.length) * 10) / 10
                 : 0;
+
             this.calculateRetention(requests);
+            this.calculateMonthOverMonth(requests);
 
         } catch (e) {
             console.error(e);
@@ -93,6 +98,31 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
                 this.isLoading = false;
                 this.cdr.detectChanges();
             }
+        }
+    }
+
+    calculateMonthOverMonth(all: any[]) {
+        const now = new Date();
+        const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+        const thisMonthReqs = all.filter(r => new Date(r.created_at) >= startOfThisMonth);
+        const lastMonthReqs = all.filter(r => {
+            const d = new Date(r.created_at);
+            return d >= startOfLastMonth && d <= endOfLastMonth;
+        });
+
+        this.currentMonthEarnings = thisMonthReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
+        this.lastMonthEarnings = lastMonthReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
+
+        if (this.lastMonthEarnings === 0) {
+            this.monthOverMonthChange = 0;
+            this.monthOverMonthPositive = true;
+        } else {
+            const change = ((this.currentMonthEarnings - this.lastMonthEarnings) / this.lastMonthEarnings) * 100;
+            this.monthOverMonthChange = Math.round(change);
+            this.monthOverMonthPositive = change >= 0;
         }
     }
 
@@ -156,27 +186,22 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
         }
 
         const headers = ['ID Solicitud', 'Fecha Solicitada', 'Estado', 'Monto Total', 'Dirección'];
-        const csvRows = [];
-        csvRows.push(headers.join(','));
+        const csvRows = [headers.join(',')];
 
         for (const req of this.rawRequests) {
             const fecha = req.fecha_solicitada || req.created_at || 'Sin fecha';
             const estado = req.estado || 'Desconocido';
             const monto = req.total_calculado || 0;
             const direccion = `"${(req.direccion_servicio || req.direccion || 'Sin dirección').replace(/"/g, '""')}"`;
-
             csvRows.push(`${req.id},${fecha},${estado},${monto},${direccion}`);
         }
 
         const csvString = csvRows.join('\n');
         const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
-
         const link = document.createElement('a');
         link.href = url;
-        const dateStr = new Date().toISOString().split('T')[0];
-        link.download = `Reporte_Servicios_${dateStr}.csv`;
-
+        link.download = `Reporte_Servicios_${new Date().toISOString().split('T')[0]}.csv`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
