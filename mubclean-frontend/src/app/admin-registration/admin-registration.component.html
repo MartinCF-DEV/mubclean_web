@@ -8,7 +8,7 @@
         <div *ngIf="currentStep === 2" class="step-indicator">Paso 2 de 2</div>
     </header>
 
-    <div class="content-wrapper" *ngIf="isPaymentConfirmed">
+    <div class="content-wrapper">
         <!-- STEP 1: ACCOUNT -->
         <div class="card" *ngIf="currentStep === 1">
             <div class="card-header">
@@ -67,27 +67,11 @@
                     <textarea formControlName="descripcion" placeholder="Descripción" rows="3"></textarea>
                 </div>
 
-                <!-- Payment Summary (Verified) -->
-                <div class="payment-verified-box"
-                    style="background: #eff6ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bfdbfe; display: flex; align-items: center;">
-                    <span class="material-icons" style="color: #2563eb; margin-right: 10px;">verified</span>
-                    <div>
-                        <p style="margin: 0; font-size: 0.8rem; color: #1e40af; font-weight: 700;">PAGO EXITOSO</p>
-                        <p style="margin: 0; font-size: 0.9rem; color: #1e3a8a;">{{ planName }} (${{ planPrice }})</p>
-                    </div>
-                </div>
-
                 <button type="submit" class="submit-btn" [disabled]="isLoading || businessForm.invalid">
-                    {{ isLoading ? 'Activando...' : 'Finalizar y Activar Cuenta' }}
+                    {{ isLoading ? 'Procesando...' : (currentPlan === 'trial' ? 'Activar Prueba Gratuita' : 'Proceder al
+                    Pago Seguro') }}
                 </button>
             </form>
         </div>
-    </div>
-
-    <!-- PENDING/CHECKING STATE -->
-    <div class="content-wrapper" *ngIf="!isPaymentConfirmed" style="text-align: center; padding: 60px 20px;">
-        <h2 style="color: #1e293b; font-size: 24px; font-weight: 700; margin-bottom: 10px;">Verificando Autorización...
-        </h2>
-        <p style="color: #64748b; font-size: 16px;">Por favor espera un momento mientras validamos el pago seguro.</p>
     </div>
 </div>

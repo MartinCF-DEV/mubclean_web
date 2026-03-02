@@ -25,12 +25,8 @@ export class AdminRegistrationComponent {
 
     // Plan Details
     currentPlan = 'monthly';
-    planPrice = 150;
-    planName = 'Plan Mensual';
-
-    // Payment State
-    paymentId: string | null = null;
-    isPaymentConfirmed = false;
+    planPrice = 599;
+    planName = 'Suscripción Mensual';
 
     accountForm: FormGroup;
     businessForm: FormGroup;
@@ -59,29 +55,11 @@ export class AdminRegistrationComponent {
     }
 
     ngOnInit() {
-        // Capture query params robustly
         this.route.queryParams.subscribe(params => {
             console.log('Query Params:', params);
-            // alert('Debug Params: ' + JSON.stringify(params)); // Uncomment to debug on mobile
 
             this.currentPlan = params['plan'] || 'monthly';
             this.updatePlanDetails();
-
-            // Check for payment return
-            const status = params['status'] || params['collection_status'];
-            const pId = params['payment_id'] || params['collection_id'];
-
-            if ((status === 'approved' || status === 'pending' || status === 'in_process') && pId) {
-                this.isPaymentConfirmed = true;
-                this.paymentId = pId;
-            } else {
-                this.isPaymentConfirmed = false;
-                // Allow a small delay to ensure routing logic fires without visual glitching
-                setTimeout(() => {
-                    alert('El pago no fue completado o fue cancelado. Serás redirigido.');
-                    this.router.navigate(['/business-pricing']);
-                }, 100);
-            }
         });
     }
 
@@ -106,12 +84,6 @@ export class AdminRegistrationComponent {
     }
 
     async onStep1Submit() {
-        if (!this.isPaymentConfirmed) {
-            alert('Debes seleccionar y pagar un plan primero.');
-            this.router.navigate(['/business-pricing']);
-            return;
-        }
-
         if (this.accountForm.invalid) return;
         this.isLoading = true;
 
@@ -154,22 +126,16 @@ export class AdminRegistrationComponent {
     private ngZone = inject(NgZone);
 
     async onStep2Submit() {
-        if (!this.isPaymentConfirmed || !this.paymentId) {
-            alert('Pago no detectado. Redirigiendo a precios.');
-            this.router.navigate(['/business-pricing']);
-            return;
-        }
-
         if (this.businessForm.invalid) return;
         this.isLoading = true;
 
         try {
             const user = this.auth.currentUser;
-            if (!user) throw new Error("No hay usuario autenticado.");
+            if (!user) throw new Error("No hay usuario autenticado. Completa el paso 1 primero.");
 
             // Create Business
             const { nombre, direccion, telefono, emailContacto, descripcion } = this.businessForm.value;
-            const status = 'pending';
+            const status = 'pending'; // Inicia como pendiente hasta que se pague
 
             const { data, error } = await this.supabase
                 .from('negocios')
@@ -188,37 +154,59 @@ export class AdminRegistrationComponent {
                 .single();
 
             if (error) throw error;
+            console.log('Negocio creado en DB:', data);
 
-            console.log('Negocio creado (pending):', data);
+            // Refrescar perfil en app
             await this.auth.loadUserProfile();
 
-            // Claim Payment
-            const claimUrl = `${environment.apiUrl}/claim_license_payment`;
-            const response = await fetch(claimUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    paymentId: this.paymentId,
-                    businessId: data.id,
-                    planType: this.currentPlan
-                })
-            });
+            // 1) Si eligió Prueba Gratuita (14 días), activarlo directo sin MP
+            if (this.currentPlan === 'trial') {
+                const claimUrl = `${environment.apiUrl}/claim_license_payment`;
+                const response = await fetch(claimUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        paymentId: 'trial_' + new Date().getTime(), // Fake ID
+                        businessId: data.id,
+                        planType: 'trial'
+                    })
+                });
 
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                const msg = errData.error || errData.details || response.statusText;
-                throw new Error('Error al activar licencia: ' + msg);
+                if (!response.ok) throw new Error('Error al activar prueba');
+
+                this.ngZone.run(() => {
+                    this.isLoading = false;
+                    alert('¡Prueba Gratuita de 14 Días Activada! Bienvenido a MubClean.');
+                    this.router.navigate(['/admin/dashboard']);
+                });
+                return;
             }
 
-            // Refresh profile
-            await this.auth.loadUserProfile();
+            // 2) Si eligió Mensual o Anual, generar ticket de MercadoPago (Checkout Seguro)
+            const backendUrl = `${environment.apiUrl}/create_license_preference`;
+            const payload = {
+                businessId: data.id,
+                payerEmail: emailContacto || user.email,
+                title: this.planName,
+                price: this.planPrice,
+                planType: this.currentPlan
+            };
 
-            // Success - Wrap in Zone
-            this.ngZone.run(() => {
-                this.isLoading = false;
-                alert('¡Cuenta y Licencia Activadas! Bienvenido a MubClean.');
-                this.router.navigate(['/admin/dashboard']);
+            const mpResponse = await fetch(backendUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
+
+            if (!mpResponse.ok) {
+                const errData = await mpResponse.json().catch(() => ({}));
+                throw new Error(`Error Backend (${mpResponse.status}): ${errData.error || mpResponse.statusText}`);
+            }
+
+            const { init_point } = await mpResponse.json();
+
+            // Redirigir la ventana actual al Checkout
+            window.location.href = init_point;
 
         } catch (e: any) {
             this.ngZone.run(() => {

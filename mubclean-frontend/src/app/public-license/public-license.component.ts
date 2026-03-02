@@ -261,74 +261,18 @@ export class PublicLicenseComponent {
           .eq('owner_id', user.id)
           .maybeSingle();
 
-        if (negocio && plan === 'trial') {
-          alert('Esta cuenta ya tiene un negocio registrado. Por favor, selecciona un plan de pago para renovar.');
+        if (negocio) {
+          alert('Esta cuenta ya tiene un negocio registrado. Por favor, selecciona un plan de pago desde tu panel para renovar.');
           this.isLoading = false;
           return;
         }
-
-        // If logged in but no business yet (edge case), or allowed trial:
-        if (plan === 'trial') {
-          this.router.navigate(['/business-register'], {
-            queryParams: { plan: 'trial', status: 'approved', payment_id: 'trial_' + new Date().getTime() }
-          });
-          return;
-        }
-
-        if (!negocio) {
-          throw new Error("No se encontró un negocio asociado a esta cuenta para renovar.");
-        }
-
-        const backendUrl = `${environment.apiUrl}/create_license_preference`;
-        const payload = {
-          businessId: negocio.id,
-          payerEmail: user.email,
-          title,
-          price,
-          planType: plan
-        };
-
-        const response = await fetch(backendUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(`Error Backend (${response.status}): ${errData.error || response.statusText}`);
-        }
-
-        const { init_point } = await response.json();
-        window.location.href = init_point;
-
-      } else {
-        // User is not logged in
-        if (plan === 'trial') {
-          this.router.navigate(['/business-register'], {
-            queryParams: { plan: 'trial', status: 'approved', payment_id: 'trial_' + new Date().getTime() }
-          });
-          return;
-        }
-
-        // Guest Registration Flow for Paid Plans
-        const backendUrl = `${environment.apiUrl}/create_guest_license_preference`;
-        const payload = { title, price, planType: plan };
-
-        const response = await fetch(backendUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(`Error Backend (${response.status}): ${errData.error || response.statusText}`);
-        }
-
-        const { init_point } = await response.json();
-        window.location.href = init_point;
       }
+
+      // Route EVERYONE (Guest or Logged In without a business) to the Registration Page
+      this.router.navigate(['/business-register'], {
+        queryParams: { plan: plan }
+      });
+      return;
 
     } catch (e: any) {
       console.error(e);

@@ -125,45 +125,6 @@ app.post('/api/create_license_preference', async (req, res) => {
     }
 });
 
-// Create Guest License Preference (Pay First, Register Later)
-app.post('/api/create_guest_license_preference', async (req, res) => {
-    try {
-        const { title, price, planType } = req.body;
-
-        const body = {
-            items: [
-                {
-                    title: title || 'Licencia Mubclean',
-                    quantity: 1,
-                    unit_price: Number(price),
-                    currency_id: 'MXN',
-                    description: `Licencia ${planType} (Pre-registro)`,
-                }
-            ],
-            // No payer info yet as it is guest
-            external_reference: JSON.stringify({ planType, type: 'guest' }),
-            back_urls: {
-                success: `${frontendUrl}/business-register?plan=${planType}`,
-                failure: `${frontendUrl}/business-register?plan=${planType}`,
-                pending: `${frontendUrl}/business-register?plan=${planType}`,
-            },
-            auto_return: 'approved',
-        };
-
-        console.log('Using back_urls:', body.back_urls); // Debug log
-
-        const result = await preference.create({ body });
-        const isTestMode = (process.env.MP_ACCESS_TOKEN || '').includes('4355428689557725');
-        res.json({ init_point: isTestMode ? result.sandbox_init_point : result.init_point });
-    } catch (error) {
-        console.error('Error creating guest preference:', error);
-        // Return detailed error to frontend for debugging
-        const errorMessage = error.message || 'Unknown error';
-        const errorDetails = error.cause || error;
-        res.status(500).json({ error: errorMessage, details: errorDetails });
-    }
-});
-
 // Claim/Activate License after Registration
 app.post('/api/claim_license_payment', async (req, res) => {
     try {
