@@ -80,8 +80,9 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
             this.generateChartData(requests);
 
             // Real KPIs
-            this.totalEarnings = requests.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
-            this.completedJobs = requests.filter(r => r.estado === 'completada').length;
+            const completedRequests = requests.filter((r: any) => r.estado === 'completada');
+            this.totalEarnings = completedRequests.reduce((acc: any, r: any) => acc + (r.total_calculado || 0), 0);
+            this.completedJobs = completedRequests.length;
 
             const ratedRequests = requests.filter(r => r.calificacion && r.calificacion > 0);
             this.averageRating = ratedRequests.length > 0
@@ -107,10 +108,10 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
         const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
-        const thisMonthReqs = all.filter(r => new Date(r.created_at) >= startOfThisMonth);
+        const thisMonthReqs = all.filter(r => r.estado === 'completada' && new Date(r.created_at) >= startOfThisMonth);
         const lastMonthReqs = all.filter(r => {
             const d = new Date(r.created_at);
-            return d >= startOfLastMonth && d <= endOfLastMonth;
+            return r.estado === 'completada' && d >= startOfLastMonth && d <= endOfLastMonth;
         });
 
         this.currentMonthEarnings = thisMonthReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);

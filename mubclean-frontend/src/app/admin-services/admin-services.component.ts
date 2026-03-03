@@ -70,7 +70,39 @@ export class AdminServicesComponent implements OnInit {
                 .order('nombre');
 
             if (error) throw error;
-            this.services = data || [];
+            const fetchedServices = data || [];
+
+            // 3. Count real usages this month
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            const { data: solicitudes } = await this.auth.client
+                .from('solicitudes')
+                .select('id')
+                .eq('negocio_id', this.negocioId)
+                .gte('created_at', startOfMonth.toISOString());
+
+            const reqIds = (solicitudes || []).map((r: any) => r.id);
+            const serviceCounts: Record<string, number> = {};
+
+            if (reqIds.length > 0) {
+                const { data: items } = await this.auth.client
+                    .from('items_solicitud')
+                    .select('servicio_id')
+                    .in('solicitud_id', reqIds);
+
+                (items || []).forEach((item: any) => {
+                    if (item.servicio_id) {
+                        serviceCounts[item.servicio_id] = (serviceCounts[item.servicio_id] || 0) + 1;
+                    }
+                });
+            }
+
+            this.services = fetchedServices.map((s: any) => ({
+                ...s,
+                uso_mes_actual: serviceCounts[s.id] || 0
+            }));
 
         } catch (e) {
             console.error('Error loading services:', e);
