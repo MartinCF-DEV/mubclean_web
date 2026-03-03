@@ -97,13 +97,8 @@
 
             <!-- Schedule Action -->
             <div *ngIf="request.estado === 'aceptada'">
-                <h2>🗓️ Configurar Cita</h2>
+                <h2>👤 Asignar Técnico</h2>
                 <div class="card schedule-form">
-                    <label>Fecha y Hora</label>
-                    <div class="row-inputs">
-                        <input type="date" [(ngModel)]="scheduleDate">
-                        <input type="time" [(ngModel)]="scheduleTime">
-                    </div>
 
                     <label>Técnico</label>
                     <select [(ngModel)]="selectedEmployeeId">
@@ -114,7 +109,7 @@
                     </select>
 
                     <button class="primary-btn full-width" (click)="confirmAppointment()">
-                        CONFIRMAR CITA
+                        ASIGNAR TÉCNICO
                     </button>
                 </div>
             </div>

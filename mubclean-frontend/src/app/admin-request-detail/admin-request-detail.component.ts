@@ -31,8 +31,6 @@ export class AdminRequestDetailComponent implements OnInit {
 
     // Appointment State
     selectedEmployeeId = '';
-    scheduleDate = '';
-    scheduleTime = '09:00';
 
     // Incident sheet state
     showIncidentSheet = false;
@@ -162,8 +160,8 @@ export class AdminRequestDetailComponent implements OnInit {
     }
 
     async confirmAppointment() {
-        if (!this.selectedEmployeeId || !this.scheduleDate || !this.scheduleTime) {
-            this.toast.warning('Completa todos los campos de la cita.');
+        if (!this.selectedEmployeeId) {
+            this.toast.warning('Selecciona un técnico.');
             return;
         }
 
@@ -175,18 +173,16 @@ export class AdminRequestDetailComponent implements OnInit {
                 .from('solicitudes')
                 .update({
                     tecnico_asignado_id: this.selectedEmployeeId,
-                    fecha_agendada_final: this.scheduleDate,
-                    hora_agendada_final: this.scheduleTime + ':00',
                     estado: 'agendada'
                 })
                 .eq('id', this.requestId);
 
-            this.toast.success('Cita confirmada.');
+            this.toast.success('Técnico asignado exitosamente.');
             this.router.navigate(['/admin/dashboard']);
 
         } catch (e) {
             console.error(e);
-            this.toast.error('Error al agendar la cita.');
+            this.toast.error('Error al asignar el técnico.');
             this.isLoading = false;
         }
     }
