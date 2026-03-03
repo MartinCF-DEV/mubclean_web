@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -16,6 +16,7 @@ import { AdminReportIncidentComponent } from '../admin-report-incident/admin-rep
 })
 export class AdminIncidentsComponent implements OnInit {
     private http = inject(HttpClient);
+    private cdr = inject(ChangeDetectorRef);
     private supabase: SupabaseClient;
 
     incidents: any[] = [];
@@ -30,7 +31,11 @@ export class AdminIncidentsComponent implements OnInit {
 
     async ngOnInit() {
         const { data: { user } } = await this.supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+            this.isLoading = false;
+            this.cdr.detectChanges();
+            return;
+        }
 
         // Get negocio_id for this admin user
         const { data: negocio } = await this.supabase
@@ -42,12 +47,16 @@ export class AdminIncidentsComponent implements OnInit {
         if (negocio) {
             this.negocioId = negocio.id;
             await this.loadIncidents();
+        } else {
+            this.isLoading = false;
+            this.cdr.detectChanges();
         }
     }
 
     async loadIncidents() {
         if (!this.negocioId) return;
         this.isLoading = true;
+        this.cdr.detectChanges();
         try {
             const data: any = await firstValueFrom(
                 this.http.get(`${environment.apiUrl}/incidents?negocioId=${this.negocioId}`)
@@ -57,6 +66,7 @@ export class AdminIncidentsComponent implements OnInit {
             console.error('Error loading incidents', e);
         } finally {
             this.isLoading = false;
+            this.cdr.detectChanges();
         }
     }
 
