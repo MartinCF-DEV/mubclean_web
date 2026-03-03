@@ -5,14 +5,13 @@
         </button>
         <h1>Gestión #{{ request?.short_id || (request?.id | slice:0:8) }}</h1>
         <div class="actions">
-            <button class="icon-btn" (click)="fetchDetails()">
-                <span class="material-icons">refresh</span>
-            </button>
             <!-- Reportar Incidencia: solo en_proceso o completada -->
             <button *ngIf="request && canReportIncident()" class="report-link" (click)="reportIncident()"
                 title="Reportar incidencia">
                 <span class="material-icons">flag</span>
-                Reportar
+            </button>
+            <button class="icon-btn" (click)="fetchDetails()">
+                <span class="material-icons">refresh</span>
             </button>
         </div>
     </div>
