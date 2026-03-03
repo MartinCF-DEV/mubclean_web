@@ -51,9 +51,14 @@
                 <span class="material-icons">assignment</span>
                 <span class="label" *ngIf="!isCollapsed">Solicitudes</span>
             </a>
+            <!-- Reportes / Incidencias -->
+            <a routerLink="/admin/incidents" routerLinkActive="active" class="nav-item" title="Reportes">
+                <span class="material-icons">report_problem</span>
+                <span class="label" *ngIf="!isCollapsed">Reportes</span>
+            </a>
             <!-- Catálogo -->
             <a routerLink="/admin/services" routerLinkActive="active" class="nav-item" title="Catálogo">
-                <span class="material-icons">view_list</span> <!-- o category / view_list_rounded -->
+                <span class="material-icons">view_list</span>
                 <span class="label" *ngIf="!isCollapsed">Catálogo</span>
             </a>
             <!-- Métricas -->

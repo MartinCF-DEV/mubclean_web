@@ -265,6 +265,82 @@ app.post('/api/confirm_license_payment', async (req, res) => {
     }
 });
 
+// ─── Incidents (soporte_tickets) ───────────────────────────────────────────
+
+// GET /api/incidents?negocioId=xxx  – list tickets for a business
+app.get('/api/incidents', async (req, res) => {
+    try {
+        const { negocioId } = req.query;
+        if (!negocioId) return res.status(400).json({ error: 'negocioId is required' });
+
+        const { data, error } = await supabase
+            .from('soporte_tickets')
+            .select('*, solicitudes(id, direccion_servicio, fecha_solicitada_cliente)')
+            .eq('negocio_id', negocioId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching incidents:', error);
+        res.status(500).json({ error: 'Failed to fetch incidents' });
+    }
+});
+
+// POST /api/incidents  – create a new ticket
+app.post('/api/incidents', async (req, res) => {
+    try {
+        const { negocio_id, solicitud_id, cliente_id, tipo, asunto, descripcion } = req.body;
+
+        if (!negocio_id || !tipo || !descripcion) {
+            return res.status(400).json({ error: 'negocio_id, tipo and descripcion are required' });
+        }
+
+        const { data, error } = await supabase
+            .from('soporte_tickets')
+            .insert({
+                negocio_id,
+                solicitud_id: solicitud_id || null,
+                cliente_id: cliente_id || null,
+                tipo,
+                asunto: asunto || tipo,
+                descripcion,
+                estado: 'abierto'
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.status(201).json(data);
+    } catch (error) {
+        console.error('Error creating incident:', error);
+        res.status(500).json({ error: 'Failed to create incident' });
+    }
+});
+
+// PATCH /api/incidents/:id  – update ticket status
+app.patch('/api/incidents/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { estado } = req.body;
+
+        if (!estado) return res.status(400).json({ error: 'estado is required' });
+
+        const { data, error } = await supabase
+            .from('soporte_tickets')
+            .update({ estado })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.json(data);
+    } catch (error) {
+        console.error('Error updating incident:', error);
+        res.status(500).json({ error: 'Failed to update incident' });
+    }
+});
+
 // Start Server
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);

@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
+import { AdminReportIncidentComponent } from '../admin-report-incident/admin-report-incident.component';
 
 @Component({
     selector: 'app-admin-request-detail',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, AdminReportIncidentComponent],
     templateUrl: './admin-request-detail.component.html',
     styleUrls: ['./admin-request-detail.component.css']
 })
@@ -31,6 +32,9 @@ export class AdminRequestDetailComponent implements OnInit {
     selectedEmployeeId = '';
     scheduleDate = '';
     scheduleTime = '09:00';
+
+    // Incident Modal State
+    showIncidentModal = false;
 
     constructor() {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
@@ -184,6 +188,18 @@ export class AdminRequestDetailComponent implements OnInit {
 
     goBack() {
         this.router.navigate(['/admin/dashboard']);
+    }
+
+    openIncidentModal() {
+        this.showIncidentModal = true;
+    }
+
+    closeIncidentModal(saved: boolean) {
+        this.showIncidentModal = false;
+        if (saved) {
+            // Optionally show a brief confirmation
+            alert('✅ Incidencia levantada correctamente');
+        }
     }
 
     formatStatus(status: string): string {

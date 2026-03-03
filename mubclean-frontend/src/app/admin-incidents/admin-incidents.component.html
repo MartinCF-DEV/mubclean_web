@@ -1,0 +1,78 @@
+<div class="incidents-page">
+    <!-- Header -->
+    <header class="page-header">
+        <div class="header-text">
+            <h1>Reportes &amp; Incidencias</h1>
+            <p>Gestiona los tickets de soporte de tus pedidos</p>
+        </div>
+        <div class="header-actions">
+            <button class="refresh-btn" (click)="loadIncidents()" [disabled]="isLoading">
+                <span class="material-icons" [class.spin]="isLoading">sync</span>
+            </button>
+            <button class="new-btn" (click)="openModal()">
+                <span class="material-icons">add</span>
+                Nueva Incidencia
+            </button>
+        </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs-row">
+        <button class="tab" [class.active]="activeTab === 'abierto'" (click)="activeTab = 'abierto'">
+            Abiertos
+            <span class="badge" *ngIf="countFor('abierto') > 0">{{ countFor('abierto') }}</span>
+        </button>
+        <button class="tab" [class.active]="activeTab === 'en_revision'" (click)="activeTab = 'en_revision'">
+            En Revisión
+            <span class="badge review" *ngIf="countFor('en_revision') > 0">{{ countFor('en_revision') }}</span>
+        </button>
+        <button class="tab" [class.active]="activeTab === 'resuelto'" (click)="activeTab = 'resuelto'">
+            Resueltos
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+        <!-- Loading -->
+        <div class="center-fill" *ngIf="isLoading">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Empty -->
+        <div class="empty-state" *ngIf="!isLoading && getForTab().length === 0">
+            <span class="material-icons">inbox</span>
+            <p>Sin reportes en esta categoría</p>
+            <button class="new-btn-sm" (click)="openModal()">+ Levantar Incidencia</button>
+        </div>
+
+        <!-- Cards -->
+        <div class="cards-list" *ngIf="!isLoading">
+            <div class="incident-card" *ngFor="let item of getForTab()">
+                <div class="card-icon" [ngClass]="'tipo-' + (item.tipo || 'Otro').toLowerCase()">
+                    <span class="material-icons">{{ tipoIcon(item.tipo) }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="card-top">
+                        <span class="card-tipo">{{ item.tipo }}</span>
+                        <span class="card-date">{{ formatDate(item.created_at) }}</span>
+                    </div>
+                    <h3 class="card-asunto">{{ item.asunto || item.tipo }}</h3>
+                    <p class="card-desc">{{ item.descripcion }}</p>
+                    <div class="card-footer" *ngIf="item.solicitudes">
+                        <span class="material-icons" style="font-size: 14px;">location_on</span>
+                        <span>{{ item.solicitudes.direccion_servicio }}</span>
+                    </div>
+                </div>
+                <div class="card-status" [ngClass]="'status-' + item.estado">
+                    {{ estadoLabel(item.estado) }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal -->
+    <app-admin-report-incident *ngIf="showModal" [negocioId]="negocioId" (closed)="onModalClosed($event)">
+    </app-admin-report-incident>
+</div>

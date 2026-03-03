@@ -295,6 +295,33 @@ h2 {
     background-color: #4CAF50;
 }
 
+.incident-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+}
+
+.incident-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px -1px rgba(245, 158, 11, 0.4);
+}
+
+.incident-btn .material-icons {
+    font-size: 20px;
+}
+
 .full-width {
     width: 100%;
 }

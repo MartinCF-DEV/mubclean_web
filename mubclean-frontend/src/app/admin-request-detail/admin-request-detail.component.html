@@ -115,9 +115,22 @@
             </div>
         </section>
 
+        <!-- Report Incident Button (all states except pendiente) -->
+        <div *ngIf="request.estado !== 'pendiente'" style="padding: 0 0 8px;">
+            <button class="incident-btn full-width" (click)="openIncidentModal()">
+                <span class="material-icons">report_problem</span>
+                REPORTAR INCIDENCIA
+            </button>
+        </div>
+
     </div>
 
     <div class="loading-full" *ngIf="isLoading">
         <div class="spinner"></div>
     </div>
 </div>
+
+<!-- Incident Modal -->
+<app-admin-report-incident *ngIf="showIncidentModal" [solicitudId]="requestId" [negocioId]="request?.negocio_id"
+    [solicitudLabel]="'#' + (requestId | slice:0:4)" (closed)="closeIncidentModal($event)">
+</app-admin-report-incident>

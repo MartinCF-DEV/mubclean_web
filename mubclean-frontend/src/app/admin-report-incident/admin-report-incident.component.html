@@ -1,0 +1,73 @@
+<div class="modal-overlay" (click)="cancel()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+
+        <!-- Header -->
+        <div class="modal-header">
+            <div class="header-icon">
+                <span class="material-icons">report_problem</span>
+            </div>
+            <div class="header-text">
+                <h2>Reportar Incidencia</h2>
+                <p *ngIf="solicitudId && solicitudLabel">Pedido: <strong>{{ solicitudLabel }}</strong></p>
+                <p *ngIf="!solicitudId">Levanta un ticket de soporte</p>
+            </div>
+            <button class="close-btn" (click)="cancel()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+
+            <!-- Pedido selector (only when not pre-loaded) -->
+            <div class="field" *ngIf="!solicitudId">
+                <label>Pedido relacionado <span class="optional">(opcional)</span></label>
+                <select [(ngModel)]="selectedSolicitudId" class="field-input">
+                    <option value="">— Sin pedido específico —</option>
+                    <option *ngFor="let req of allRequests" [value]="req.id">
+                        {{ req.direccion_servicio || 'Sin dirección' }} · {{ formatDate(req.fecha_solicitada_cliente) }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Tipo -->
+            <div class="field">
+                <label>Tipo de incidencia <span class="required">*</span></label>
+                <select [(ngModel)]="tipo" class="field-input">
+                    <option value="" disabled>Selecciona una categoría</option>
+                    <option *ngFor="let opt of tipoOptions" [value]="opt.value">{{ opt.label }}</option>
+                </select>
+            </div>
+
+            <!-- Asunto -->
+            <div class="field">
+                <label>Asunto <span class="optional">(breve)</span></label>
+                <input type="text" [(ngModel)]="asunto" class="field-input" placeholder="Ej. Técnico no llegó a tiempo"
+                    maxlength="80">
+            </div>
+
+            <!-- Descripcion -->
+            <div class="field">
+                <label>Descripción detallada <span class="required">*</span></label>
+                <textarea [(ngModel)]="descripcion" class="field-input textarea" rows="4"
+                    placeholder="Describe la incidencia con el mayor detalle posible..."></textarea>
+                <span class="char-count">{{ descripcion.length }}/500</span>
+            </div>
+
+            <!-- Messages -->
+            <div class="msg success" *ngIf="successMsg">{{ successMsg }}</div>
+            <div class="msg error" *ngIf="errorMsg">{{ errorMsg }}</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="cancel()" [disabled]="isSaving">Cancelar</button>
+            <button class="btn-primary" (click)="submit()" [disabled]="!canSubmit() || isSaving">
+                <span class="material-icons" *ngIf="isSaving"
+                    style="animation: spin 1s linear infinite; font-size:18px;">sync</span>
+                {{ isSaving ? 'Guardando...' : 'Levantar Incidencia' }}
+            </button>
+        </div>
+
+    </div>
+</div>
