@@ -91,13 +91,16 @@ import { environment } from '../../environments/environment';
             <button class="btn-renew" (click)="showPlans = true">Renovar ahora</button>
           </div>
 
-          <!-- Switch plan link -->
-          <button class="link-btn" (click)="showPlans = !showPlans">
+          <!-- Switch plan link — only show if not annual with lots of time -->
+          <button class="link-btn" *ngIf="!isAnnualWithPlentyDays" (click)="showPlans = !showPlans">
             {{ showPlans ? 'Ocultar planes' : 'Ver planes de renovación' }}
           </button>
+          <p *ngIf="isAnnualWithPlentyDays" style="font-size:12px; color:#94A3B8; margin:0 0 12px;">
+            Tu plan se puede renovar cuando queden menos de 60 días.
+          </p>
 
-          <!-- Plans (collapsed by default unless close to expiry) -->
-          <div class="plans-section" *ngIf="showPlans">
+          <!-- Plans (only shown when needed) -->
+          <div class="plans-section" *ngIf="showPlans && !isAnnualWithPlentyDays">
             <h2>Elige tu próximo plan</h2>
             <div class="cards-row">
               <div class="license-card">
@@ -378,6 +381,7 @@ export class AdminLicenseComponent implements OnInit {
   expiryDateStr = '';
   startDateStr = '';
   paymentDueDateStr = '';
+  isAnnualWithPlentyDays = false;
 
   async ngOnInit() {
     if (!this.auth.currentUser) { this.router.navigate(['/login']); return; }
@@ -414,6 +418,7 @@ export class AdminLicenseComponent implements OnInit {
       const diffDaysTotal = Math.round((expiry.getTime() - now.getTime() + msRemaining) / (1000 * 60 * 60 * 24));
       const isAnnual = diffDaysTotal > 60;
       this.planLabel = isAnnual ? 'Anual ($1,500/año)' : 'Mensual ($150/mes)';
+      this.isAnnualWithPlentyDays = isAnnual && this.daysRemaining > 60;
 
       const start = new Date(expiry);
       start.setFullYear(start.getFullYear() - (isAnnual ? 1 : 0));

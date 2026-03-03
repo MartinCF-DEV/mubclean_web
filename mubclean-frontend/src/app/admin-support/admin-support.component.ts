@@ -11,7 +11,8 @@ import { ToastService } from '../toast.service';
   template: `
     <div class="page-container">
       <header class="page-header">
-        <h1>Soporte para Socios</h1>
+        <h1>Soporte Técnico</h1>
+        <p style="margin:4px 0 0; font-size:13px; color:#64748B;">Comunica problemas de la plataforma directamente con MubClean</p>
       </header>
 
       <!-- Tabs -->
@@ -23,7 +24,7 @@ import { ToastService } from '../toast.service';
           Reportar Problema
         </div>
         <div class="tab" [class.active]="activeTab === 'incoming'" (click)="activeTab = 'incoming'">
-          Recibidos
+          Quejas de Clientes
         </div>
       </div>
 

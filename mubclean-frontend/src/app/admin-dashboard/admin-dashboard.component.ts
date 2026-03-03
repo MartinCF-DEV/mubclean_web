@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth.service';
@@ -8,7 +8,7 @@ import { AuthService } from '../auth.service';
 @Component({
     selector: 'app-admin-dashboard',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './admin-dashboard.component.html',
     styleUrls: ['./admin-dashboard.component.css']
 })
@@ -24,12 +24,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     errorMessage: string | null = null;
     currentDate = new Date();
     licenseExpired = false;
-
-    // Modal State
-    modalVisible = false;
-    modalTitle = '';
-    modalList: any[] = [];
-    modalType: 'jobs' | 'reports' = 'jobs';
+    showCopyToast = false;
 
     // Stats
     upcomingJobsCount = 0;
@@ -39,9 +34,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     weeklyEarnings = 0;
 
     // Lists
-    tickets: any[] = []; // Store filtered tickets
-    upcomingJobs: any[] = []; // Store for the modal
-    recentRequests: any[] = []; // Store for Recent Activity
+    tickets: any[] = [];
+    upcomingJobs: any[] = [];
+    recentRequests: any[] = [];
 
     refreshInterval: any;
 
@@ -248,38 +243,24 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.upcomingJobsCount = this.upcomingJobs.length;
     }
 
-
-    openModal(type: 'jobs' | 'reports') {
-        this.modalType = type;
-        this.modalVisible = true;
-
-        if (type === 'jobs') {
-            this.modalTitle = 'Próximos Trabajos';
-            this.modalList = this.upcomingJobs;
-        } else {
-            this.modalTitle = 'Reportes Nuevos';
-            // Use filtered tickets
-            this.modalList = this.tickets;
-        }
-    }
-
-    closeModal() {
-        this.modalVisible = false;
+    copyCatalogLink() {
+        const businessId = this.business?.id || '';
+        const origin = window.location.origin;
+        const url = `${origin}/customer/business/${businessId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            this.showCopyToast = true;
+            this.cdr.detectChanges();
+            setTimeout(() => { this.showCopyToast = false; this.cdr.detectChanges(); }, 3000);
+        }).catch(() => {
+            prompt('Copia este enlace:', url);
+        });
     }
 
     goToDetail(req: any) {
-        if (this.modalVisible) this.closeModal();
-
-        // If it's a ticket (has 'asunto'), maybe navigate to support?
-        // But dashboard usually navigates to Request Detail.
-        // For Tickets, we should ideally go to a Ticket Detail page or Support tab.
-        // Let's check matching logic.
-
         if (req.isRequest) {
             this.router.navigate(['/admin/request', req.id]);
         } else if (req.asunto) {
-            // It is a ticket
-            this.router.navigate(['/admin/support']); // Go to support list
+            this.router.navigate(['/admin/support']);
         } else {
             this.router.navigate(['/admin/request', req.id]);
         }

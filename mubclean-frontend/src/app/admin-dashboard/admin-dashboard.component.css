@@ -635,3 +635,88 @@
 .renew-btn:active {
     transform: translateY(0);
 }
+
+/* ── Enhanced Empty State with CTA ── */
+.empty-state-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 32px 24px;
+    gap: 8px;
+}
+
+.empty-state-cta .empty-icon {
+    font-size: 48px;
+    color: #CBD5E1;
+    margin-bottom: 8px;
+}
+
+.empty-state-cta h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0F172A;
+    font-family: 'Inter', sans-serif;
+}
+
+.empty-state-cta p {
+    margin: 0;
+    color: #64748B;
+    font-size: 14px;
+    max-width: 360px;
+    line-height: 1.5;
+}
+
+.cta-copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    background: #1565C0;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.2);
+}
+
+.cta-copy-btn:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(21, 101, 192, 0.3);
+}
+
+.cta-copy-btn .material-icons {
+    font-size: 18px;
+}
+
+/* Copy toast */
+.copy-toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0F172A;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 9999;
+    animation: slideUp 0.25s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.copy-toast .material-icons {
+    color: #4ADE80;
+    font-size: 18px;
+}

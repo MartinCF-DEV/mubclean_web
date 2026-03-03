@@ -23,9 +23,9 @@
         </div>
     </header>
 
-    <!-- 2. Hero Stats Cards (Interactive) -->
+    <!-- 2. Hero Stats Cards — navigate on click, no modal -->
     <section class="stats-grid">
-        <!-- New Income Card -->
+        <!-- Earnings -->
         <div class="stat-card" (click)="goToMetrics()"
             style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; cursor: pointer;">
             <div class="stat-icon" style="background: rgba(255,255,255,0.2); color: white;">
@@ -39,32 +39,34 @@
             <span class="material-icons bg-icon" style="color: rgba(255,255,255,0.1);">trending_up</span>
         </div>
 
-        <div class="stat-card blue-card" (click)="openModal('jobs')">
+        <!-- Upcoming Jobs — navigates to Requests (filtered) -->
+        <div class="stat-card blue-card" (click)="router.navigate(['/admin/requests'])" style="cursor:pointer;">
             <div class="stat-icon">
                 <span class="material-icons">calendar_today</span>
             </div>
             <div class="stat-info">
                 <h3>Próximos Trabajos</h3>
                 <span class="big-number">{{ upcomingJobsCount }}</span>
-                <p>Agendados para hoy/mañana</p>
+                <p>Agendados · Ver todas las solicitudes</p>
             </div>
             <span class="material-icons bg-icon">event_available</span>
         </div>
 
-        <div class="stat-card purple-card" (click)="openModal('reports')">
+        <!-- Reports — navigates to Support -->
+        <div class="stat-card purple-card" (click)="router.navigate(['/admin/support'])" style="cursor:pointer;">
             <div class="stat-icon">
                 <span class="material-icons">mark_email_unread</span>
             </div>
             <div class="stat-info">
                 <h3>Reportes Nuevos</h3>
                 <span class="big-number">{{ newReportsCount }}</span>
-                <p>Mensajes o solicitudes pendientes</p>
+                <p>Ir a Soporte Técnico</p>
             </div>
             <span class="material-icons bg-icon">feedback</span>
         </div>
     </section>
 
-    <!-- 3. Important Notifications (Replaces Requests List) -->
+    <!-- 3. Important Notifications -->
     <section class="list-section">
         <div class="section-header">
             <h2>Notificaciones Importantes</h2>
@@ -75,9 +77,15 @@
                 <div class="spinner"></div>
             </div>
 
-            <div *ngIf="!isLoading && tickets.length === 0" class="empty-state">
-                <span class="material-icons">notifications_none</span>
-                <p>No tienes notificaciones urgentes.</p>
+            <!-- Empty state with CTA -->
+            <div *ngIf="!isLoading && tickets.length === 0" class="empty-state-cta">
+                <span class="material-icons empty-icon">notifications_none</span>
+                <h3>Sin alertas pendientes</h3>
+                <p>Todo está en orden. Comparte tu catálogo con clientes para recibir reservas.</p>
+                <button class="cta-copy-btn" (click)="copyCatalogLink()">
+                    <span class="material-icons">link</span>
+                    Copiar enlace del Catálogo
+                </button>
             </div>
 
             <div class="request-cards">
@@ -113,9 +121,15 @@
                 <div class="spinner"></div>
             </div>
 
-            <div *ngIf="!isLoading && recentRequests.length === 0" class="empty-state">
-                <span class="material-icons">inbox</span>
-                <p>No hay solicitudes recientes.</p>
+            <!-- Enhanced empty state with catalog CTA -->
+            <div *ngIf="!isLoading && recentRequests.length === 0" class="empty-state-cta">
+                <span class="material-icons empty-icon">calendar_today</span>
+                <h3>Tu agenda está libre</h3>
+                <p>Comparte tu enlace de catálogo con tus clientes para recibir reservas hoy mismo.</p>
+                <button class="cta-copy-btn" (click)="copyCatalogLink()">
+                    <span class="material-icons">link</span>
+                    Copiar enlace del Catálogo
+                </button>
             </div>
 
             <div class="request-cards">
@@ -142,68 +156,6 @@
         </div>
     </section>
 
-    <!-- MODAL OVERLAY -->
-    <div class="modal-overlay" *ngIf="modalVisible" (click)="closeModal()">
-        <div class="modal-window" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>{{ modalTitle }}</h2>
-                <button class="close-btn" (click)="closeModal()">
-                    <span class="material-icons">close</span>
-                </button>
-            </div>
-
-            <div class="modal-content">
-                <div *ngIf="modalList.length === 0" class="empty-modal">
-                    <p>No hay elementos para mostrar.</p>
-                </div>
-
-                <div class="request-cards">
-                    <div *ngFor="let item of modalList" class="request-item" (click)="goToDetail(item)">
-
-                        <!-- Layout for JOBS (Requests) -->
-                        <ng-container *ngIf="modalType === 'jobs'; else ticketLayout">
-                            <div class="req-left">
-                                <div class="status-dot" [ngClass]="getColorClass(item.estado)"></div>
-                                <div class="req-info">
-                                    <h4>{{ item.direccion }}</h4>
-                                    <span class="req-date">{{ item.fecha_solicitada | date:'short' }}</span>
-                                </div>
-                            </div>
-                            <div class="req-right">
-                                <span class="status-tag" [ngClass]="getColorClass(item.estado)">{{
-                                    formatStatus(item.estado) }}</span>
-                                <div class="action-btn-pill">
-                                    <span>Ver</span>
-                                    <span class="material-icons arrow">chevron_right</span>
-                                </div>
-                            </div>
-                        </ng-container>
-
-                        <!-- Layout for REPORTS (Tickets) -->
-                        <ng-template #ticketLayout>
-                            <div class="req-left">
-                                <div class="status-dot status-pendiente"></div> <!-- All open tickets are 'alert' -->
-                                <div class="req-info">
-                                    <h4>{{ item.asunto }}</h4>
-                                    <span class="req-date">{{ item.created_at | date:'short' }}</span>
-                                </div>
-                            </div>
-                            <div class="req-right">
-                                <span class="status-tag status-pendiente">{{ (item.tipo || 'Ticket') | uppercase
-                                    }}</span>
-                                <div class="action-btn-pill">
-                                    <span>Ver</span>
-                                    <span class="material-icons arrow">chevron_right</span>
-                                </div>
-                            </div>
-                        </ng-template>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- LICENSE EXPIRED OVERLAY -->
     <div class="expired-overlay" *ngIf="licenseExpired">
         <div class="expired-card">
@@ -215,6 +167,12 @@
                 <span class="material-icons">arrow_forward</span>
             </button>
         </div>
+    </div>
+
+    <!-- Toast confirmation for copy -->
+    <div class="copy-toast" *ngIf="showCopyToast">
+        <span class="material-icons">check_circle</span>
+        ¡Enlace copiado al portapapeles!
     </div>
 
 </div>
