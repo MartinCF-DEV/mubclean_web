@@ -3,11 +3,13 @@ import { RouterOutlet, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { ToastService } from '../toast.service';
+import { ToastComponent } from '../toast/toast.component';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, RouterModule, FormsModule],
+  imports: [RouterOutlet, CommonModule, RouterModule, FormsModule, ToastComponent],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.css',
 })
@@ -15,6 +17,7 @@ export class AdminLayoutComponent {
   private router = inject(Router);
   private auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+  private toast = inject(ToastService);
 
   isSidebarOpen = false; // Mobile toggle
   isCollapsed = false;   // Desktop minimize
@@ -53,11 +56,9 @@ export class AdminLayoutComponent {
 
       if (business.subscription_status !== 'active') {
         if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
-
-        alert('Tu licencia no está activa. Por favor realiza el pago.');
+        this.toast.warning('Tu licencia no está activa. Por favor realiza el pago.');
         this.router.navigate(['/admin/license']);
       } else {
-        // It's active, check for trial or standard expiration
         if (business.prueba_utilizada && business.fecha_fin_prueba) {
           const end = new Date(business.fecha_fin_prueba);
           const diffTime = end.getTime() - now.getTime();
@@ -65,16 +66,16 @@ export class AdminLayoutComponent {
 
           if (diffDays <= 0) {
             if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
-            alert('Tu periodo de prueba de 14 días ha finalizado. Por favor elige un plan para continuar operando.');
+            this.toast.warning('Tu periodo de prueba de 14 días ha finalizado. Por favor elige un plan.');
             this.router.navigate(['/admin/license']);
             return;
           } else {
             this.trialDaysRemaining = diffDays;
-            this.cdr.detectChanges(); // Force view update after async
+            this.cdr.detectChanges();
           }
         } else if (expiry && expiry < now) {
           if (this.router.url.includes('/admin/payment') || this.router.url.includes('/admin/license')) return;
-          alert('Tu licencia ha expirado. Por favor renueva tu suscripción.');
+          this.toast.warning('Tu licencia ha expirado. Por favor renueva tu suscripción.');
           this.router.navigate(['/admin/license']);
           return;
         }
@@ -132,10 +133,9 @@ export class AdminLayoutComponent {
 
       if (error) throw error;
 
-      alert('¡Reserva creada con éxito!');
+      this.toast.success('¡Reserva creada con éxito!');
       this.closeQuickReserve();
 
-      // Optionally refresh current route to show new data
       const currentUrl = this.router.url;
       this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
         this.router.navigate([currentUrl]);
@@ -143,7 +143,7 @@ export class AdminLayoutComponent {
 
     } catch (e: any) {
       console.error('Error creating quick reserve', e);
-      alert('Hubo un error al crear la reserva.');
+      this.toast.error('Hubo un error al crear la reserva.');
     } finally {
       this.isSubmittingQR = false;
     }

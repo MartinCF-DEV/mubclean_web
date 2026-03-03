@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { ToastService } from '../toast.service';
 
 @Component({
   selector: 'app-admin-profile',
@@ -192,6 +193,7 @@ import { AuthService } from '../auth.service';
 export class AdminProfileComponent implements OnInit {
   auth = inject(AuthService);
   cdr = inject(ChangeDetectorRef);
+  private toast = inject(ToastService);
 
   isLoading = true;
   isSaving = false;
@@ -265,7 +267,7 @@ export class AdminProfileComponent implements OnInit {
 
     } catch (e: any) {
       console.error('Upload error:', e);
-      alert('Error al subir imagen: ' + e.message);
+      this.toast.error('Error al subir imagen: ' + e.message);
     } finally {
       this.isUploading = false;
       this.cdr.detectChanges();
@@ -301,11 +303,11 @@ export class AdminProfileComponent implements OnInit {
         .eq('id', this.business.id);
 
       if (error) throw error;
-      alert('Perfil actualizado correctamente');
+      this.toast.success('Perfil actualizado correctamente.');
 
     } catch (e: any) {
       console.error(e);
-      alert('Error al guardar: ' + e.message);
+      this.toast.error('Error al guardar: ' + e.message);
     } finally {
       this.isSaving = false;
       this.cdr.detectChanges();

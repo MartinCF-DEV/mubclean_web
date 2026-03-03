@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
+import { ToastService } from '../toast.service';
 
 @Component({
     selector: 'app-admin-request-detail',
@@ -16,6 +17,7 @@ export class AdminRequestDetailComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private cdr = inject(ChangeDetectorRef);
+    private toast = inject(ToastService);
     private supabase: SupabaseClient;
 
     requestId: string | null = null;
@@ -103,7 +105,7 @@ export class AdminRequestDetailComponent implements OnInit {
 
         } catch (e) {
             console.error("Error loading details", e);
-            alert("Error al cargar detalles");
+            this.toast.error('Error al cargar detalles del pedido.');
         } finally {
             console.log("RequestDetail: Finished loading.");
             this.isLoading = false;
@@ -117,7 +119,7 @@ export class AdminRequestDetailComponent implements OnInit {
 
     async sendQuote() {
         if (this.totalCalculated <= 0) {
-            alert("El total debe ser mayor a 0");
+            this.toast.warning('El total debe ser mayor a 0.');
             return;
         }
 
@@ -142,19 +144,19 @@ export class AdminRequestDetailComponent implements OnInit {
                 })
                 .eq('id', this.requestId);
 
-            alert("Cotización enviada exitosamente");
-            await this.fetchDetails(); // Reload
+            this.toast.success('Cotización enviada exitosamente.');
+            await this.fetchDetails();
 
         } catch (e) {
             console.error(e);
-            alert("Error al enviar cotización");
+            this.toast.error('Error al enviar cotización.');
             this.isLoading = false;
         }
     }
 
     async confirmAppointment() {
         if (!this.selectedEmployeeId || !this.scheduleDate || !this.scheduleTime) {
-            alert("Completa todos los campos de la cita");
+            this.toast.warning('Completa todos los campos de la cita.');
             return;
         }
 
@@ -172,12 +174,12 @@ export class AdminRequestDetailComponent implements OnInit {
                 })
                 .eq('id', this.requestId);
 
-            alert("Cita confirmada");
+            this.toast.success('Cita confirmada.');
             this.router.navigate(['/admin/dashboard']);
 
         } catch (e) {
             console.error(e);
-            alert("Error al agendar");
+            this.toast.error('Error al agendar la cita.');
             this.isLoading = false;
         }
     }

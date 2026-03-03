@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { ToastService } from '../toast.service';
 
 @Component({
     selector: 'app-admin-services',
@@ -13,6 +14,7 @@ import { AuthService } from '../auth.service';
 export class AdminServicesComponent implements OnInit {
     auth = inject(AuthService);
     cdr = inject(ChangeDetectorRef);
+    private toast = inject(ToastService);
 
     isLoading = true;
     services: any[] = [];
@@ -181,11 +183,11 @@ export class AdminServicesComponent implements OnInit {
 
             this.closeDialog();
             this.fetchServices();
-            alert('Servicio guardado exitosamente');
+            this.toast.success('Servicio guardado exitosamente.');
 
         } catch (e: any) {
             console.error(e);
-            alert('Error: ' + e.message);
+            this.toast.error('Error al guardar: ' + e.message);
         } finally {
             this.isProcessing = false;
             this.cdr.detectChanges();
@@ -207,10 +209,10 @@ export class AdminServicesComponent implements OnInit {
 
             this.closeDialog();
             this.fetchServices();
-            alert('Servicio eliminado');
+            this.toast.success('Servicio eliminado.');
         } catch (e: any) {
             console.error(e);
-            alert('Error eliminar: ' + e.message);
+            this.toast.error('Error al eliminar: ' + e.message);
         } finally {
             this.isProcessing = false;
             this.cdr.detectChanges();
@@ -233,7 +235,7 @@ export class AdminServicesComponent implements OnInit {
             }
         } catch (e) {
             console.error(e);
-            alert('Error al actualizar estado');
+            this.toast.error('Error al actualizar estado del servicio.');
         }
     }
 }
