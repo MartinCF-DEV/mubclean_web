@@ -34,6 +34,13 @@ export class AdminRequestDetailComponent implements OnInit {
     scheduleDate = '';
     scheduleTime = '09:00';
 
+    // Incident sheet state
+    showIncidentSheet = false;
+    incidentAsunto = '';
+    incidentDesc = '';
+    incidentSaving = false;
+    incidentError = '';
+
     constructor() {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
     }
@@ -194,9 +201,42 @@ export class AdminRequestDetailComponent implements OnInit {
         return reportableStates.includes(this.request?.estado);
     }
 
-    /** Navega a Soporte para levantar una incidencia del servicio */
+    /** Shows the incident mini-modal (sheet) */
     reportIncident() {
-        this.router.navigate(['/admin/support']);
+        this.showIncidentSheet = true;
+    }
+
+    /** Saves incident directly to Supabase — avoids backend sleep issue */
+    async submitIncident() {
+        if (!this.incidentAsunto.trim() || this.incidentDesc.trim().length < 5) return;
+        this.incidentSaving = true;
+        this.incidentError = '';
+        try {
+            const { data: { user } } = await this.supabase.auth.getUser();
+            if (!user) throw new Error('No autenticado');
+
+            const folio = this.request?.short_id || this.requestId?.slice(0, 8) || '';
+            const { error } = await this.supabase.from('soporte_tickets').insert({
+                cliente_id: user.id,           // required NOT NULL
+                tipo: 'servicio',
+                asunto: `[Servicio #${folio}] ${this.incidentAsunto.trim()}`,
+                descripcion: this.incidentDesc.trim(),
+                estado: 'abierto',
+                solicitud_id: this.requestId
+            });
+            if (error) throw error;
+
+            this.showIncidentSheet = false;
+            this.incidentAsunto = '';
+            this.incidentDesc = '';
+            this.toast.success('Incidencia levantada correctamente.');
+        } catch (e: any) {
+            console.error('Incident error:', e);
+            this.incidentError = e.message || 'Error al guardar. Intenta de nuevo.';
+        } finally {
+            this.incidentSaving = false;
+            this.cdr.detectChanges();
+        }
     }
 
     formatStatus(status: string): string {

@@ -6,7 +6,7 @@
         <h1>Gestión #{{ request?.short_id || (request?.id | slice:0:8) }}</h1>
         <div class="actions">
             <!-- Reportar Incidencia: solo en_proceso o completada -->
-            <button *ngIf="request && canReportIncident()" class="report-link" (click)="reportIncident()"
+            <button *ngIf="request && canReportIncident()" class="report-link" (click)="showIncidentSheet = true"
                 title="Reportar incidencia">
                 <span class="material-icons">flag</span>
             </button>
@@ -37,7 +37,7 @@
         </section>
 
         <section>
-            <h2>Muebles & Cotización</h2>
+            <h2>Muebles &amp; Cotización</h2>
 
             <div class="item-card" *ngFor="let item of items">
                 <div class="item-header">
@@ -125,4 +125,47 @@
     <div class="loading-full" *ngIf="isLoading">
         <div class="spinner"></div>
     </div>
+
+    <!-- ── Incident Mini-Modal ── -->
+    <div class="incident-backdrop" *ngIf="showIncidentSheet" (click)="showIncidentSheet = false"></div>
+    <div class="incident-sheet" *ngIf="showIncidentSheet">
+        <div class="sheet-header">
+            <div class="sheet-title-row">
+                <span class="material-icons sheet-flag-icon">flag</span>
+                <div>
+                    <h3>Reportar Incidencia</h3>
+                    <p class="sheet-folio">Servicio #{{ request?.short_id || (request?.id | slice:0:8) }}</p>
+                </div>
+            </div>
+            <button class="icon-btn" (click)="showIncidentSheet = false">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <div class="sheet-body">
+            <div class="sheet-field">
+                <label>Asunto</label>
+                <input type="text" [(ngModel)]="incidentAsunto" placeholder="Ej. Daño en mueble durante el servicio"
+                    maxlength="120">
+            </div>
+            <div class="sheet-field">
+                <label>Descripción detallada</label>
+                <textarea [(ngModel)]="incidentDesc" rows="4" placeholder="Describe con detalle lo sucedido..."
+                    maxlength="500"></textarea>
+                <span class="char-count">{{ incidentDesc.length }}/500</span>
+            </div>
+            <div class="sheet-error" *ngIf="incidentError">{{ incidentError }}</div>
+        </div>
+
+        <div class="sheet-footer">
+            <button class="sheet-cancel-btn" (click)="showIncidentSheet = false">Cancelar</button>
+            <button class="sheet-submit-btn"
+                [disabled]="incidentSaving || !incidentAsunto.trim() || incidentDesc.trim().length < 5"
+                (click)="submitIncident()">
+                <span *ngIf="incidentSaving" class="btn-spinner"></span>
+                {{ incidentSaving ? 'Guardando...' : 'Levantar Incidencia' }}
+            </button>
+        </div>
+    </div>
+
 </div>
