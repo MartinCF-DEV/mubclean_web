@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService, Toast } from '../toast.service';
 import { Subscription } from 'rxjs';
@@ -66,12 +66,17 @@ import { Subscription } from 'rxjs';
 })
 export class ToastComponent implements OnInit, OnDestroy {
     toastSvc = inject(ToastService);
+    private cdr = inject(ChangeDetectorRef);
     toasts: Toast[] = [];
     private sub!: Subscription;
 
     ngOnInit() {
-        this.sub = this.toastSvc.toasts$.subscribe(t => this.toasts = t);
+        this.sub = this.toastSvc.toasts$.subscribe(t => {
+            this.toasts = t;
+            this.cdr.detectChanges();
+        });
     }
+
     ngOnDestroy() { this.sub.unsubscribe(); }
 
     iconFor(type: string): string {
