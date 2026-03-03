@@ -34,11 +34,13 @@ export class AdminReportIncidentComponent implements OnInit {
     selectedSolicitudId = '';
 
     readonly tipoOptions = [
-        { value: 'Incidencia', label: '⚠️ Incidencia de Servicio' },
-        { value: 'Queja', label: '😤 Queja' },
-        { value: 'Reembolso', label: '💵 Solicitud de Reembolso' },
-        { value: 'Ayuda', label: '🙋 Ayuda / Duda' },
-        { value: 'Otro', label: '📋 Otro' },
+        { value: 'Incidencia de Servicio', label: 'Incidencia de Servicio' },
+        { value: 'Daño en Propiedad', label: 'Daño en Propiedad' },
+        { value: 'Retraso o No Presentación', label: 'Retraso o No Presentación' },
+        { value: 'Queja del Cliente', label: 'Queja del Cliente' },
+        { value: 'Problema con Personal', label: 'Problema con Personal' },
+        { value: 'Servicio Incompleto', label: 'Servicio Incompleto' },
+        { value: 'Otro', label: 'Otro' },
     ];
 
     constructor() {

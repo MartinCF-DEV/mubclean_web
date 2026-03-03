@@ -84,10 +84,12 @@ export class AdminIncidentsComponent implements OnInit {
 
     tipoIcon(tipo: string): string {
         const map: Record<string, string> = {
-            'Incidencia': 'warning',
-            'Queja': 'sentiment_dissatisfied',
-            'Reembolso': 'payments',
-            'Ayuda': 'help_outline',
+            'Incidencia de Servicio': 'warning',
+            'Daño en Propiedad': 'home_repair_service',
+            'Retraso o No Presentación': 'schedule',
+            'Queja del Cliente': 'feedback',
+            'Problema con Personal': 'person_off',
+            'Servicio Incompleto': 'do_not_disturb',
             'Otro': 'more_horiz'
         };
         return map[tipo] || 'report_problem';
