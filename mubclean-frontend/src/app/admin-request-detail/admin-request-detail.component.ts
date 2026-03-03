@@ -194,12 +194,9 @@ export class AdminRequestDetailComponent implements OnInit {
         return reportableStates.includes(this.request?.estado);
     }
 
-    /** Navega a Reportes con folio pre-cargado (sin modalception) */
+    /** Navega a Soporte para levantar una incidencia del servicio */
     reportIncident() {
-        const folio = this.request?.short_id || this.requestId?.slice(0, 8) || '';
-        this.router.navigate(['/admin/incidents'], {
-            queryParams: { solicitudId: this.requestId, folio }
-        });
+        this.router.navigate(['/admin/support']);
     }
 
     formatStatus(status: string): string {
