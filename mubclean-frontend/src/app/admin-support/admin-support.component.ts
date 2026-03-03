@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { ToastService } from '../toast.service';
 
 @Component({
   selector: 'app-admin-support',
@@ -59,24 +60,13 @@ import { AuthService } from '../auth.service';
               </div>
               
               <div *ngIf="t.respuesta_admin" class="admin-response">
-                <strong>Respuesta de Plataforma:</strong>
+                <strong>Respuesta de MubClean:</strong>
                 <p>{{ t.respuesta_admin }}</p>
               </div>
 
-              <!-- Response Form (if no response yet) -->
-              <div *ngIf="!t.respuesta_admin" class="response-form">
-                <label>Escribe tu respuesta:</label>
-                <textarea 
-                  [(ngModel)]="t.responseText" 
-                  rows="3" 
-                  placeholder="Responde al cliente aquí..."></textarea>
-                <button 
-                  class="send-btn" 
-                  (click)="sendResponse(t)" 
-                  [disabled]="!t.responseText || t.sending">
-                  <span *ngIf="t.sending">Enviando...</span>
-                  <span *ngIf="!t.sending">ENVIAR RESPUESTA</span>
-                </button>
+              <div *ngIf="!t.respuesta_admin" class="pending-msg">
+                <span class="material-icons" style="font-size:16px;vertical-align:middle;">hourglass_top</span>
+                En espera de respuesta de MubClean.
               </div>
             </div>
           </div>
@@ -365,6 +355,7 @@ import { AuthService } from '../auth.service';
 export class AdminSupportComponent implements OnInit {
   auth = inject(AuthService);
   cdr = inject(ChangeDetectorRef);
+  private toast = inject(ToastService);
 
   activeTab: 'list' | 'create' | 'incoming' = 'list';
   isLoading = true;
@@ -558,14 +549,14 @@ export class AdminSupportComponent implements OnInit {
 
       if (error) throw error;
 
-      alert('Ticket creado exitosamente');
+      this.toast.success('Ticket creado exitosamente.');
       this.resetCreation();
       this.activeTab = 'list';
-      this.fetchTickets(); // Refresh list
+      this.fetchTickets();
 
     } catch (e: any) {
       console.error(e);
-      alert('Error: ' + e.message);
+      this.toast.error('Error: ' + e.message);
     } finally {
       this.isSubmitting = false;
       this.cdr.detectChanges();
@@ -588,7 +579,6 @@ export class AdminSupportComponent implements OnInit {
 
       if (error) throw error;
 
-      // Update local state
       ticket.respuesta_admin = ticket.responseText;
       ticket.estado = 'resuelto';
       ticket.responseText = '';
@@ -597,13 +587,13 @@ export class AdminSupportComponent implements OnInit {
       this.incomingResolved = this.incomingTickets.filter(t => t.estado === 'resuelto');
 
       if (this.activeTab === 'incoming') {
-        this.incomingTab = 'respondidos'; // switch to respondidos to see the ticket
+        this.incomingTab = 'respondidos';
       }
 
-      alert('Respuesta enviada correctamente');
+      this.toast.success('Respuesta enviada al cliente.');
     } catch (e: any) {
       console.error(e);
-      alert('Error al enviar respuesta: ' + e.message);
+      this.toast.error('Error al enviar respuesta: ' + e.message);
     } finally {
       ticket.sending = false;
       this.cdr.detectChanges();
