@@ -4,12 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import { AdminReportIncidentComponent } from '../admin-report-incident/admin-report-incident.component';
 
 @Component({
     selector: 'app-admin-request-detail',
     standalone: true,
-    imports: [CommonModule, FormsModule, AdminReportIncidentComponent],
+    imports: [CommonModule, FormsModule],
     templateUrl: './admin-request-detail.component.html',
     styleUrls: ['./admin-request-detail.component.css']
 })
@@ -32,9 +31,6 @@ export class AdminRequestDetailComponent implements OnInit {
     selectedEmployeeId = '';
     scheduleDate = '';
     scheduleTime = '09:00';
-
-    // Incident Modal State
-    showIncidentModal = false;
 
     constructor() {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
@@ -190,16 +186,18 @@ export class AdminRequestDetailComponent implements OnInit {
         this.router.navigate(['/admin/dashboard']);
     }
 
-    openIncidentModal() {
-        this.showIncidentModal = true;
+    /** Solo se puede reportar si el servicio ya inició o se completó */
+    canReportIncident(): boolean {
+        const reportableStates = ['en_proceso', 'completada'];
+        return reportableStates.includes(this.request?.estado);
     }
 
-    closeIncidentModal(saved: boolean) {
-        this.showIncidentModal = false;
-        if (saved) {
-            // Optionally show a brief confirmation
-            alert('✅ Incidencia levantada correctamente');
-        }
+    /** Navega a Reportes con folio pre-cargado (sin modalception) */
+    reportIncident() {
+        const folio = this.request?.short_id || this.requestId?.slice(0, 8) || '';
+        this.router.navigate(['/admin/incidents'], {
+            queryParams: { solicitudId: this.requestId, folio }
+        });
     }
 
     formatStatus(status: string): string {

@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { firstValueFrom } from 'rxjs';
@@ -16,6 +17,7 @@ import { AdminReportIncidentComponent } from '../admin-report-incident/admin-rep
 })
 export class AdminIncidentsComponent implements OnInit {
     private http = inject(HttpClient);
+    private route = inject(ActivatedRoute);
     private cdr = inject(ChangeDetectorRef);
     private supabase: SupabaseClient;
 
@@ -25,11 +27,22 @@ export class AdminIncidentsComponent implements OnInit {
     showModal = false;
     negocioId: string | null = null;
 
+    // Pre-filled from query params (navigation from detail page)
+    preloadedSolicitudId: string | null = null;
+    preloadedFolio: string = '';
+
     constructor() {
         this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
     }
 
     async ngOnInit() {
+        // Check for pre-filled data from detail page navigation
+        const params = this.route.snapshot.queryParams;
+        if (params['solicitudId']) {
+            this.preloadedSolicitudId = params['solicitudId'];
+            this.preloadedFolio = params['folio'] || '';
+        }
+
         const { data: { user } } = await this.supabase.auth.getUser();
         if (!user) {
             this.isLoading = false;
@@ -47,6 +60,11 @@ export class AdminIncidentsComponent implements OnInit {
         if (negocio) {
             this.negocioId = negocio.id;
             await this.loadIncidents();
+            // Auto-open modal if coming from a request detail
+            if (this.preloadedSolicitudId) {
+                this.showModal = true;
+                this.cdr.detectChanges();
+            }
         } else {
             this.isLoading = false;
             this.cdr.detectChanges();
@@ -84,6 +102,9 @@ export class AdminIncidentsComponent implements OnInit {
 
     onModalClosed(saved: boolean) {
         this.showModal = false;
+        // Clear pre-fill so next manual open starts fresh
+        this.preloadedSolicitudId = null;
+        this.preloadedFolio = '';
         if (saved) this.loadIncidents();
     }
 

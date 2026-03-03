@@ -73,6 +73,8 @@
     </div>
 
     <!-- Modal -->
-    <app-admin-report-incident *ngIf="showModal" [negocioId]="negocioId" (closed)="onModalClosed($event)">
+    <app-admin-report-incident *ngIf="showModal" [negocioId]="negocioId" [solicitudId]="preloadedSolicitudId"
+        [solicitudLabel]="preloadedFolio ? 'Folio ' + preloadedFolio : ''" (closed)="onModalClosed($event)">
     </app-admin-report-incident>
+
 </div>
