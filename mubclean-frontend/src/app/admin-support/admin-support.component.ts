@@ -92,9 +92,9 @@ import { ToastService } from '../toast.service';
         <!-- PENDIENTES -->
         <ng-container *ngIf="incomingTab === 'pendientes'">
           <div *ngIf="!isLoading && incomingPending.length === 0" class="empty-state">
-             <span class="material-icons empty-icon">inbox</span>
-             <h3>No hay reportes pendientes</h3>
-             <p>Los reportes de tus clientes aparecerán aquí.</p>
+             <span class="material-icons empty-icon" style="color: #4ADE80;">celebration</span>
+             <h3>¡Excelente trabajo!</h3>
+             <p>Tus clientes están 100% satisfechos y no tienes quejas pendientes.</p>
           </div>
 
           <div *ngIf="!isLoading && incomingPending.length > 0" class="ticket-list">

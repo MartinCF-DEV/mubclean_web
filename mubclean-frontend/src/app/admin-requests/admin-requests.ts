@@ -229,7 +229,7 @@ export class AdminRequestsComponent implements OnInit {
 
   getEmptyMsg(): string {
     if (this.activeTab === 'nuevas') return "Todo al día. Sin solicitudes nuevas.";
-    if (this.activeTab === 'activas') return "No hay trabajos activos por ahora.";
+    if (this.activeTab === 'activas') return "Tu agenda está libre. ¡Comparte tu enlace de catálogo con tus clientes para recibir reservas hoy mismo!";
     return "Tu historial está limpio.";
   }
 

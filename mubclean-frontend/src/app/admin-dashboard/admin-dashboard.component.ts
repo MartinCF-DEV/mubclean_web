@@ -188,11 +188,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
                 }
             }
 
-            // B) My own tickets (created by the business owner)
+            // B) My own tickets (Only show if MubClean has responded or updated it, so NOT 'pendiente')
             const { data: myTickets } = await this.supabase
                 .from('soporte_tickets')
                 .select('*')
                 .eq('cliente_id', this.business.owner_id)
+                .neq('estado', 'pendiente')
                 .neq('estado', 'resuelto')
                 .order('created_at', { ascending: false })
                 .limit(10);
