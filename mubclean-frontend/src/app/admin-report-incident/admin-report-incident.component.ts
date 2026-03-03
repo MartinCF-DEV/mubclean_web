@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-admin-report-incident',
@@ -15,8 +17,9 @@ export class AdminReportIncidentComponent implements OnInit {
     @Input() solicitudId: string | null = null;
     @Input() negocioId: string | null = null;
     @Input() solicitudLabel: string = '';
-    @Output() closed = new EventEmitter<boolean>();
+    @Output() closed = new EventEmitter<boolean>(); // true = saved
 
+    private http = inject(HttpClient);
     private supabase: SupabaseClient;
 
     tipo = '';
@@ -72,29 +75,18 @@ export class AdminReportIncidentComponent implements OnInit {
         this.successMsg = '';
 
         try {
-            const payload: any = {
+            await firstValueFrom(this.http.post(`${environment.apiUrl}/incidents`, {
                 negocio_id: this.negocioId,
+                solicitud_id: this.getEffectiveSolicitudId(),
                 tipo: this.tipo,
                 asunto: this.asunto.trim() || this.tipo,
-                descripcion: this.descripcion.trim(),
-                estado: 'abierto'
-            };
-            const efectivaSolicitudId = this.getEffectiveSolicitudId();
-            if (efectivaSolicitudId) {
-                payload.solicitud_id = efectivaSolicitudId;
-            }
-
-            const { error } = await this.supabase
-                .from('soporte_tickets')
-                .insert(payload);
-
-            if (error) throw error;
-
-            this.successMsg = 'Incidencia levantada correctamente.';
+                descripcion: this.descripcion.trim()
+            }));
+            this.successMsg = '✅ Incidencia levantada correctamente.';
             setTimeout(() => this.closed.emit(true), 1200);
         } catch (e: any) {
-            console.error('Incident save error:', e);
             this.errorMsg = 'Error al guardar la incidencia. Intenta de nuevo.';
+            console.error(e);
         } finally {
             this.isSaving = false;
         }
