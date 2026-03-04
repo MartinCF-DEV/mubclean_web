@@ -144,7 +144,7 @@ export class AdminLayoutComponent {
 
       // Insert Item if a service was selected
       if (this.qrService) {
-        const selectedServiceObj = this.catalogServices.find(s => s.id === this.qrService);
+        const selectedServiceObj = this.catalogServices.find(s => String(s.id) === String(this.qrService));
         if (selectedServiceObj) {
           await this.auth.client.from('items_solicitud').insert({
             solicitud_id: insertedReq.id,
