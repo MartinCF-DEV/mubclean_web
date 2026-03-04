@@ -35,6 +35,8 @@ export class AdminLayoutComponent {
   qrService = '';
   qrTotal: number | null = null;
 
+  catalogServices: any[] = [];
+
   ngOnInit() {
     this.currentUser = this.auth.currentUser;
     this.checkLicense();
@@ -96,8 +98,12 @@ export class AdminLayoutComponent {
     this.router.navigate(['/login']);
   }
 
-  openQuickReserve() {
+  async openQuickReserve() {
     this.showQuickReserve = true;
+    if (this.businessId && this.catalogServices.length === 0) {
+      const { data } = await this.auth.client.from('servicios_catalogo').select('*').eq('negocio_id', this.businessId).eq('activo', true);
+      this.catalogServices = data || [];
+    }
   }
 
   closeQuickReserve() {
@@ -127,11 +133,29 @@ export class AdminLayoutComponent {
         nombre_cliente_manual: this.qrName // Adding a custom field in frontend, DB might ignore if doesn't exist, but it's safe
       };
 
-      const { error } = await this.auth.client
+      // Insert Request
+      const { data: insertedReq, error } = await this.auth.client
         .from('solicitudes')
-        .insert(newReq);
+        .insert(newReq)
+        .select('*')
+        .single();
 
       if (error) throw error;
+
+      // Insert Item if a service was selected
+      if (this.qrService) {
+        const selectedServiceObj = this.catalogServices.find(s => s.id === this.qrService);
+        if (selectedServiceObj) {
+          await this.auth.client.from('items_solicitud').insert({
+            solicitud_id: insertedReq.id,
+            servicio_id: selectedServiceObj.id,
+            cantidad: 1, // Quick reserve defaults to 1
+            precio_unitario: this.qrTotal || 0,
+            precio_total: this.qrTotal || 0,
+            descripcion_item: 'Reserva Manual'
+          });
+        }
+      }
 
       this.toast.success('¡Reserva creada con éxito!');
       this.closeQuickReserve();

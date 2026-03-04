@@ -159,8 +159,11 @@
                     <label
                         style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 4px; display: block;">Servicio
                         Solicitado</label>
-                    <input type="text" [(ngModel)]="qrService" placeholder="Ej. Limpieza Profunda"
-                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" />
+                    <select [(ngModel)]="qrService"
+                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; appearance: none;">
+                        <option value="">-- Selecciona un servicio --</option>
+                        <option *ngFor="let s of catalogServices" [value]="s.id">{{ s.nombre }}</option>
+                    </select>
                 </div>
                 <div>
                     <label

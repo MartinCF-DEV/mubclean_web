@@ -81,7 +81,7 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
 
             // Real KPIs
             const completedRequests = requests.filter((r: any) => r.estado === 'completada');
-            this.totalEarnings = completedRequests.reduce((acc: any, r: any) => acc + (r.total_calculado || 0), 0);
+            this.totalEarnings = completedRequests.reduce((acc: any, r: any) => acc + (r.precio_total || r.total_calculado || 0), 0);
             this.completedJobs = completedRequests.length;
 
             const ratedRequests = requests.filter(r => r.calificacion && r.calificacion > 0);
@@ -114,8 +114,8 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
             return r.estado === 'completada' && d >= startOfLastMonth && d <= endOfLastMonth;
         });
 
-        this.currentMonthEarnings = thisMonthReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
-        this.lastMonthEarnings = lastMonthReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
+        this.currentMonthEarnings = thisMonthReqs.reduce((acc, r) => acc + (r.precio_total || r.total_calculado || 0), 0);
+        this.lastMonthEarnings = lastMonthReqs.reduce((acc, r) => acc + (r.precio_total || r.total_calculado || 0), 0);
 
         if (this.lastMonthEarnings === 0) {
             this.monthOverMonthChange = 0;

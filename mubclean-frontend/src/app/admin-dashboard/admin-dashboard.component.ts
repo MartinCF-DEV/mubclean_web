@@ -151,8 +151,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             // Calculate Weekly Earnings (Mock / Simple sum of recent)
             const oneWeekAgo = new Date();
             oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            const recentReqs = requests.filter(r => new Date(r.created_at) >= oneWeekAgo);
-            this.weeklyEarnings = recentReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
+            const recentReqs = requests.filter((r: any) => r.estado === 'completada' && new Date(r.created_at) >= oneWeekAgo);
+            this.weeklyEarnings = recentReqs.reduce((acc: any, r: any) => acc + (r.precio_total || r.total_calculado || 0), 0);
 
             // Fetch Employees for Active Techs stat
             const { data: emps } = await this.supabase
