@@ -192,7 +192,7 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
         for (const req of this.rawRequests) {
             const fecha = req.fecha_solicitada || req.created_at || 'Sin fecha';
             const estado = req.estado || 'Desconocido';
-            const monto = req.total_calculado || 0;
+            const monto = req.precio_total || req.total_calculado || 0;
             const direccion = `"${(req.direccion_servicio || req.direccion || 'Sin dirección').replace(/"/g, '""')}"`;
             csvRows.push(`${req.id},${fecha},${estado},${monto},${direccion}`);
         }
