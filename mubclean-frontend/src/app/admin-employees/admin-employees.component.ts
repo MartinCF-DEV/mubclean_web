@@ -265,9 +265,11 @@ export class AdminEmployeesComponent implements OnInit {
           .from('solicitudes')
           .select('estado, total_calculado, precio_total')
           .eq('negocio_id', this.negocioId)
-          .eq('estado', 'completada')
-          .eq('tecnico_asignado_id', emp.empleado_id)
+          .in('estado', ['completada', 'completado'])
+          .eq('tecnico_id', emp.empleado_id)
           .gte('created_at', dateString);
+
+        if (error) throw error;
 
         emp.metrics = {
           completedJobs: reqs ? reqs.length : 0,
