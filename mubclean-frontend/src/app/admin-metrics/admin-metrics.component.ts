@@ -79,8 +79,16 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
             this.rawRequests = requests;
             this.generateChartData(requests);
 
-            // Real KPIs
-            const completedRequests = requests.filter((r: any) => r.estado === 'completada');
+            // Real KPIs (Filtered by Current Month only)
+            const now = new Date();
+            const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            const completedRequests = requests.filter((r: any) => {
+                const isCompleted = ['completada', 'completado'].includes(String(r.estado).toLowerCase());
+                const d = new Date(r.created_at);
+                return isCompleted && d >= startOfThisMonth;
+            });
+
             this.totalEarnings = completedRequests.reduce((acc: any, r: any) => acc + (r.precio_total || r.total_calculado || 0), 0);
             this.completedJobs = completedRequests.length;
 
@@ -108,10 +116,10 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
         const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
-        const thisMonthReqs = all.filter(r => r.estado === 'completada' && new Date(r.created_at) >= startOfThisMonth);
+        const thisMonthReqs = all.filter(r => ['completada', 'completado'].includes(String(r.estado).toLowerCase()) && new Date(r.created_at) >= startOfThisMonth);
         const lastMonthReqs = all.filter(r => {
             const d = new Date(r.created_at);
-            return r.estado === 'completada' && d >= startOfLastMonth && d <= endOfLastMonth;
+            return ['completada', 'completado'].includes(String(r.estado).toLowerCase()) && d >= startOfLastMonth && d <= endOfLastMonth;
         });
 
         this.currentMonthEarnings = thisMonthReqs.reduce((acc, r) => acc + (r.precio_total || r.total_calculado || 0), 0);
