@@ -75,7 +75,30 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
                 .eq('negocio_id', this.business.id)
                 .order('created_at', { ascending: false });
 
-            const requests = reqs || [];
+            let requests = reqs || [];
+
+            // Fetch clients
+            const clientIds = [...new Set(requests.map(r => r.cliente_id).filter(id => !!id))];
+            let clientsMap: any = {};
+            if (clientIds.length > 0) {
+                const { data: profiles } = await this.supabase.from('perfiles').select('id, nombre_completo').in('id', clientIds);
+                if (profiles) profiles.forEach(p => clientsMap[p.id] = p.nombre_completo);
+            }
+
+            // Fetch techs
+            const techIds = [...new Set(requests.map(r => r.tecnico_id).filter(id => !!id))];
+            let techsMap: any = {};
+            if (techIds.length > 0) {
+                const { data: techos } = await this.supabase.from('empleados_negocio').select('id, nombre').in('id', techIds);
+                if (techos) techos.forEach(t => techsMap[t.id] = t.nombre);
+            }
+
+            requests = requests.map(json => ({
+                ...json,
+                nombre_cliente: clientsMap[json.cliente_id] || 'Desconocido',
+                nombre_tecnico: techsMap[json.tecnico_id] || 'Sin asignar'
+            }));
+
             this.rawRequests = requests;
             this.generateChartData(requests);
 
@@ -194,17 +217,18 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const headers = ['ID Solicitud', 'Fecha Solicitada', 'Estado', 'Monto Total', 'Dirección'];
-        const csvRows = [headers.join(',')];
+        const headers = ['ID Solicitud', 'Cliente', 'Técnico Asignado', 'Fecha Solicitada', 'Estado', 'Monto Total', 'Dirección'];
+        const csvRows = ['\uFEFF' + headers.join(',')];
 
         for (const req of this.rawRequests) {
+            const cliente = `"${(req.nombre_cliente || 'Desconocido').replace(/"/g, '""')}"`;
+            const tecnico = `"${(req.nombre_tecnico || 'Sin asignar').replace(/"/g, '""')}"`;
             const fecha = req.fecha_solicitada || req.created_at || 'Sin fecha';
             const estado = req.estado || 'Desconocido';
             const monto = req.precio_total || req.total_calculado || 0;
             const direccion = `"${(req.direccion_servicio || req.direccion || 'Sin dirección').replace(/"/g, '""')}"`;
-            csvRows.push(`${req.id},${fecha},${estado},${monto},${direccion}`);
+            csvRows.push(`${req.id},${cliente},${tecnico},${fecha},${estado},${monto},${direccion}`);
         }
-
         const csvString = csvRows.join('\n');
         const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
