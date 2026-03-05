@@ -189,21 +189,25 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             }
 
             // B) My own tickets (Only show if MubClean has responded or updated it, so NOT 'pendiente')
+            // AND the business hasn't read it yet
             const { data: myTickets } = await this.supabase
                 .from('soporte_tickets')
                 .select('*')
                 .eq('cliente_id', this.business.owner_id)
                 .neq('estado', 'pendiente')
                 .neq('estado', 'resuelto')
+                .eq('leido_por_cliente', false) /* Only show unread support tickets */
                 .order('created_at', { ascending: false })
                 .limit(10);
 
             if (myTickets) {
+                myTickets.forEach((t: any) => t.isUnread = true);
                 allRelevantTickets.push(...myTickets);
             }
 
             // C) Unassigned or pending Requests (Act as notifications)
-            const pendingRequests = requests.filter(r => r.estado === 'pendiente' || r.estado === 'EN_PROCESO');
+            // ONLY show if it hasn't been read by business, and it's still pending.
+            const pendingRequests = requests.filter(r => r.estado === 'pendiente' && r.leido_por_negocio !== true);
             pendingRequests.slice(0, 10).forEach(pr => {
                 allRelevantTickets.push({
                     id: pr.id,
@@ -211,7 +215,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
                     tipo: 'solicitud',
                     created_at: pr.created_at,
                     isRequest: true,
-                    reqData: pr
+                    reqData: pr,
+                    isUnread: true
                 });
             });
 
@@ -257,13 +262,35 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         });
     }
 
+    async markAsReadAndGo(req: any) {
+        try {
+            if (req.isRequest) {
+                // Update leido_por_negocio in Supabase
+                this.supabase.from('solicitudes')
+                    .update({ leido_por_negocio: true })
+                    .eq('id', req.id)
+                    .then(); // no await needed here for navigation
+                this.router.navigate(['/admin/request', req.id]);
+            } else if (req.asunto) {
+                // This is a support ticket, so update leido_por_cliente
+                this.supabase.from('soporte_tickets')
+                    .update({ leido_por_cliente: true })
+                    .eq('id', req.id)
+                    .then(); // no await needed
+                this.router.navigate(['/admin/support']);
+            } else {
+                this.router.navigate(['/admin/request', req.id]);
+            }
+        } catch (e) {
+            console.error("Error marking as read", e);
+        }
+    }
+
     goToDetail(req: any) {
-        if (req.isRequest) {
+        if (req.isRequest || !req.asunto) {
             this.router.navigate(['/admin/request', req.id]);
-        } else if (req.asunto) {
-            this.router.navigate(['/admin/support']);
         } else {
-            this.router.navigate(['/admin/request', req.id]);
+            this.router.navigate(['/admin/support']);
         }
     }
 
