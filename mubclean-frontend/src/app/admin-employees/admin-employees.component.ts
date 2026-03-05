@@ -258,7 +258,7 @@ export class AdminEmployeesComponent implements OnInit {
     const dateString = thirtyDaysAgo.toISOString();
 
     for (const emp of this.employees) {
-      if (!emp.empleado_id) continue;
+      if (!emp.id) continue;
 
       try {
         const { data: reqs, error } = await this.auth.client
@@ -266,7 +266,7 @@ export class AdminEmployeesComponent implements OnInit {
           .select('estado, total_calculado, precio_total')
           .eq('negocio_id', this.negocioId)
           .in('estado', ['completada', 'completado'])
-          .eq('tecnico_id', emp.empleado_id)
+          .eq('tecnico_asignado_id', emp.id)
           .gte('created_at', dateString);
 
         if (error) throw error;

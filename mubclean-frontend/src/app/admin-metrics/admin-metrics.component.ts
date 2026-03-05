@@ -86,17 +86,20 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
             }
 
             // Fetch techs
-            const techIds = [...new Set(requests.map(r => r.tecnico_id).filter(id => !!id))];
+            const techIds = [...new Set(requests.map(r => r.tecnico_asignado_id).filter(id => !!id))];
             let techsMap: any = {};
             if (techIds.length > 0) {
-                const { data: techos } = await this.supabase.from('empleados_negocio').select('id, nombre').in('id', techIds);
-                if (techos) techos.forEach(t => techsMap[t.id] = t.nombre);
+                const { data: techos } = await this.supabase
+                    .from('empleados_negocio')
+                    .select('id, perfiles(nombre_completo)')
+                    .in('id', techIds);
+                if (techos) techos.forEach((t: any) => techsMap[t.id] = t.perfiles?.nombre_completo || 'Sin nombre');
             }
 
             requests = requests.map(json => ({
                 ...json,
                 nombre_cliente: clientsMap[json.cliente_id] || 'Desconocido',
-                nombre_tecnico: techsMap[json.tecnico_id] || 'Sin asignar'
+                nombre_tecnico: techsMap[json.tecnico_asignado_id] || 'Sin asignar'
             }));
 
             this.rawRequests = requests;
