@@ -36,7 +36,7 @@ export class AdminRequestsComponent implements OnInit {
   weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   constructor() {
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+    this.supabase = this.auth.client;
   }
 
   ngOnInit() {

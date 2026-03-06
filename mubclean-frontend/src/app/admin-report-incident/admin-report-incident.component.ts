@@ -1,8 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { AuthService } from '../auth.service';
 
 @Component({
     selector: 'app-admin-report-incident',
@@ -17,6 +17,7 @@ export class AdminReportIncidentComponent implements OnInit {
     @Input() solicitudLabel: string = '';
     @Output() closed = new EventEmitter<boolean>(); // true = saved
 
+    private auth = inject(AuthService);
     private supabase: SupabaseClient;
 
     tipo = '';
@@ -41,7 +42,7 @@ export class AdminReportIncidentComponent implements OnInit {
     ];
 
     constructor() {
-        this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+        this.supabase = this.auth.client;
     }
 
     async ngOnInit() {

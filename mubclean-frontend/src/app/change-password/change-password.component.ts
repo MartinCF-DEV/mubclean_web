@@ -2,8 +2,8 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { createClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-change-password',
@@ -156,7 +156,8 @@ export class ChangePasswordComponent {
   successMsg = '';
 
   private router = inject(Router);
-  private supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+  private auth = inject(AuthService);
+  private supabase = this.auth.client;
 
   goBack() {
     this.router.navigate(['/customer/profile']);

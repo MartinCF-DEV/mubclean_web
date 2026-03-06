@@ -2,8 +2,8 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { AuthService } from '../auth.service';
 import { ToastService } from '../toast.service';
 
 @Component({
@@ -17,6 +17,7 @@ export class AdminRequestDetailComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private cdr = inject(ChangeDetectorRef);
+    private auth = inject(AuthService);
     private toast = inject(ToastService);
     private supabase: SupabaseClient;
 
@@ -40,7 +41,7 @@ export class AdminRequestDetailComponent implements OnInit {
     incidentError = '';
 
     constructor() {
-        this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+        this.supabase = this.auth.client;
     }
 
     async ngOnInit() {
