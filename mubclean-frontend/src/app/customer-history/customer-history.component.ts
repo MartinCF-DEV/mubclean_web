@@ -350,6 +350,17 @@ export class CustomerHistoryComponent implements OnInit, OnDestroy {
   }
 
   private _distributeRequests(allRequests: any[]) {
+    // Normalize state string gender just in case
+    allRequests = allRequests.map(r => {
+      let estado = r.estado?.toLowerCase() || 'pendiente';
+      if (estado === 'completado') estado = 'completada';
+      if (estado === 'cancelado') estado = 'cancelada';
+      if (estado === 'agendado') estado = 'agendada';
+      if (estado === 'cotizado') estado = 'cotizada';
+      if (estado === 'aceptado') estado = 'aceptada';
+      return { ...r, estado };
+    });
+
     // Sort priority
     const priority: Record<string, number> = {
       'en_proceso': 0, 'agendada': 1, 'aceptada': 2, 'cotizada': 3, 'pendiente': 4,
