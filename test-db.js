@@ -4,7 +4,7 @@ const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZi
 const supabase = createClient(url, key);
 
 async function run() {
-    const { data, error } = await supabase.from('solicitudes').select('*').limit(5).order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('empleados_negocio').select('*').limit(5);
     if (error) {
         console.error('Error:', error);
     } else {

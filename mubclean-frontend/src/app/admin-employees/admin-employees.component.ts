@@ -258,26 +258,30 @@ export class AdminEmployeesComponent implements OnInit {
     const dateString = thirtyDaysAgo.toISOString();
 
     for (const emp of this.employees) {
-      if (!emp.id) continue;
+      // The primary key from empleados_negocio is 'id'
+      const targetIdStr = String(emp.id);
+      if (!targetIdStr) {
+        continue;
+      }
 
       try {
         const { data: reqs, error } = await this.auth.client
           .from('solicitudes')
-          .select('estado, total_calculado, precio_total')
+          .select('estado, precio_total')
           .eq('negocio_id', this.negocioId)
-          .in('estado', ['completada', 'completado'])
-          .eq('tecnico_asignado_id', emp.empleado_id)
+          .eq('estado', 'completado')
+          .eq('tecnico_asignado_id', targetIdStr)
           .gte('created_at', dateString);
 
         if (error) throw error;
 
         emp.metrics = {
           completedJobs: reqs ? reqs.length : 0,
-          earnings: reqs ? reqs.reduce((sum: number, r: any) => sum + (r.precio_total || r.total_calculado || 0), 0) : 0
+          earnings: reqs ? reqs.reduce((sum: number, r: any) => sum + (r.precio_total || 0), 0) : 0
         };
 
       } catch (e) {
-        console.warn('Error fetching metrics for employee', emp.empleado_id);
+        console.warn('Error fetching metrics for employee', targetIdStr, e);
         emp.metrics = { completedJobs: 0, earnings: 0 };
       }
     }
