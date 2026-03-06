@@ -87,14 +87,18 @@ export class AdminServicesComponent implements OnInit {
             const serviceCounts: Record<string, number> = {};
 
             if (reqIds.length > 0) {
-                const { data: items } = await this.auth.client
+                const { data: items, error: itemsError } = await this.auth.client
                     .from('items_solicitud')
-                    .select('servicio_id')
+                    .select('servicio_catalogo_id')
                     .in('solicitud_id', reqIds);
 
+                if (itemsError) {
+                    console.error('API Error fetching items_solicitud:', itemsError);
+                }
+
                 (items || []).forEach((item: any) => {
-                    if (item.servicio_id) {
-                        serviceCounts[item.servicio_id] = (serviceCounts[item.servicio_id] || 0) + 1;
+                    if (item.servicio_catalogo_id) {
+                        serviceCounts[item.servicio_catalogo_id] = (serviceCounts[item.servicio_catalogo_id] || 0) + 1;
                     }
                 });
             }

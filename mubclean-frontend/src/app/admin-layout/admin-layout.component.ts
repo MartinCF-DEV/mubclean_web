@@ -148,7 +148,7 @@ export class AdminLayoutComponent {
         if (selectedServiceObj) {
           await this.auth.client.from('items_solicitud').insert({
             solicitud_id: insertedReq.id,
-            servicio_id: selectedServiceObj.id,
+            servicio_catalogo_id: selectedServiceObj.id,
             cantidad: 1, // Quick reserve defaults to 1
             precio_unitario: this.qrTotal || 0,
             precio_total: this.qrTotal || 0,
