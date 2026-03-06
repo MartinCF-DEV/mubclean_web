@@ -23,14 +23,7 @@
             </button>
         </div>
 
-        <!-- Quick Action Button -->
-        <div style="padding: 0 16px 16px; text-align: center;">
-            <button (click)="openQuickReserve()"
-                style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.2s;">
-                <span class="material-icons">add_box</span>
-                <span *ngIf="!isCollapsed">Nueva Reserva</span>
-            </button>
-        </div>
+
 
         <!-- Navigation -->
         <nav class="sidebar-nav">
@@ -123,67 +116,7 @@
     <!-- Overlay -->
     <div class="overlay" *ngIf="isSidebarOpen" (click)="toggleSidebarMobile()"></div>
 
-    <!-- Quick Reserve Modal -->
-    <div class="modal-overlay" *ngIf="showQuickReserve"
-        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 3000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-        <div class="modal"
-            style="background: white; padding: 32px; border-radius: 24px; width: 90%; max-width: 450px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
-            <h2 style="margin-top: 0; font-family: 'Fraunces', serif; font-size: 24px; color: #0f172a;">Reserva Rápida
-            </h2>
-            <p style="color: #64748b; font-size: 14px; margin-bottom: 24px;">Agenda un cliente en llamada al instante.
-            </p>
 
-            <div style="display: flex; flex-direction: column; gap: 16px;">
-                <div>
-                    <label
-                        style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 4px; display: block;">Nombre
-                        del Cliente *</label>
-                    <input type="text" [(ngModel)]="qrName" placeholder="Ej. Juan Pérez"
-                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" />
-                </div>
-                <div>
-                    <label
-                        style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 4px; display: block;">Teléfono
-                        *</label>
-                    <input type="tel" [(ngModel)]="qrPhone" placeholder="10 dígitos"
-                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" />
-                </div>
-                <div>
-                    <label
-                        style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 4px; display: block;">Dirección
-                        del Servicio *</label>
-                    <input type="text" [(ngModel)]="qrAddress" placeholder="Calle, Colonia, C.P."
-                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" />
-                </div>
-                <div>
-                    <label
-                        style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 4px; display: block;">Servicio
-                        Solicitado</label>
-                    <select [(ngModel)]="qrService"
-                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; appearance: none;">
-                        <option value="">-- Selecciona un servicio --</option>
-                        <option *ngFor="let s of catalogServices" [value]="s.id">{{ s.nombre }}</option>
-                    </select>
-                </div>
-                <div>
-                    <label
-                        style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 4px; display: block;">Total
-                        a Cobrar ($)</label>
-                    <input type="number" [(ngModel)]="qrTotal" placeholder="0.00"
-                        style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" />
-                </div>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-                <button (click)="closeQuickReserve()"
-                    style="padding: 10px 20px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; color: #64748b; font-weight: 600; cursor: pointer;">Cancelar</button>
-                <button (click)="submitQuickReserve()" [disabled]="isSubmittingQR || !qrName || !qrPhone || !qrAddress"
-                    style="padding: 10px 20px; border-radius: 8px; border: none; background: #1565c0; color: white; font-weight: 600; cursor: pointer;">
-                    {{ isSubmittingQR ? 'Guardando...' : 'Crear Reserva' }}
-                </button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Global Toast Notifications -->
