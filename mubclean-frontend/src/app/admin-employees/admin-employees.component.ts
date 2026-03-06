@@ -266,7 +266,7 @@ export class AdminEmployeesComponent implements OnInit {
           .select('estado, total_calculado, precio_total')
           .eq('negocio_id', this.negocioId)
           .in('estado', ['completada', 'completado'])
-          .eq('tecnico_asignado_id', emp.id)
+          .eq('tecnico_asignado_id', emp.empleado_id)
           .gte('created_at', dateString);
 
         if (error) throw error;

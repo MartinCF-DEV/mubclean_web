@@ -141,20 +141,27 @@ export class AdminRequestDetailComponent implements OnInit {
             }
 
             // Update request total and status
-            await this.supabase
+            console.log("SENDING TO SUPABASE ESTADO: 'cotizado'");
+            const { data: reqData, error: reqError } = await this.supabase
                 .from('solicitudes')
                 .update({
                     precio_total: this.totalCalculated,
-                    estado: 'cotizada'
+                    estado: 'cotizado'
                 })
-                .eq('id', this.requestId);
+                .eq('id', this.requestId)
+                .select();
+
+            if (reqError) throw reqError;
+            if (!reqData || reqData.length === 0) {
+                throw new Error("Supabase rechazó la solicitud (posible restricción RLS de la Base de Datos).");
+            }
 
             this.toast.success('Cotización enviada exitosamente.');
             await this.fetchDetails();
 
-        } catch (e) {
-            console.error(e);
-            this.toast.error('Error al enviar cotización.');
+        } catch (e: any) {
+            console.error("Error capturado:", e);
+            this.toast.error(e.message || 'Error al enviar cotización.');
             this.isLoading = false;
         }
     }
@@ -173,7 +180,7 @@ export class AdminRequestDetailComponent implements OnInit {
                 .from('solicitudes')
                 .update({
                     tecnico_asignado_id: this.selectedEmployeeId,
-                    estado: 'agendada'
+                    estado: 'agendado'
                 })
                 .eq('id', this.requestId);
 
