@@ -2,8 +2,8 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { AuthService } from '../auth.service';
 import { ToastService } from '../toast.service';
 
 @Component({
@@ -17,6 +17,7 @@ export class AdminRequestDetailComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private cdr = inject(ChangeDetectorRef);
+    private auth = inject(AuthService);
     private toast = inject(ToastService);
     private supabase: SupabaseClient;
 
@@ -40,7 +41,7 @@ export class AdminRequestDetailComponent implements OnInit {
     incidentError = '';
 
     constructor() {
-        this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+        this.supabase = this.auth.client;
     }
 
     async ngOnInit() {
@@ -141,20 +142,27 @@ export class AdminRequestDetailComponent implements OnInit {
             }
 
             // Update request total and status
-            await this.supabase
+            console.log("SENDING TO SUPABASE ESTADO: 'cotizado'");
+            const { data: reqData, error: reqError } = await this.supabase
                 .from('solicitudes')
                 .update({
                     precio_total: this.totalCalculated,
-                    estado: 'cotizada'
+                    estado: 'cotizado'
                 })
-                .eq('id', this.requestId);
+                .eq('id', this.requestId)
+                .select();
+
+            if (reqError) throw reqError;
+            if (!reqData || reqData.length === 0) {
+                throw new Error("Supabase rechazó la solicitud (posible restricción RLS de la Base de Datos).");
+            }
 
             this.toast.success('Cotización enviada exitosamente.');
             await this.fetchDetails();
 
-        } catch (e) {
-            console.error(e);
-            this.toast.error('Error al enviar cotización.');
+        } catch (e: any) {
+            console.error("Error capturado:", e);
+            this.toast.error(e.message || 'Error al enviar cotización.');
             this.isLoading = false;
         }
     }
@@ -173,7 +181,7 @@ export class AdminRequestDetailComponent implements OnInit {
                 .from('solicitudes')
                 .update({
                     tecnico_asignado_id: this.selectedEmployeeId,
-                    estado: 'agendada'
+                    estado: 'agendado'
                 })
                 .eq('id', this.requestId);
 

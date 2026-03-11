@@ -258,31 +258,30 @@ export class AdminEmployeesComponent implements OnInit {
     const dateString = thirtyDaysAgo.toISOString();
 
     for (const emp of this.employees) {
-      if (!emp.empleado_id) continue;
+      // The primary key from empleados_negocio is 'id'
+      const targetIdStr = String(emp.id);
+      if (!targetIdStr) {
+        continue;
+      }
 
       try {
-        // Fetch requests assigned to this employee in the last 30 days that are completed
-        // Assumption: 'solicitudes' table has 'empleado_id_asignado' and 'estado' and 'total_calculado'
         const { data: reqs, error } = await this.auth.client
           .from('solicitudes')
-          .select('estado, total_calculado')
+          .select('estado, precio_total')
           .eq('negocio_id', this.negocioId)
-          .eq('estado', 'completada')
-          //.eq('empleado_id_asignado', emp.empleado_id) // Need to verify correct column name or logic
+          .eq('estado', 'completado')
+          .eq('tecnico_asignado_id', targetIdStr)
           .gte('created_at', dateString);
 
-        // Since we don't know the exact column name for assigned employee yet (`empleado_id_asignado` or similar),
-        // and we want to show value immediately without breaking if the column doesn't exist,
-        // we will simulate the metric distribution for the demo, or query if the column exists.
+        if (error) throw error;
 
-        // For now, let's just initialize the metric object
         emp.metrics = {
-          completedJobs: reqs ? reqs.length : Math.floor(Math.random() * 10) + 2, // Mock fallback
-          earnings: reqs ? reqs.reduce((sum: number, r: any) => sum + (r.total_calculado || 0), 0) : Math.floor(Math.random() * 3000) + 1500
+          completedJobs: reqs ? reqs.length : 0,
+          earnings: reqs ? reqs.reduce((sum: number, r: any) => sum + (r.precio_total || 0), 0) : 0
         };
 
       } catch (e) {
-        console.warn('Error fetching metrics for employee', emp.empleado_id);
+        console.warn('Error fetching metrics for employee', targetIdStr, e);
         emp.metrics = { completedJobs: 0, earnings: 0 };
       }
     }

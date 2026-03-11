@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { firstValueFrom } from 'rxjs';
 import { AdminReportIncidentComponent } from '../admin-report-incident/admin-report-incident.component';
+import { AuthService } from '../auth.service';
 
 @Component({
     selector: 'app-admin-incidents',
@@ -18,6 +19,7 @@ import { AdminReportIncidentComponent } from '../admin-report-incident/admin-rep
 export class AdminIncidentsComponent implements OnInit {
     private http = inject(HttpClient);
     private route = inject(ActivatedRoute);
+    private auth = inject(AuthService);
     private cdr = inject(ChangeDetectorRef);
     private supabase: SupabaseClient;
 
@@ -32,7 +34,7 @@ export class AdminIncidentsComponent implements OnInit {
     preloadedFolio: string = '';
 
     constructor() {
-        this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+        this.supabase = this.auth.client;
     }
 
     async ngOnInit() {

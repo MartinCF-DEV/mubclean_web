@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth.service';
 
@@ -27,7 +27,7 @@ export class CustomerBusinessProfileComponent implements OnInit {
     selectedService: any = null; // For modal
 
     constructor() {
-        this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+        this.supabase = this.auth.client;
 
         effect(() => {
             // Reactive refresh if auth changes, though usually we just need ID

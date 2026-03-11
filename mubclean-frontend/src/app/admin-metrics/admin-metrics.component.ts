@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth.service';
 
@@ -40,7 +40,7 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
     refreshInterval: any;
 
     constructor() {
-        this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+        this.supabase = this.auth.client;
     }
 
     ngOnInit() {
@@ -75,13 +75,47 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
                 .eq('negocio_id', this.business.id)
                 .order('created_at', { ascending: false });
 
-            const requests = reqs || [];
+            let requests = reqs || [];
+
+            // Fetch clients
+            const clientIds = [...new Set(requests.map(r => r.cliente_id).filter(id => !!id))];
+            let clientsMap: any = {};
+            if (clientIds.length > 0) {
+                const { data: profiles } = await this.supabase.from('perfiles').select('id, nombre_completo').in('id', clientIds);
+                if (profiles) profiles.forEach(p => clientsMap[p.id] = p.nombre_completo);
+            }
+
+            // Fetch techs
+            const techIds = [...new Set(requests.map(r => r.tecnico_asignado_id).filter(id => !!id))];
+            let techsMap: any = {};
+            if (techIds.length > 0) {
+                const { data: techos } = await this.supabase
+                    .from('empleados_negocio')
+                    .select('id, perfiles(nombre_completo)')
+                    .in('id', techIds);
+                if (techos) techos.forEach((t: any) => techsMap[t.id] = t.perfiles?.nombre_completo || 'Sin nombre');
+            }
+
+            requests = requests.map(json => ({
+                ...json,
+                nombre_cliente: clientsMap[json.cliente_id] || 'Desconocido',
+                nombre_tecnico: techsMap[json.tecnico_asignado_id] || 'Sin asignar'
+            }));
+
             this.rawRequests = requests;
             this.generateChartData(requests);
 
-            // Real KPIs
-            const completedRequests = requests.filter((r: any) => r.estado === 'completada');
-            this.totalEarnings = completedRequests.reduce((acc: any, r: any) => acc + (r.total_calculado || 0), 0);
+            // Real KPIs (Filtered by Current Month only)
+            const now = new Date();
+            const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            const completedRequests = requests.filter((r: any) => {
+                const isCompleted = ['completada', 'completado'].includes(String(r.estado).toLowerCase());
+                const d = new Date(r.created_at);
+                return isCompleted && d >= startOfThisMonth;
+            });
+
+            this.totalEarnings = completedRequests.reduce((acc: any, r: any) => acc + (r.precio_total || r.total_calculado || 0), 0);
             this.completedJobs = completedRequests.length;
 
             const ratedRequests = requests.filter(r => r.calificacion && r.calificacion > 0);
@@ -108,14 +142,14 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
         const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
-        const thisMonthReqs = all.filter(r => r.estado === 'completada' && new Date(r.created_at) >= startOfThisMonth);
+        const thisMonthReqs = all.filter(r => ['completada', 'completado'].includes(String(r.estado).toLowerCase()) && new Date(r.created_at) >= startOfThisMonth);
         const lastMonthReqs = all.filter(r => {
             const d = new Date(r.created_at);
-            return r.estado === 'completada' && d >= startOfLastMonth && d <= endOfLastMonth;
+            return ['completada', 'completado'].includes(String(r.estado).toLowerCase()) && d >= startOfLastMonth && d <= endOfLastMonth;
         });
 
-        this.currentMonthEarnings = thisMonthReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
-        this.lastMonthEarnings = lastMonthReqs.reduce((acc, r) => acc + (r.total_calculado || 0), 0);
+        this.currentMonthEarnings = thisMonthReqs.reduce((acc, r) => acc + (r.precio_total || r.total_calculado || 0), 0);
+        this.lastMonthEarnings = lastMonthReqs.reduce((acc, r) => acc + (r.precio_total || r.total_calculado || 0), 0);
 
         if (this.lastMonthEarnings === 0) {
             this.monthOverMonthChange = 0;
@@ -186,17 +220,18 @@ export class AdminMetricsComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const headers = ['ID Solicitud', 'Fecha Solicitada', 'Estado', 'Monto Total', 'Dirección'];
-        const csvRows = [headers.join(',')];
+        const headers = ['ID Solicitud', 'Cliente', 'Técnico Asignado', 'Fecha Solicitada', 'Estado', 'Monto Total', 'Dirección'];
+        const csvRows = ['\uFEFF' + headers.join(',')];
 
         for (const req of this.rawRequests) {
+            const cliente = `"${(req.nombre_cliente || 'Desconocido').replace(/"/g, '""')}"`;
+            const tecnico = `"${(req.nombre_tecnico || 'Sin asignar').replace(/"/g, '""')}"`;
             const fecha = req.fecha_solicitada || req.created_at || 'Sin fecha';
             const estado = req.estado || 'Desconocido';
-            const monto = req.total_calculado || 0;
+            const monto = req.precio_total || req.total_calculado || 0;
             const direccion = `"${(req.direccion_servicio || req.direccion || 'Sin dirección').replace(/"/g, '""')}"`;
-            csvRows.push(`${req.id},${fecha},${estado},${monto},${direccion}`);
+            csvRows.push(`${req.id},${cliente},${tecnico},${fecha},${estado},${monto},${direccion}`);
         }
-
         const csvString = csvRows.join('\n');
         const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);

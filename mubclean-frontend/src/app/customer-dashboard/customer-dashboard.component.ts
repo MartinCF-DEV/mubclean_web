@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, effect, ChangeDetectorRef } from 
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -205,7 +205,7 @@ export class CustomerDashboardComponent implements OnInit, OnDestroy {
   router = inject(Router);
 
   constructor() {
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+    this.supabase = this.auth.client;
 
     effect(() => {
       // We listen to user changes to re-fetch if permissions depend on it

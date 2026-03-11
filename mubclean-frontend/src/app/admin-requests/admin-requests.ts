@@ -36,7 +36,7 @@ export class AdminRequestsComponent implements OnInit {
   weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   constructor() {
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+    this.supabase = this.auth.client;
   }
 
   ngOnInit() {
@@ -126,12 +126,22 @@ export class AdminRequestsComponent implements OnInit {
   }
 
   processRequests(all: any[]) {
-    const mapped = all.map(json => ({
-      ...json,
-      direccion: json['direccion_servicio'] || json['direccion'] || 'Sin dirección',
-      fecha_solicitada: json['fecha_solicitada_cliente'] || json['fecha_solicitada'] || new Date().toISOString(),
-      short_id: json.id ? String(json.id).substring(0, 8).toUpperCase() : ''
-    }));
+    const mapped = all.map(json => {
+      let estado = json.estado?.toLowerCase() || 'pendiente';
+      if (estado === 'completado') estado = 'completada';
+      if (estado === 'cancelado') estado = 'cancelada';
+      if (estado === 'agendado') estado = 'agendada';
+      if (estado === 'cotizado') estado = 'cotizada';
+      if (estado === 'aceptado') estado = 'aceptada';
+
+      return {
+        ...json,
+        estado,
+        direccion: json['direccion_servicio'] || json['direccion'] || 'Sin dirección',
+        fecha_solicitada: json['fecha_solicitada_cliente'] || json['fecha_solicitada'] || new Date().toISOString(),
+        short_id: json.id ? String(json.id).substring(0, 8).toUpperCase() : ''
+      };
+    });
 
     this.nuevas = mapped.filter(s => ['pendiente', 'cotizada'].includes(s.estado));
     this.activas = mapped.filter(s => ['aceptada', 'agendada', 'en_proceso'].includes(s.estado));

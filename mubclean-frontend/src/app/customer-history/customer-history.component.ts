@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth.service';
 
@@ -244,13 +244,13 @@ export class CustomerHistoryComponent implements OnInit, OnDestroy {
   pastRequests: any[] = [];
 
   isLoading = true;
-  // private supabase: SupabaseClient; // Remove local instance
+  private supabase: SupabaseClient;
   private auth = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
   constructor() {
-    // this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+    this.supabase = this.auth.client;
 
     // Automatically fetch when user becomes available
     effect(() => {
@@ -350,6 +350,17 @@ export class CustomerHistoryComponent implements OnInit, OnDestroy {
   }
 
   private _distributeRequests(allRequests: any[]) {
+    // Normalize state string gender just in case
+    allRequests = allRequests.map(r => {
+      let estado = r.estado?.toLowerCase() || 'pendiente';
+      if (estado === 'completado') estado = 'completada';
+      if (estado === 'cancelado') estado = 'cancelada';
+      if (estado === 'agendado') estado = 'agendada';
+      if (estado === 'cotizado') estado = 'cotizada';
+      if (estado === 'aceptado') estado = 'aceptada';
+      return { ...r, estado };
+    });
+
     // Sort priority
     const priority: Record<string, number> = {
       'en_proceso': 0, 'agendada': 1, 'aceptada': 2, 'cotizada': 3, 'pendiente': 4,

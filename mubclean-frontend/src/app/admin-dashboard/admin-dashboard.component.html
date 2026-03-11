@@ -89,11 +89,15 @@
             </div>
 
             <div class="request-cards">
-                <div *ngFor="let item of tickets" class="request-item ticket-item" (click)="goToDetail(item)">
+                <div *ngFor="let item of tickets" class="request-item ticket-item" (click)="markAsReadAndGo(item)"
+                    [class.unread-item]="item.isUnread">
                     <div class="req-left">
-                        <div class="status-dot status-pendiente"></div>
+                        <div class="status-dot status-pendiente" *ngIf="item.isUnread"
+                            style="background-color: #3b82f6;"></div>
+                        <div class="status-dot status-pendiente" *ngIf="!item.isUnread"></div>
                         <div class="req-info">
-                            <h4>{{ item.asunto || 'Nuevo Ticket' }}</h4>
+                            <h4 [style.font-weight]="item.isUnread ? '700' : '500'">{{ item.asunto || 'Nuevo Ticket' }}
+                            </h4>
                             <span class="req-date">{{ item.created_at | date:'short' }}</span>
                         </div>
                     </div>

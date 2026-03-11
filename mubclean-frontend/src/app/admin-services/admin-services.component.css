@@ -281,7 +281,7 @@ input:checked+.slider:before {
     padding: 0;
     border-radius: 24px;
     width: 90%;
-    max-width: 500px;
+    max-width: 800px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     border: none;
     display: flex;
