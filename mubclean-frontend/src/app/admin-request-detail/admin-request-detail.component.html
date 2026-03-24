@@ -100,7 +100,12 @@
                 <h2>👤 Asignar Técnico</h2>
                 <div class="card schedule-form">
 
-                    <label>Técnico</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label>Técnico</label>
+                        <button class="icon-btn" (click)="fetchEmployeesRealTime()" style="padding: 4px;" title="Actualizar lista de técnicos (Tiempo Real)">
+                            <span class="material-icons" style="font-size: 16px;">autorenew</span>
+                        </button>
+                    </div>
                     <select [(ngModel)]="selectedEmployeeId">
                         <option value="" disabled selected>Seleccionar Técnico</option>
                         <option *ngFor="let emp of employees" [value]="emp.id">

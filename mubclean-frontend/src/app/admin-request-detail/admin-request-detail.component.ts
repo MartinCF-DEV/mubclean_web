@@ -68,9 +68,17 @@ export class AdminRequestDetailComponent implements OnInit {
 
             if (reqError) throw reqError;
 
+            let estadoNormalizado = reqData.estado?.toLowerCase() || 'pendiente';
+            if (estadoNormalizado === 'completado') estadoNormalizado = 'completada';
+            if (estadoNormalizado === 'cancelado') estadoNormalizado = 'cancelada';
+            if (estadoNormalizado === 'agendado') estadoNormalizado = 'agendada';
+            if (estadoNormalizado === 'cotizado') estadoNormalizado = 'cotizada';
+            if (estadoNormalizado === 'aceptado') estadoNormalizado = 'aceptada';
+
             // Map keys (Flutter logic)
             this.request = {
                 ...reqData,
+                estado: estadoNormalizado,
                 direccion: reqData['direccion_servicio'] || reqData['direccion'] || 'Sin dirección',
                 fecha_solicitada: reqData['fecha_solicitada_cliente'] || reqData['fecha_solicitada']
             };
@@ -91,20 +99,8 @@ export class AdminRequestDetailComponent implements OnInit {
                 precio_unitario: item.precio_unitario || 0
             }));
 
-            // 3. Fetch Employees if Accepted
             if (this.request.estado === 'aceptada' && this.request.negocio_id) {
-                console.log("RequestDetail: Querying employees...");
-                const { data: emps, error: empsError } = await this.supabase
-                    .from('empleados_negocio')
-                    .select('id, perfiles(nombre_completo)')
-                    .eq('negocio_id', this.request.negocio_id)
-                    .eq('activo', true);
-
-                console.log("RequestDetail: Employees result", { emps, empsError });
-
-                if (!empsError) {
-                    this.employees = emps || [];
-                }
+                await this.fetchEmployeesRealTime();
             }
 
             this.calculateTotal();
@@ -247,5 +243,24 @@ export class AdminRequestDetailComponent implements OnInit {
         if (!status) return '';
         const formatted = status.replace(/_/g, ' ');
         return formatted.charAt(0).toUpperCase() + formatted.slice(1).toLowerCase();
+    }
+
+    async fetchEmployeesRealTime() {
+        if (!this.request || !this.request.negocio_id) return;
+        
+        try {
+            const { data: emps, error: empsError } = await this.supabase
+                .from('empleados_negocio')
+                .select('id, perfiles(nombre_completo)')
+                .eq('negocio_id', this.request.negocio_id)
+                .eq('activo', true);
+
+            if (!empsError) {
+                this.employees = emps || [];
+                this.cdr.detectChanges();
+            }
+        } catch (e) {
+            console.error('Error fetching employees realtime', e);
+        }
     }
 }

@@ -397,6 +397,10 @@ export class CustomerRequestDetailComponent implements OnInit {
       if (error) throw error;
 
       alert("CONFIRMADO: Pago en Efectivo\n\nEl método de pago ha sido registrado. Pagarás directamente al técnico al finalizar el servicio.");
+      
+      // DISPARADOR DE NOTIFICACIÓN TÉCNICO
+      await this.triggerTechNotification(this.requestId);
+      
       await this.fetchDetails();
 
     } catch (e: any) {
@@ -584,5 +588,44 @@ export class CustomerRequestDetailComponent implements OnInit {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  async triggerTechNotification(solicitudId: string) {
+    if (!this.request || !this.request.tecnico_asignado_id) return;
+    try {
+      const itemsDetail = (this.items || []).map((i: any) => `- ${i.cantidad}x ${i.servicios_catalogo?.nombre} (${i.descripcion_item || 'Sin obs'})`).join('\n');
+      
+      const message = 
+`NUEVA ASIGNACIÓN CONFIRMADA 🟢
+----------------------------------------
+Técnico: ${this.request.tecnico?.perfiles?.nombre_completo}
+Fecha: ${new Date(this.request.fecha_solicitada_cliente || this.request.fecha_solicitada || '').toLocaleDateString('es-ES', { dateStyle: 'full' })}
+Hora: ${new Date(this.request.fecha_solicitada_cliente || this.request.fecha_solicitada || '').toLocaleTimeString('es-ES', { timeStyle: 'short' })}
+
+📍 DIRECCIÓN
+${this.request.direccion_servicio || this.request.direccion}
+Referencias: ${this.request.referencias_direccion || 'No especificadas'}
+Cliente: ${this.request.cliente?.nombre_completo || 'Cliente'} (Tel: ${this.request.cliente?.telefono || 'N/A'})
+
+🧹 DETALLE DEL SERVICIO
+${itemsDetail}
+
+💰 MÉTODO DE PAGO
+EFECTIVO (COBRAR AL CLIENTE)
+Total: $${this.request.precio_total}`;
+
+      await this.auth.client.from('notificaciones_tecnico').insert({
+        negocio_id: this.request.negocio_id,
+        tecnico_id: this.request.tecnico_asignado_id,
+        solicitud_id: solicitudId,
+        tipo: 'asignacion',
+        mensaje: message,
+        tecnico_nombre: this.request.tecnico?.perfiles?.nombre_completo,
+        leida: false
+      });
+      console.log('✅ Información enviada al técnico (Efectivo).');
+    } catch (e) {
+      console.error('Error enviando notificación al técnico', e);
+    }
   }
 }

@@ -11,6 +11,7 @@ export const routes: Routes = [
             { path: 'profile', loadComponent: () => import('./customer-profile/customer-profile.component').then(m => m.CustomerProfileComponent) },
             { path: 'business/:id', loadComponent: () => import('./customer-business-profile/customer-business-profile.component').then(m => m.CustomerBusinessProfileComponent) },
             { path: 'request/:id', loadComponent: () => import('./customer-request-detail/customer-request-detail.component').then(m => m.CustomerRequestDetailComponent) },
+            { path: 'payment/:status', loadComponent: () => import('./customer-payment-callback/customer-payment-callback.component').then(m => m.CustomerPaymentCallbackComponent) },
             { path: '', redirectTo: 'home', pathMatch: 'full' }
         ]
     },
@@ -53,6 +54,7 @@ export const routes: Routes = [
             { path: 'payment/:status', loadComponent: () => import('./admin-payment-callback/admin-payment-callback.component').then(m => m.AdminPaymentCallbackComponent) },
             { path: 'license', loadComponent: () => import('./admin-license/admin-license.component').then(m => m.AdminLicenseComponent) },
             { path: 'incidents', loadComponent: () => import('./admin-incidents/admin-incidents.component').then(m => m.AdminIncidentsComponent) },
+            { path: 'tech-tracking', loadComponent: () => import('./admin-tech-tracking/admin-tech-tracking.component').then(m => m.AdminTechTrackingComponent) },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },

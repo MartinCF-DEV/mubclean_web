@@ -31,43 +31,48 @@ import { AuthService } from '../auth.service';
         <p>Agrega técnicos para poder asignarles servicios.</p>
       </div>
 
-      <!-- List -->
       <div *ngIf="!isLoading && employees.length > 0" class="employee-list">
         <div *ngFor="let emp of employees" class="employee-card" [class.inactive]="!emp.activo">
-          <div class="avatar" [style.backgroundImage]="getAvatarUrl(emp.perfiles?.foto_url)">
-            <span *ngIf="!emp.perfiles?.foto_url">{{ getInitials(emp.perfiles?.nombre_completo) }}</span>
-          </div>
           
-          <div class="info">
-            <h3 class="name">{{ emp.perfiles?.nombre_completo || 'Usuario Desconocido' }}</h3>
-            <p class="email">{{ emp.perfiles?.email }}</p>
-          </div>
-
-          <div class="actions">
-            <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-right" style="transform: scale(0.75); transform-origin: center right;">
-              <input type="checkbox" class="sr-only peer" [checked]="emp.activo" (change)="toggleStatus(emp)">
-              <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-            </label>
-            <div style="font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; text-align: center; margin-top: 4px;" 
-                 [style.background]="emp.activo ? '#d1fae5' : '#f1f5f9'" 
-                 [style.color]="emp.activo ? '#047857' : '#64748b'">
-                {{ emp.activo ? 'DISPONIBLE / EN SERVICIO' : 'INACTIVO / DESCANSO' }}
+          <div class="card-top" style="display: flex; gap: 16px; width: 100%; align-items: flex-start;">
+            <div class="avatar" [style.backgroundImage]="getAvatarUrl(emp.perfiles?.foto_url)" style="flex-shrink: 0;">
+              <span *ngIf="!emp.perfiles?.foto_url">{{ getInitials(emp.perfiles?.nombre_completo) }}</span>
             </div>
             
-            <!-- Employee Metrics -->
-            <div style="margin-top: 12px; display: flex; gap: 16px; width: 100%; border-top: 1px solid #e2e8f0; padding-top: 12px;">
-                <div style="flex: 1; text-align: center;">
-                    <span style="display: block; font-size: 18px; font-weight: 800; color: #1e293b; line-height: 1;">{{ emp.metrics?.completedJobs || 0 }}</span>
-                    <span style="font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase;">Servicios (Mes)</span>
-                </div>
-                <div style="width: 1px; background-color: #e2e8f0;"></div>
-                <div style="flex: 1; text-align: center;">
-                    <span style="display: block; font-size: 18px; font-weight: 800; color: #059669; line-height: 1;">\${{ emp.metrics?.earnings || 0 }}</span>
-                    <span style="font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase;">Generado (Mes)</span>
-                </div>
+            <div class="info" style="flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px;">
+              <h3 class="name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; font-size: 16px; font-weight: 700; color: #0F172A; font-family: 'Fraunces', serif;">{{ emp.perfiles?.nombre_completo || 'Usuario Desconocido' }}</h3>
+              <p class="email" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; font-size: 14px; color: #64748B;">{{ emp.perfiles?.email }}</p>
+
+              <!-- Status Badge -->
+              <div style="font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; display: inline-block; align-self: flex-start; margin-top: 4px; border: 1px solid rgba(0,0,0,0.05);" 
+                   [style.background]="emp.activo ? '#d1fae5' : '#f1f5f9'" 
+                   [style.color]="emp.activo ? '#047857' : '#64748b'">
+                  {{ emp.activo ? 'DISPONIBLE / EN SERVICIO' : 'INACTIVO / DESCANSO' }}
+              </div>
             </div>
 
+            <!-- Toggle -->
+            <div class="actions" style="flex-shrink: 0; margin-top: 4px;">
+              <label class="relative inline-flex items-center cursor-pointer scale-75 transform origin-top-right" style="transform: scale(0.85); transform-origin: top right;">
+                <input type="checkbox" class="sr-only peer" [checked]="emp.activo" (change)="toggleStatus(emp)">
+                <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+            </div>
           </div>
+
+          <!-- Employee Metrics -->
+          <div style="margin-top: 20px; display: flex; gap: 16px; width: 100%; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+              <div style="flex: 1; text-align: center;">
+                  <span style="display: block; font-size: 20px; font-weight: 800; color: #1e293b; line-height: 1;">{{ emp.metrics?.completedJobs || 0 }}</span>
+                  <span style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;">Servicios (Mes)</span>
+              </div>
+              <div style="width: 1px; background-color: #e2e8f0;"></div>
+              <div style="flex: 1; text-align: center;">
+                  <span style="display: block; font-size: 20px; font-weight: 800; color: #059669; line-height: 1;">\${{ emp.metrics?.earnings || 0 }}</span>
+                  <span style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase;">Generado (Mes)</span>
+              </div>
+          </div>
+
         </div>
       </div>
 
@@ -130,7 +135,7 @@ import { AuthService } from '../auth.service';
     .employee-list { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
     .employee-card {
       background: white; border-radius: 20px; padding: 24px;
-      display: flex; align-items: center; gap: 20px;
+      display: flex; flex-direction: column; align-items: stretch; gap: 0px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04);
       transition: all 0.3s;
     }
