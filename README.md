@@ -1,113 +1,99 @@
-# Mubclean Web Application
+# Mubclean Web Application - Documentación del Proyecto
 
-Aplicación web de Mubclean que consiste en un backend Node.js/Express y un frontend Angular para gestión de servicios de limpieza.
+Este documento describe la arquitectura, estructura y comandos principales para el desarrollo del ecosistema completo de la aplicación web Mubclean, tanto para el Frontend (Aplicación Cliente/Admin) como para el Backend (API y Pasarela de Pagos).
 
-## 📁 Estructura del Proyecto
+---
 
+## 1. Frontend (Angular)
+
+- **Framework:** Angular (v21.1+)
+- **Lenguaje:** TypeScript
+- **BaaS (Backend as a Service):** @supabase/supabase-js (Base de datos PostgreSQL y Autenticación)
+- **Notificaciones y UI:** Toast Service (Implementación propia)
+- **UI/UX:** Tailwind CSS, Angular Material (iconos), animaciones fluidas con AOS (Animate On Scroll)
+- **Manejo de Estado:** RxJS y Services
+- **Enrutamiento:** RouterModule integrado en `app.routes.ts`
+
+---
+
+## 2. Organización de Directorios (Frontend)
+
+El código de la aplicación reside en `mubclean-frontend/src/app/`, el cual adopta una organización basada en rutas y componentes por cada módulo.
+
+```text
+src/app/
+├── admin-dashboard/            # Panel de control del administrador del negocio
+├── admin-employees/            # Gestión de técnicos/empleados
+├── admin-incidents/            # Gestión de soporte y quejas
+├── admin-layout/               # Plantilla y navegación principal del panel Admin
+├── admin-license/              # Módulo de pago y gestión de licencias del negocio
+├── admin-payment-callback/     # Callback de Mercado Pago para membresías
+├── admin-requests/             # Gestión de solicitudes de los clientes
+├── admin-tech-tracking/        # Seguimiento en tiempo real y agenda de técnicos (Tracker)
+├── customer-*/                 # Vistas del cliente (dashboard, historial, detalle de servicio, soporte)
+├── customer-payment-callback/  # Callback de Mercado Pago para pagos de servicios del cliente
+├── landing-page/               # Página pública de inicio y marketing de Mubclean
+├── login/ & register/          # Módulos de autenticación y reinicio de contraseña
+├── toast/                      # Sistema de notificaciones emergentes
+├── app.component.html/.ts/.css # Componente raíz
+└── app.routes.ts & app.config.ts # Configuración global y mapas de rutas
 ```
-mubclean_Web/
-├── mubclean-backend/     # API REST con Node.js + Express
-├── mubclean-frontend/    # Aplicación Angular
-├── DEPLOYMENT.md         # Guía de despliegue en Render
-└── README.md            # Este archivo
-```
 
-## 🚀 Inicio Rápido
+Directorios complementarios en la raíz de `src/`:
+- `src/assets/`: Recursos estáticos.
+- Archivos estáticos de estilo (como `styles.css`).
 
-### Prerequisitos
+---
 
-- Node.js 18.x o superior
-- npm 9.x o superior
-- Cuenta en Supabase (base de datos)
-- Cuenta en MercadoPago (pagos)
+## 3. Backend (Node.js & Express)
 
-### Instalación Local
+El ecosistema de backend se encuentra en la carpeta `mubclean-backend/`. Aquí residen los servicios de pagos con integradores externos e interacción directa con la base de datos de manera segura.
 
-1. **Clonar el repositorio**
+- **Entorno:** Node.js (>= 18)
+- **Framework:** Express
+- **Pasarela de Pagos:** Mercado Pago API (`mercadopago`)
+- **Base de Datos y Auth:** PostgreSQL a través de Supabase (`@supabase/supabase-js`)
+- **Middlewares:** `cors` y `dotenv` (para variables de entorno)
+- **Watchers:** `nodemon` (para desarrollo local ininterrumpido)
+
+La lógica y el diseño de la API se localizan concentrados de forma modular en `mubclean-backend/src/server.js`.
+
+---
+
+## 4. Endpoints y Comandos (Backend)
+
+La API expone prefijos `/api/` para interactuar con el Frontend. A continuación el mapeo:
+
+### Salud (Healthcheck)
+- `GET /` - Verifica que el proceso principal de Backend responda.
+- `GET /api/health` - Retorna el timestamp de latencia y estado de salud.
+
+### Pagos (Mercado Pago API)
+- `POST /api/create_preference` - Crea una preferencia de pago para un checkout de cliente por un servicio.
+- `POST /api/create_license_preference` - Crea la preferencia para procesar la membresía de un Negocio a la plataforma de Mubclean.
+- `POST /api/claim_license_payment` - Activación en Supabase tras recibir notificación de cobro (o periódo de prueba) exitosa.
+- `POST /api/confirm_license_payment` - Verificación final y actualización de fecha de expiración para `negocios`.
+
+### Soporte (Incidentes y Casos)
+- `GET /api/incidents?negocioId=...` - Obtiene todo el backlog de quejas/tickets para un negocio.
+- `POST /api/incidents` - Crea un ticket de atención vinculado a un usuario/negocio/servicio determinado.
+- `PATCH /api/incidents/:id` - Actualiza el estado (`estado`) de la atención de incidente (abierto/cerrado/etc).
+
+### Comandos de Ejecución y Scripts
+
+**Despliegue de Frontend (en terminal /mubclean-frontend):**
 ```bash
-git clone <tu-repositorio-url>
-cd mubclean_Web
+npm install     # Instalar node_modules
+npm run start   # Iniciar el CLI de Angular (ng serve) localhost:4200
 ```
 
-2. **Configurar Backend**
+**Despliegue de Backend (en terminal /mubclean-backend):**
 ```bash
-cd mubclean-backend
-npm install
-cp .env.example .env
-# Editar .env con tus credenciales
-npm run dev
+npm install     # Instalar las librerías necesarias del servidor
+npm run dev     # Iniciar servidor en modo de escucha continua para desarrollo
+npm run start   # Iniciar el servidor estándar (Node + Express)
 ```
 
-3. **Configurar Frontend** (en otra terminal)
-```bash
-cd mubclean-frontend
-npm install
-npm start
-```
-
-4. **Acceder a la aplicación**
-- Frontend: http://localhost:4200
-- Backend API: http://localhost:3000
-
-## 🔧 Variables de Entorno
-
-### Backend (`mubclean-backend/.env`)
-```
-PORT=3000
-SUPABASE_URL=tu_supabase_url
-SUPABASE_KEY=tu_supabase_anon_key
-MP_ACCESS_TOKEN=tu_mercadopago_access_token
-FRONTEND_URL=http://localhost:4200
-```
-
-### Frontend
-Las variables de entorno del frontend se configuran en `src/environments/environment.ts` (desarrollo) y `src/environments/environment.prod.ts` (producción).
-
-## 📦 Tecnologías
-
-### Backend
-- Node.js + Express
-- Supabase (Base de datos PostgreSQL)
-- MercadoPago SDK (Procesamiento de pagos)
-- CORS habilitado
-
-### Frontend
-- Angular 21
-- TypeScript
-- Supabase Client
-- RxJS
-
-## 🌐 Despliegue
-
-Para instrucciones detalladas de despliegue en Render, consulta [DEPLOYMENT.md](./DEPLOYMENT.md).
-
-### Resumen de Despliegue
-
-1. Subir código a GitHub
-2. Crear dos servicios en Render:
-   - **Backend**: Web Service (Node.js)
-   - **Frontend**: Static Site (Angular)
-3. Configurar variables de entorno en cada servicio
-4. Conectar servicios y verificar funcionamiento
-
-## 📚 Documentación Adicional
-
-- [Backend README](./mubclean-backend/README.md) - Documentación de la API
-- [Frontend README](./mubclean-frontend/README.md) - Documentación del frontend
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Guía completa de despliegue
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## 📄 Licencia
-
-Este proyecto es privado y confidencial.
-
-## 👥 Soporte
-
-Para soporte, contacta al equipo de desarrollo de Mubclean.
+--
+> **Nota de Variables de Entorno (Backend)**:
+> Para ejecutar el backend se requiere un `.env` válido con atributos como `PORT`, `SUPABASE_URL`, `SUPABASE_KEY`, `FRONTEND_URL`, y el `MP_ACCESS_TOKEN` de Sandbox/Producción.
